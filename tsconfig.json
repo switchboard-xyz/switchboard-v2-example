@@ -1,0 +1,29 @@
+{
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "ES2021",
+      "strict": true,
+      "noImplicitAny": false
+    }
+  },
+  "compilerOptions": {
+    "declaration": true,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "target": "ES2021",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": false,
+    "sourceMap": true,
+    "outDir": "bin",
+    "strict": true,
+    "resolveJsonModule": true,
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "noImplicitAny": false
+  },
+  "include": ["*", "src/**/*"],
+  "exclude": ["node_modules"]
+}
