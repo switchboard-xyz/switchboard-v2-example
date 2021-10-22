@@ -1,6 +1,6 @@
+import { OracleJob } from "@switchboard-xyz/switchboard-api";
 
-
-export default function solanalysisFloorPrice(
+export function solanalysisFloorPrice(
   projectId: string
 ): Array<OracleJob.Task> {
   return [
