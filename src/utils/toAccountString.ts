@@ -5,5 +5,5 @@ export const toAccountString = (
   label: string,
   publicKey: PublicKey
 ): string => {
-  return `${chalk.blue(label)}: ${chalk.yellow(publicKey)}`;
+  return `${chalk.blue(label.padEnd(24, " "))} ${chalk.yellow(publicKey)}`;
 };

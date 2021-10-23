@@ -2,6 +2,7 @@ import { ProgramStateAccount } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
 import { writePublicKey } from "../../utils/writePublicKey";
 import { readPublicKey } from "../../utils/readPublicKey";
+import { toAccountString } from "../../utils/toAccountString";
 
 export const getProgramStateAccount = async (
   program: anchor.Program
@@ -15,7 +16,10 @@ export const getProgramStateAccount = async (
         program,
         publicKey,
       });
-      console.log(`loaded ${fName} from local storage`);
+      console.log(
+        "Local:".padEnd(8, " "),
+        toAccountString(fName, programAccount.publicKey)
+      );
       return programAccount;
     } catch (err) {
       console.error(err);
@@ -29,8 +33,11 @@ export const getProgramStateAccount = async (
     [programAccount, _bump] = ProgramStateAccount.fromSeed(program);
   }
   if (programAccount?.publicKey) {
-    console.log(`saving ${fName}`);
     writePublicKey(fName, programAccount?.publicKey);
   }
+  console.log(
+    "Created:".padEnd(8, " "),
+    toAccountString(fName, programAccount.publicKey)
+  );
   return programAccount;
 };

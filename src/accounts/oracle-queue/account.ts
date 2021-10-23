@@ -4,6 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 import { writeSecretKey } from "../../utils/writeSecretKey";
 import { readSecretKey } from "../../utils/readSecretKey";
 import { OracleQueueAccount } from "@switchboard-xyz/switchboard-v2";
+import { toAccountString } from "../../utils/toAccountString";
 
 export const getOracleQueue = async (
   program: anchor.Program,
@@ -17,7 +18,10 @@ export const getOracleQueue = async (
         program,
         keypair: readKey,
       });
-      console.log(`loaded ${fName} from local storage`);
+      console.log(
+        "Local:".padEnd(8, " "),
+        toAccountString(fName, oracleQueueAccount.publicKey)
+      );
       return oracleQueueAccount;
     } catch (err) {
       console.error("error loading account", fName, err);
@@ -34,6 +38,9 @@ export const getOracleQueue = async (
   if (oracleQueueAccount?.keypair) {
     writeSecretKey(fName, oracleQueueAccount?.keypair);
   }
-
+  console.log(
+    "Created:".padEnd(8, " "),
+    toAccountString(fName, oracleQueueAccount.publicKey)
+  );
   return oracleQueueAccount;
 };

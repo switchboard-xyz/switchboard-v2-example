@@ -5,6 +5,7 @@ import {
 import * as anchor from "@project-serum/anchor";
 import { writeSecretKey } from "../../utils/writeSecretKey";
 import { readSecretKey } from "../../utils/readSecretKey";
+import { toAccountString } from "../../utils/toAccountString";
 
 export const getCrankAccount = async (
   program: anchor.Program,
@@ -18,7 +19,10 @@ export const getCrankAccount = async (
         program,
         keypair: readKey,
       });
-      console.log(`loaded ${fName} from local storage`);
+      console.log(
+        "Local:".padEnd(8, " "),
+        toAccountString(fName, crankAccount.publicKey)
+      );
       return crankAccount;
     } catch (err) {
       console.error("error loading account", fName, err);
@@ -33,6 +37,9 @@ export const getCrankAccount = async (
   if (crankAccount?.keypair) {
     writeSecretKey(fName, crankAccount?.keypair);
   }
-
+  console.log(
+    "Created:".padEnd(8, " "),
+    toAccountString(fName, crankAccount.publicKey)
+  );
   return crankAccount;
 };

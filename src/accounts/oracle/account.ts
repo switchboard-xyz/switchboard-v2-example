@@ -7,6 +7,7 @@ import { writePublicKey } from "../../utils/writePublicKey";
 import { readPublicKey } from "../../utils/readPublicKey";
 import { writeSecretKey } from "../../utils/writeSecretKey";
 import { ConfigError } from "../../types";
+import { toAccountString } from "../../utils/toAccountString";
 
 /**
  * checks for public key file and if not found creates PDA account of oracle queue
@@ -26,10 +27,12 @@ export const getOracleAccount = async (
         publicKey: readKey,
       });
       if (oracleAccount?.keypair) {
-        console.log(`saving ${fName} keypair`);
         writeSecretKey(fName, oracleAccount?.keypair);
       }
-      console.log(`loaded ${fName} from local storage`);
+      console.log(
+        "Local:".padEnd(8, " "),
+        toAccountString(fName, oracleAccount.publicKey)
+      );
       return oracleAccount;
     } catch (err) {
       console.error(err);
@@ -41,13 +44,14 @@ export const getOracleAccount = async (
     queueAccount,
   });
   if (oracleAccount?.publicKey) {
-    console.log(`saving ${fName} public key`);
     writePublicKey(fName, oracleAccount?.publicKey);
   }
   if (oracleAccount?.keypair) {
-    console.log(`saving ${fName} keypair`);
     writeSecretKey(fName, oracleAccount?.keypair);
   }
-  console.log(`created ${fName}`);
+  console.log(
+    "Created:".padEnd(8, " "),
+    toAccountString(fName, oracleAccount.publicKey)
+  );
   return oracleAccount;
 };

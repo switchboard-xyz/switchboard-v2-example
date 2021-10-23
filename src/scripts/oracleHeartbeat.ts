@@ -1,13 +1,5 @@
-import * as sbv2 from "@switchboard-xyz/switchboard-v2";
-import * as anchor from "@project-serum/anchor";
-import { loadAnchor } from "../utils/loadAnchor";
-import {
-  getProgramStateAccount,
-  getOracleQueue,
-  getOracleAccount,
-  getOracleQueuePermissionAccount,
-  getCrankAccount,
-} from "../accounts";
+import { loadAnchor } from "../anchor";
+import { getOracleAccount } from "../accounts";
 import { toAccountString } from "../utils/toAccountString";
 import { EventEmitter } from "events";
 import { waitFor } from "wait-for-event";

@@ -1,4 +1,4 @@
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { KEYPAIR_OUTPUT } from "../types/const";
 import fs from "fs";
 

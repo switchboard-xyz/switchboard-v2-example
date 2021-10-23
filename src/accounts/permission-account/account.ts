@@ -6,6 +6,7 @@ import {
 import * as anchor from "@project-serum/anchor";
 import { writePublicKey } from "../../utils/writePublicKey";
 import { readPublicKey } from "../../utils/readPublicKey";
+import { toAccountString } from "../../utils/toAccountString";
 
 export const getOracleQueuePermissionAccount = async (
   program: anchor.Program,
@@ -22,7 +23,10 @@ export const getOracleQueuePermissionAccount = async (
         program,
         publicKey: readKey,
       });
-      console.log(`loaded ${fName} from local storage`);
+      console.log(
+        "Local:".padEnd(8, " "),
+        toAccountString(fName, permissionAccount.publicKey)
+      );
       return permissionAccount;
     } catch (err) {
       console.error(err);
@@ -35,9 +39,11 @@ export const getOracleQueuePermissionAccount = async (
     grantee: oracleAccount.publicKey,
   });
   if (permissionAccount?.publicKey) {
-    console.log(`saving ${fName}`);
     writePublicKey(fName, permissionAccount?.publicKey);
   }
-  console.log(`created ${fName}`);
+  console.log(
+    "Created:".padEnd(8, " "),
+    toAccountString(fName, permissionAccount.publicKey)
+  );
   return permissionAccount;
 };

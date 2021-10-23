@@ -1,25 +1,14 @@
 import * as anchor from "@project-serum/anchor";
-import { Connection, Keypair } from "@solana/web3.js";
-import resolve from "resolve-dir";
+import { Connection } from "@solana/web3.js";
 import fs from "fs";
-import yargs from "yargs/yargs";
-import { ConfigError, RPC_URL, AnchorConfig } from "../types";
-import { getAuthorityKeypair } from "../accounts/authority/authorityKeypair";
-
+import { ConfigError, RPC_URL, AnchorConfig } from "./types";
+import { getAuthorityKeypair } from "./accounts";
+import chalk from "chalk";
 /**
  * Setup
  */
 export async function loadAnchor(): Promise<AnchorConfig> {
   // Read in keypair file to fund the new feeds
-  const argv = yargs(process.argv.slice(2))
-    .options({
-      updateAuthorityKeypair: {
-        type: "string",
-        describe: "Path to keypair file that will pay for transactions.",
-        demand: false, // should output console command to create keypair
-      },
-    })
-    .parseSync();
 
   if (!process.env.PID) {
     throw new ConfigError("failed to provide PID");
@@ -28,15 +17,7 @@ export async function loadAnchor(): Promise<AnchorConfig> {
   const programId = new anchor.web3.PublicKey(process.env.PID);
 
   // get update authority wallet
-  let updateAuthority = getAuthorityKeypair();
-  if (argv.updateAuthorityKeypair) {
-    const updateAuthorityBuffer = new Uint8Array(
-      JSON.parse(fs.readFileSync(resolve(argv.updateAuthorityKeypair), "utf-8"))
-    );
-    updateAuthority = Keypair.fromSecretKey(updateAuthorityBuffer);
-  }
-  if (!updateAuthority) throw new ConfigError("no update authority provided");
-
+  const updateAuthority = getAuthorityKeypair();
   const wallet = new anchor.Wallet(updateAuthority);
 
   // get provider
@@ -48,13 +29,15 @@ export async function loadAnchor(): Promise<AnchorConfig> {
   // get idl
   let anchorIdl = await anchor.Program.fetchIdl(programId, provider);
   if (anchorIdl === null) {
-    console.log("reading idl from local storage");
+    console.log("Local:".padEnd(8, " "), chalk.blue("anchor-idl"));
     anchorIdl = JSON.parse(
       fs.readFileSync("switchboard_v2.json", "utf8")
     ) as anchor.Idl;
     if (!anchorIdl) {
       throw new ConfigError(`failed to get idl for ${programId}`);
     }
+  } else {
+    console.log("Anchor:".padEnd(8, " "), chalk.blue("anchor-idl"));
   }
   const program = new anchor.Program(anchorIdl, programId, provider);
 

@@ -1,5 +1,5 @@
 import { OracleQueueAccount } from "@switchboard-xyz/switchboard-v2";
-import { loadAnchor } from "../../utils/loadAnchor";
+import { loadAnchor } from "../../anchor";
 import { getOracleQueue, getProgramStateAccount } from "../";
 import { toAccountString } from "../../utils/toAccountString";
 
