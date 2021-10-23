@@ -5,6 +5,7 @@ import {
 import * as anchor from "@project-serum/anchor";
 import { writePublicKey } from "../../utils/writePublicKey";
 import { readPublicKey } from "../../utils/readPublicKey";
+import { writeSecretKey } from "../../utils/writeSecretKey";
 
 export const getOracleAccount = async (
   program: anchor.Program,
@@ -12,26 +13,30 @@ export const getOracleAccount = async (
 ): Promise<OracleAccount> => {
   // try to read file, if not found create
   const fName = "oracle_account";
-  const readKey = readPublicKey(fName);
-  if (readKey) {
-    try {
-      const oracleAccount = new OracleAccount({
-        program,
-        publicKey: readKey,
-      });
-      console.log(`loaded ${fName} from local storage`);
-      return oracleAccount;
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  // const readKey = readPublicKey(fName);
+  // if (readKey) {
+  //   try {
+  //     const oracleAccount = new OracleAccount({
+  //       program,
+  //       publicKey: readKey,
+  //     });
+  //     console.log(`loaded ${fName} from local storage`);
+  //     return oracleAccount;
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
 
   const oracleAccount = await OracleAccount.create(program, {
     queueAccount,
   });
   if (oracleAccount?.publicKey) {
-    console.log(`saving ${fName}`);
+    console.log(`saving ${fName} public key`);
     writePublicKey(fName, oracleAccount?.publicKey);
+  }
+  if (oracleAccount?.keypair) {
+    console.log(`saving ${fName} keypair`);
+    writeSecretKey(fName, oracleAccount?.keypair);
   }
   console.log(`created ${fName}`);
   return oracleAccount;
