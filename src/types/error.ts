@@ -18,3 +18,11 @@ export class ConfigError extends SwbError {
     super(message, "ConfigError");
   }
 }
+
+export class UpdateAuthorityError extends ConfigError {
+  constructor() {
+    const message =
+      "failed to read update authority from keypair directory or command line arguement";
+    super(message);
+  }
+}

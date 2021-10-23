@@ -8,10 +8,8 @@ import chalk from "chalk";
  * Setup
  */
 export async function loadAnchor(): Promise<AnchorConfig> {
-  // Read in keypair file to fund the new feeds
-
   if (!process.env.PID) {
-    throw new ConfigError("failed to provide PID");
+    throw new ConfigError("failed to provide PID environment variable");
   }
   const connection = new Connection(RPC_URL, { commitment: "confirmed" });
   const programId = new anchor.web3.PublicKey(process.env.PID);
