@@ -3,8 +3,6 @@ import {
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writeSecretKey } from "../utils/writeSecretKey";
-import { readSecretKey } from "../utils/readSecretKey";
 import { writePublicKey } from "../utils/writePublicKey";
 import { readPublicKey } from "../utils/readPublicKey";
 
