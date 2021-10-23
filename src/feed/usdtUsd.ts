@@ -1,7 +1,8 @@
-import { buildKrakenTask, buildFtxUsTask, buildBinanceUsTask } from "./task";
+import { buildKrakenTask, buildFtxUsTask, buildBinanceUsTask } from "./job";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
+import { FeedDefinition } from "../types";
 
-export const USDT_USD: any = {
+export const USDT_USD: FeedDefinition = {
   name: Buffer.from("USDT_USD"),
   batchSize: 1,
   minRequiredOracleResults: 1,

@@ -1,24 +1,25 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./multiplyUsdt";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 
-export function buildBitfinexTask(pair: string): Array<OracleJob.Task> {
+export function buildHuobiTask(pair: string): Array<OracleJob.Task> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({
-        url: `https://api-pub.bitfinex.com/v2/tickers?symbols=${pair}`,
+        url: `https://api.huobi.pro/market/detail/merged?symbol=${pair}`,
       }),
     }),
     OracleJob.Task.create({
       medianTask: OracleJob.MedianTask.create({
         tasks: [
           OracleJob.Task.create({
-            jsonParseTask: OracleJob.JsonParseTask.create({ path: "$[0][1]" }),
+            jsonParseTask: OracleJob.JsonParseTask.create({
+              path: "$.tick.bid[0]",
+            }),
           }),
           OracleJob.Task.create({
-            jsonParseTask: OracleJob.JsonParseTask.create({ path: "$[0][3]" }),
-          }),
-          OracleJob.Task.create({
-            jsonParseTask: OracleJob.JsonParseTask.create({ path: "$[0][7]" }),
+            jsonParseTask: OracleJob.JsonParseTask.create({
+              path: "$.tick.ask[0]",
+            }),
           }),
         ],
       }),

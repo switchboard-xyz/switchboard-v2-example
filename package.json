@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "ts-node src/main.ts",
+    "start": "ts-node src/main.ts --updateAuthorityKeypair=keypairs/update-authority-keypair.json",
     "build": "tsc",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix"
   },
@@ -17,6 +17,7 @@
     "@solana/web3.js": "^1.29.2",
     "@switchboard-xyz/switchboard-api": "^0.2.152",
     "@switchboard-xyz/switchboard-v2": "github:switchboard-xyz/switchboardv2-api",
+    "big.js": "^6.1.1",
     "chalk": "^4.1.2",
     "dotenv": "^10.0.0",
     "fs": "^0.0.1-security",
@@ -28,6 +29,7 @@
     "yargs": "^17.2.1"
   },
   "devDependencies": {
+    "@types/big.js": "^6.1.2",
     "@types/node-fetch": "^2.0.3",
     "@types/prompts": "^2.0.14",
     "@types/yargs": "^17.0.3",

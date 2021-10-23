@@ -1,3 +1,4 @@
+import { FeedDefinition } from "../types";
 import {
   buildFtxComTask,
   buildOkexTask,
@@ -7,9 +8,9 @@ import {
   buildHuobiTask,
   buildBitfinexTask,
   buildMxcTask,
-} from "./task";
+} from "./job";
 
-export const SOL_USD: any = {
+export const SOL_USD: FeedDefinition = {
   name: Buffer.from("SOL_USD"),
   batchSize: 1,
   minRequiredOracleResults: 1,

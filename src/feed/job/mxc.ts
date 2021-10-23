@@ -1,11 +1,11 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./multiplyUsdt";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 
-export function buildKrakenTask(pair: string): Array<OracleJob.Task> {
+export function buildMxcTask(pair: string): Array<OracleJob.Task> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({
-        url: `https://api.kraken.com/0/public/Ticker?pair=${pair}`,
+        url: `https://www.mxc.com/open/api/v2/market/ticker?symbol=${pair}`,
       }),
     }),
     OracleJob.Task.create({
@@ -13,17 +13,17 @@ export function buildKrakenTask(pair: string): Array<OracleJob.Task> {
         tasks: [
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: `$.result.${pair}.a[0]`,
+              path: "$.data[0].ask",
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: `$.result.${pair}.b[0]`,
+              path: "$.data[0].bid",
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: `$.result.${pair}.c[0]`,
+              path: "$.data[0].last",
             }),
           }),
         ],

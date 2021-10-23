@@ -1,5 +1,5 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./multiplyUsdt";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 
 export function buildOkexTask(
   pair: string,

@@ -1,11 +1,11 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./multiplyUsdt";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 
-export function buildHuobiTask(pair: string): Array<OracleJob.Task> {
+export function buildKrakenTask(pair: string): Array<OracleJob.Task> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({
-        url: `https://api.huobi.pro/market/detail/merged?symbol=${pair}`,
+        url: `https://api.kraken.com/0/public/Ticker?pair=${pair}`,
       }),
     }),
     OracleJob.Task.create({
@@ -13,12 +13,17 @@ export function buildHuobiTask(pair: string): Array<OracleJob.Task> {
         tasks: [
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.tick.bid[0]",
+              path: `$.result.${pair}.a[0]`,
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.tick.ask[0]",
+              path: `$.result.${pair}.b[0]`,
+            }),
+          }),
+          OracleJob.Task.create({
+            jsonParseTask: OracleJob.JsonParseTask.create({
+              path: `$.result.${pair}.c[0]`,
             }),
           }),
         ],

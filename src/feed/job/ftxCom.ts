@@ -1,11 +1,21 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./multiplyUsdt";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 
-export function buildMxcTask(pair: string): Array<OracleJob.Task> {
+export function buildFtxComTask(
+  pair: string,
+  maxDataAgeSeconds = 15
+): Array<OracleJob.Task> {
   const tasks = [
     OracleJob.Task.create({
-      httpTask: OracleJob.HttpTask.create({
-        url: `https://www.mxc.com/open/api/v2/market/ticker?symbol=${pair}`,
+      websocketTask: OracleJob.WebsocketTask.create({
+        url: "wss://ftx.com/ws/",
+        subscription: JSON.stringify({
+          op: "subscribe",
+          channel: "ticker",
+          market: pair,
+        }),
+        maxDataAgeSeconds: maxDataAgeSeconds,
+        filter: `$[?(@.type == 'update' && @.channel == 'ticker' && @.market == '${pair}')]`,
       }),
     }),
     OracleJob.Task.create({
@@ -13,17 +23,17 @@ export function buildMxcTask(pair: string): Array<OracleJob.Task> {
         tasks: [
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.data[0].ask",
+              path: "$.data.bid",
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.data[0].bid",
+              path: "$.data.ask",
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.data[0].last",
+              path: "$.data.last",
             }),
           }),
         ],

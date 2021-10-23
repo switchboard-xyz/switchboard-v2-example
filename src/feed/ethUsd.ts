@@ -1,3 +1,4 @@
+import { FeedDefinition } from "../types";
 import {
   buildFtxComTask,
   buildOkexTask,
@@ -11,9 +12,9 @@ import {
   buildKrakenTask,
   buildBitstampTask,
   buildBittrexTask,
-} from "./task";
+} from "./job";
 
-export const ETH_USD: any = {
+export const ETH_USD: FeedDefinition = {
   name: Buffer.from("ETH_USD"),
   batchSize: 1,
   minRequiredOracleResults: 1,

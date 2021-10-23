@@ -12,7 +12,10 @@ bin
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-keypairs/**/**.json
+keypairs/**/*.json
+keypairs/**/*.txt
+
+switchboard_v2.json
 
 *keypair.json
 Errors*.json

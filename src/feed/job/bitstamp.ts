@@ -1,5 +1,5 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./multiplyUsdt";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 
 export function buildBitstampTask(pair: string): Array<OracleJob.Task> {
   const tasks = [

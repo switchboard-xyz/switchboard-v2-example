@@ -1,30 +1,24 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./multiplyUsdt";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 
-export function buildBittrexTask(pair: string): Array<OracleJob.Task> {
+export function buildBitfinexTask(pair: string): Array<OracleJob.Task> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({
-        url: `https://api.bittrex.com/v3/markets/${pair}/ticker`,
+        url: `https://api-pub.bitfinex.com/v2/tickers?symbols=${pair}`,
       }),
     }),
     OracleJob.Task.create({
       medianTask: OracleJob.MedianTask.create({
         tasks: [
           OracleJob.Task.create({
-            jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.askRate",
-            }),
+            jsonParseTask: OracleJob.JsonParseTask.create({ path: "$[0][1]" }),
           }),
           OracleJob.Task.create({
-            jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.bidRate",
-            }),
+            jsonParseTask: OracleJob.JsonParseTask.create({ path: "$[0][3]" }),
           }),
           OracleJob.Task.create({
-            jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.lastTradeRate",
-            }),
+            jsonParseTask: OracleJob.JsonParseTask.create({ path: "$[0][7]" }),
           }),
         ],
       }),

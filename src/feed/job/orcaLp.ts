@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 
-export function buildOrcaApiTask(
+export function buildOrcaLpTask(
   key: string,
   solKey: PublicKey
 ): Array<OracleJob.Task> {

@@ -1,15 +1,17 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./multiplyUsdt";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 
-export function buildFtxUsTask(pair: string): Array<OracleJob.Task> {
+export function buildOrcaApiTask(pair: string): Array<OracleJob.Task> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({
-        url: `https://ftx.us/api/markets/${pair}`,
+        url: `https://api.orca.so/pools`,
       }),
     }),
     OracleJob.Task.create({
-      jsonParseTask: OracleJob.JsonParseTask.create({ path: "$.result.price" }),
+      jsonParseTask: OracleJob.JsonParseTask.create({
+        path: `$[?(@.name == '${pair}[aquafarm]')].price`,
+      }),
     }),
   ];
   if (pair.toLowerCase().endsWith("usdt")) {
