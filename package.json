@@ -5,7 +5,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "ts-node src/main.ts --updateAuthorityKeypair=keypairs/update-authority-keypair.json",
+    "start": "ts-node src/main.ts",
+    "programInit": "ts-node src/programInit.ts --updateAuthorityKeypair=keypairs/update-authority-keypair.json",
     "build": "tsc",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix"
   },

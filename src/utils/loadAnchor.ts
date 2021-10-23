@@ -3,21 +3,12 @@ import { Connection, Keypair } from "@solana/web3.js";
 import resolve from "resolve-dir";
 import fs from "fs";
 import yargs from "yargs/yargs";
-import { RPC_URL } from "./const";
-import { ConfigError } from "./types";
-
-export interface AppConfig {
-  connection: Connection;
-  wallet: anchor.Wallet;
-  provider: anchor.Provider;
-  idl: anchor.Idl;
-  program: anchor.Program;
-}
+import { ConfigError, RPC_URL, AnchorConfig } from "../types";
 
 /**
  * Setup
  */
-export async function getConfig(): Promise<AppConfig> {
+export async function loadAnchor(): Promise<AnchorConfig> {
   // Read in keypair file to fund the new feeds
   const argv = yargs(process.argv.slice(2))
     .options({

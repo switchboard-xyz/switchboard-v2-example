@@ -5,4 +5,6 @@ export const RPC_URL = process.env.RPC_URL
   ? process.env.RPC_URL
   : "https://api.devnet.solana.com";
 
-export const KEYPAIR_OUTPUT = "keypairs";
+export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
+  ? process.env.KEYPAIR_OUTPUT
+  : "keypairs";

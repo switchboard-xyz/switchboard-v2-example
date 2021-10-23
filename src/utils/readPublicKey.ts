@@ -1,5 +1,5 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { KEYPAIR_OUTPUT } from "../const";
+import { KEYPAIR_OUTPUT } from "../types/const";
 import fs from "fs";
 
 export const readPublicKey = (fName: string): PublicKey | null => {
