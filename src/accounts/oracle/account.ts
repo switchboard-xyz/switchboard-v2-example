@@ -10,22 +10,28 @@ import {
   toAccountString,
 } from "../../utils";
 import { ConfigError } from "../../types";
+import { loadAnchor } from "../../anchor";
+import { getOracleQueue } from "../";
 
 /**
  * checks for public key file and if not found creates PDA account of oracle queue
  * @returns oracle account
  */
 export const getOracleAccount = async (
-  program: anchor.Program,
+  program?: anchor.Program,
   queueAccount?: OracleQueueAccount
 ): Promise<OracleAccount> => {
+  const anchorProgram = program ? program : await loadAnchor();
+  const oracleQueueAccount = queueAccount
+    ? queueAccount
+    : await getOracleQueue();
   // try to read file, if not found create
   const fName = "oracle_account";
   const readKey = readPublicKey(fName);
   if (readKey) {
     try {
       const oracleAccount = new OracleAccount({
-        program,
+        program: anchorProgram,
         publicKey: readKey,
       });
       if (oracleAccount?.keypair) {
@@ -42,8 +48,8 @@ export const getOracleAccount = async (
   }
   if (!queueAccount) throw new ConfigError("queueAccount not created yet");
 
-  const oracleAccount = await OracleAccount.create(program, {
-    queueAccount,
+  const oracleAccount = await OracleAccount.create(anchorProgram, {
+    queueAccount: oracleQueueAccount,
   });
   if (oracleAccount?.publicKey) {
     writePublicKey(fName, oracleAccount?.publicKey);

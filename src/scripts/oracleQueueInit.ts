@@ -9,18 +9,22 @@ import {
   getCrankAccount,
 } from "../accounts";
 import chalk from "chalk";
+import { getAuthorityKeypair } from "../accounts/authority/keypair";
 
 async function main(): Promise<void> {
-  const { program, authority } = await loadAnchor();
+  const program = await loadAnchor();
 
   const programStateAccount = await getProgramStateAccount(program);
-  const oracleQueueAccount = await getOracleQueue(program, authority.publicKey);
+  const payerKeypair = getAuthorityKeypair();
+  const oracleQueueAccount = await getOracleQueue(
+    program,
+    payerKeypair.publicKey
+  );
   const oracleAccount = await getOracleAccount(program, oracleQueueAccount);
   const switchTokenMint = await programStateAccount.getTokenMint();
   const publisher = await switchTokenMint.createAccount(
     program.provider.wallet.publicKey
   );
-  const payerKeypair = authority.payer;
 
   const amount = new anchor.BN(100000);
   await programStateAccount.vaultTransfer(publisher, payerKeypair, {
@@ -32,12 +36,12 @@ async function main(): Promise<void> {
 
   const permissionAccount1 = await getOracleQueuePermissionAccount(
     program,
-    authority,
+    payerKeypair.publicKey,
     oracleQueueAccount,
     oracleAccount
   );
   await permissionAccount1.set({
-    authority: authority.payer,
+    authority: payerKeypair,
     permission: sbv2.SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
     enable: true,
   });

@@ -10,7 +10,7 @@ function waitForever(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const { program } = await loadAnchor();
+  const program = await loadAnchor();
 
   const oracleAccount = await getOracleAccount(program);
   console.log(toAccountString("Oracle Account", oracleAccount.publicKey));

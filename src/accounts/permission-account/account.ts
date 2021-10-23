@@ -5,21 +5,30 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
 import { writePublicKey, readPublicKey, toAccountString } from "../../utils";
+import { PublicKey } from "@solana/web3.js";
+import { loadAnchor } from "../../anchor";
+import { getAuthorityKeypair, getOracleAccount, getOracleQueue } from "../";
 
 export const getOracleQueuePermissionAccount = async (
-  program: anchor.Program,
-  wallet: anchor.Wallet,
-  oracleQueueAccount: OracleQueueAccount,
-  oracleAccount: OracleAccount
+  program?: anchor.Program,
+  authority?: PublicKey,
+  oracleQueue?: OracleQueueAccount,
+  oracle?: OracleAccount
 ): Promise<PermissionAccount> => {
-  // try to read file, if not found create
+  const anchorProgram = program ? program : await loadAnchor();
+  const updateAuthority = authority
+    ? authority
+    : getAuthorityKeypair().publicKey;
+  const oracleQueueAccount = oracleQueue ? oracleQueue : await getOracleQueue();
+  const oracleAccount = oracle ? oracle : await getOracleAccount();
+
   const fName = "oracle_queue_permission_account";
-  const readKey = readPublicKey(fName);
-  if (readKey) {
+  const publicKey = readPublicKey(fName);
+  if (publicKey) {
     try {
       const permissionAccount = new PermissionAccount({
-        program,
-        publicKey: readKey,
+        program: anchorProgram,
+        publicKey,
       });
       console.log(
         "Local:".padEnd(8, " "),
@@ -31,8 +40,8 @@ export const getOracleQueuePermissionAccount = async (
     }
   }
 
-  const permissionAccount = await PermissionAccount.create(program, {
-    authority: wallet.publicKey,
+  const permissionAccount = await PermissionAccount.create(anchorProgram, {
+    authority: updateAuthority,
     granter: oracleQueueAccount.publicKey,
     grantee: oracleAccount.publicKey,
   });

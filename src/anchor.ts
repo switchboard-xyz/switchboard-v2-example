@@ -7,7 +7,7 @@ import chalk from "chalk";
 /**
  * Setup
  */
-export async function loadAnchor(): Promise<AnchorConfig> {
+export async function loadAnchor(): Promise<anchor.Program> {
   if (!process.env.PID) {
     throw new ConfigError("failed to provide PID environment variable");
   }
@@ -39,11 +39,5 @@ export async function loadAnchor(): Promise<AnchorConfig> {
   }
   const program = new anchor.Program(anchorIdl, programId, provider);
 
-  return {
-    connection,
-    authority: wallet,
-    provider,
-    idl: anchorIdl,
-    program,
-  };
+  return program;
 }
