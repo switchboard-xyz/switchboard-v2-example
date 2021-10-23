@@ -1,4 +1,4 @@
-import { FeedDefinition } from "../types";
+import { FeedDefinition } from "../../types";
 import {
   buildFtxComTask,
   buildOkexTask,

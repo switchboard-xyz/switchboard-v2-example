@@ -1,23 +1,7 @@
-// import { ProgramStateAccount } from "@switchboard-xyz/switchboard-v2";
-// import * as anchor from "@project-serum/anchor";
-
-// export const getProgramState = async (
-//   program: anchor.Program
-// ): Promise<ProgramStateAccount> => {
-//   let programStateAccount: ProgramStateAccount;
-//   let _bump;
-//   try {
-//     programStateAccount = await ProgramStateAccount.create(program, {});
-//   } catch (e) {
-//     [programStateAccount, _bump] = ProgramStateAccount.fromSeed(program);
-//   }
-//   return programStateAccount;
-// };
-
 import { ProgramStateAccount } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writePublicKey } from "./utils/writePublicKey";
-import { readPublicKey } from "./utils/readPublicKey";
+import { writePublicKey } from "../../utils/writePublicKey";
+import { readPublicKey } from "../../utils/readPublicKey";
 
 export const getProgramStateAccount = async (
   program: anchor.Program

@@ -1,8 +1,8 @@
 import * as sbv2 from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { writeSecretKey } from "../utils/writeSecretKey";
-import { readSecretKey } from "../utils/readSecretKey";
+import { writeSecretKey } from "../../utils/writeSecretKey";
+import { readSecretKey } from "../../utils/readSecretKey";
 import { OracleQueueAccount } from "@switchboard-xyz/switchboard-v2";
 
 export const getOracleQueue = async (

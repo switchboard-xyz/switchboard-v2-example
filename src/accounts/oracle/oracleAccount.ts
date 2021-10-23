@@ -3,8 +3,8 @@ import {
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writePublicKey } from "../utils/writePublicKey";
-import { readPublicKey } from "../utils/readPublicKey";
+import { writePublicKey } from "../../utils/writePublicKey";
+import { readPublicKey } from "../../utils/readPublicKey";
 
 export const getOracleAccount = async (
   program: anchor.Program,

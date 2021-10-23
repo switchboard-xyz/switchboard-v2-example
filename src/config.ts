@@ -3,13 +3,8 @@ import { Connection, Keypair } from "@solana/web3.js";
 import resolve from "resolve-dir";
 import fs from "fs";
 import yargs from "yargs/yargs";
-import dotenv from "dotenv";
+import { RPC_URL } from "./const";
 import { ConfigError } from "./types";
-dotenv.config();
-
-export const RPC_URL = process.env.RPC_URL
-  ? process.env.RPC_URL
-  : "https://api.devnet.solana.com";
 
 export interface AppConfig {
   connection: Connection;
