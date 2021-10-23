@@ -4,6 +4,7 @@ import resolve from "resolve-dir";
 import fs from "fs";
 import yargs from "yargs/yargs";
 import { ConfigError, RPC_URL, AnchorConfig } from "../types";
+import { getAuthorityKeypair } from "../accounts/authority/authorityKeypair";
 
 /**
  * Setup
@@ -15,7 +16,7 @@ export async function loadAnchor(): Promise<AnchorConfig> {
       updateAuthorityKeypair: {
         type: "string",
         describe: "Path to keypair file that will pay for transactions.",
-        demand: true, // should output console command to create keypair
+        demand: false, // should output console command to create keypair
       },
     })
     .parseSync();
@@ -27,10 +28,15 @@ export async function loadAnchor(): Promise<AnchorConfig> {
   const programId = new anchor.web3.PublicKey(process.env.PID);
 
   // get update authority wallet
-  const updateAuthorityBuffer = new Uint8Array(
-    JSON.parse(fs.readFileSync(resolve(argv.updateAuthorityKeypair), "utf-8"))
-  );
-  const updateAuthority = Keypair.fromSecretKey(updateAuthorityBuffer);
+  let updateAuthority = getAuthorityKeypair();
+  if (argv.updateAuthorityKeypair) {
+    const updateAuthorityBuffer = new Uint8Array(
+      JSON.parse(fs.readFileSync(resolve(argv.updateAuthorityKeypair), "utf-8"))
+    );
+    updateAuthority = Keypair.fromSecretKey(updateAuthorityBuffer);
+  }
+  if (!updateAuthority) throw new ConfigError("no update authority provided");
+
   const wallet = new anchor.Wallet(updateAuthority);
 
   // get provider
@@ -54,7 +60,7 @@ export async function loadAnchor(): Promise<AnchorConfig> {
 
   return {
     connection,
-    wallet,
+    authority: wallet,
     provider,
     idl: anchorIdl,
     program,

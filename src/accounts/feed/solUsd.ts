@@ -8,7 +8,7 @@ import {
   buildHuobiTask,
   buildBitfinexTask,
   buildMxcTask,
-} from "./job";
+} from "../job";
 
 export const SOL_USD: FeedDefinition = {
   name: Buffer.from("SOL_USD"),

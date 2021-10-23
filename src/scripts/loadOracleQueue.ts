@@ -1,24 +1,24 @@
 import * as sbv2 from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { loadAnchor } from "./utils/loadAnchor";
+import { loadAnchor } from "../utils/loadAnchor";
 import {
   getProgramStateAccount,
   getOracleQueue,
   getOracleAccount,
-  getPermissionAccount,
+  getOracleQueuePermissionAccount,
   getCrankAccount,
-} from "./accounts";
-import { toAccountString } from "./utils/toAccountString";
+} from "../accounts";
+import { toAccountString } from "../utils/toAccountString";
 
 async function main(): Promise<void> {
-  const { program, wallet } = await loadAnchor();
+  const { program, authority } = await loadAnchor();
 
   const programStateAccount = await getProgramStateAccount(program);
   console.log(
     toAccountString("Program Account", programStateAccount.publicKey)
   );
 
-  const oracleQueueAccount = await getOracleQueue(program, wallet.publicKey);
+  const oracleQueueAccount = await getOracleQueue(program, authority.publicKey);
   console.log(
     toAccountString("Oracle Queue Account", oracleQueueAccount.publicKey)
   );
@@ -34,7 +34,7 @@ async function main(): Promise<void> {
   );
   console.log(toAccountString("Publisher", publisher));
 
-  const payerKeypair = wallet.payer;
+  const payerKeypair = authority.payer;
   console.log(toAccountString("Payer", payerKeypair.publicKey));
 
   const amount = new anchor.BN(100000);
@@ -43,14 +43,14 @@ async function main(): Promise<void> {
   });
   console.log("Funded oracle account", amount.toNumber());
 
-  const permissionAccount1 = await getPermissionAccount(
+  const permissionAccount1 = await getOracleQueuePermissionAccount(
     program,
-    wallet,
+    authority,
     oracleQueueAccount,
     oracleAccount
   );
   await permissionAccount1.set({
-    authority: wallet.payer,
+    authority: authority.payer,
     permission: sbv2.SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
     enable: true,
   });

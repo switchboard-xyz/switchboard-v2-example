@@ -12,7 +12,7 @@ import {
   buildKrakenTask,
   buildBitstampTask,
   buildBittrexTask,
-} from "./job";
+} from "../job";
 
 export const BTC_USD: FeedDefinition = {
   name: Buffer.from("BTC_USD"),

@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "start": "ts-node src/main.ts",
-    "programInit": "ts-node src/programInit.ts --updateAuthorityKeypair=keypairs/update-authority-keypair.json",
+    "programInit": "ts-node src/scripts/programInit.ts --updateAuthorityKeypair=keypairs/authority-keypair.json",
+    "oracle:heartbeat": "ts-node src/scripts/oracleHeartbeat.ts",
     "build": "tsc",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix"
   },

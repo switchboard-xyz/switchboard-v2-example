@@ -1,4 +1,4 @@
-import { buildKrakenTask, buildFtxUsTask, buildBinanceUsTask } from "./job";
+import { buildKrakenTask, buildFtxUsTask, buildBinanceUsTask } from "../job";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { FeedDefinition } from "../../types";
 
