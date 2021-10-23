@@ -3,9 +3,7 @@ import {
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writeSecretKey } from "../../utils/writeSecretKey";
-import { readSecretKey } from "../../utils/readSecretKey";
-import { toAccountString } from "../../utils/toAccountString";
+import { writeSecretKey, readSecretKey, toAccountString } from "../../utils";
 
 export const getCrankAccount = async (
   program: anchor.Program,

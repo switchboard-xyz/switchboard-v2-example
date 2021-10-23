@@ -4,9 +4,7 @@ import {
   OracleAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writePublicKey } from "../../utils/writePublicKey";
-import { readPublicKey } from "../../utils/readPublicKey";
-import { toAccountString } from "../../utils/toAccountString";
+import { writePublicKey, readPublicKey, toAccountString } from "../../utils";
 
 export const getOracleQueuePermissionAccount = async (
   program: anchor.Program,

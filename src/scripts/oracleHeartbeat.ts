@@ -1,6 +1,6 @@
 import { loadAnchor } from "../anchor";
 import { getOracleAccount } from "../accounts";
-import { toAccountString } from "../utils/toAccountString";
+import { toAccountString } from "../utils";
 import { EventEmitter } from "events";
 import { waitFor } from "wait-for-event";
 import { setIntervalAsync } from "set-interval-async/dynamic";

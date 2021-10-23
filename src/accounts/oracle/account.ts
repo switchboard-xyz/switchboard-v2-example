@@ -3,11 +3,13 @@ import {
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writePublicKey } from "../../utils/writePublicKey";
-import { readPublicKey } from "../../utils/readPublicKey";
-import { writeSecretKey } from "../../utils/writeSecretKey";
+import {
+  writePublicKey,
+  readPublicKey,
+  writeSecretKey,
+  toAccountString,
+} from "../../utils";
 import { ConfigError } from "../../types";
-import { toAccountString } from "../../utils/toAccountString";
 
 /**
  * checks for public key file and if not found creates PDA account of oracle queue
