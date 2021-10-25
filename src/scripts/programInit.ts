@@ -14,6 +14,9 @@ import { AggregatorAccount } from "@switchboard-xyz/switchboard-v2";
 import { getAggregatorAccount } from "../accounts/aggregator/account";
 import { getAllFeeds } from "../feeds";
 import { getUsdtUsd } from "../feeds/usdtUsd";
+import { getLeaseContractAccount } from "../accounts/lease-contract/account";
+import { Aggregator } from "../accounts/aggregator/aggregator";
+import { sleep } from "../utils";
 
 async function programInit(): Promise<void> {
   const program = await loadAnchor();
@@ -54,21 +57,49 @@ async function programInit(): Promise<void> {
   const crankAccount = await getCrankAccount(program, oracleQueueAccount);
 
   // need to create usdt feed first as other feeds might need the public key for job definitions
-  const aggAccounts: AggregatorAccount[] = [];
-  aggAccounts.push(
-    await getAggregatorAccount(await getUsdtUsd(), program, oracleQueueAccount)
-  );
+  const aggregatorAccounts: Aggregator[] = [];
+  const usdt = new Aggregator(program, await getUsdtUsd()); // load from local storage
+  if (usdt.account === null) {
+    await usdt.create(oracleQueueAccount); // create a new account on-chain
+    await sleep(1000); // need enough time for new account to be detected
+  }
+  console.log(usdt.account);
+  const err = await usdt.verifyJobs();
+  if (err) throw err;
+  await usdt.verifyJobs();
+  await usdt.permitQueue(payerKeypair);
+  await usdt.fundLease(100, publisher, payerKeypair);
+  await usdt.addToCrank(crankAccount);
+  aggregatorAccounts.push(usdt);
+
   const allFeeds = await getAllFeeds();
   for await (const f of allFeeds) {
-    aggAccounts.push(
-      await getAggregatorAccount(f, program, oracleQueueAccount)
-    );
+    const agg = new Aggregator(program, f); // load from local storage
+    if (agg.account === null) {
+      await agg.create(oracleQueueAccount); // create a new account on-chain
+      await sleep(2000); // need enough time for new account to be detected
+    }
+    const err = await agg.verifyJobs();
+    if (err) throw err;
+    await agg.permitQueue(payerKeypair);
+    await agg.fundLease(100, publisher, payerKeypair);
+    await agg.addToCrank(crankAccount);
+    aggregatorAccounts.push(agg);
+    // const aggregatorAccount = await getAggregatorAccount(
+    //   f,
+    //   program,
+    //   oracleQueueAccount
+    // );
+    // const leaseContract = await getLeaseContractAccount(
+    //   f.name.toString(),
+    //   aggregatorAccount,
+    //   publisher,
+    //   program,
+    //   payerKeypair,
+    //   oracleQueueAccount
+    // );
+    // await crankAccount.push({ aggregatorAccount });
   }
-
-  // fund leases
-  // for await (const agg of aggAccounts) {
-  //   const leaseAccount =
-  // }
 
   return;
 }

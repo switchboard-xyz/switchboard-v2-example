@@ -23,7 +23,7 @@ export const getProgramStateAccount = async (
         publicKey,
       });
       console.log(
-        prettyAccountString("Local", fileName, programAccount.publicKey)
+        prettyAccountString("Local:", fileName, programAccount.publicKey)
       );
       return programAccount;
     } catch (err) {

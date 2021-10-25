@@ -4,12 +4,32 @@ import {
   JobAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { toAccountString, readSecretKey, writeKeys } from "../../utils";
+import { toAccountString, readSecretKey, writeKeys, sleep } from "../../utils";
 import { FeedDefinition, ConfigError } from "../../types";
 import { loadAnchor } from "../../anchor";
 import { getOracleQueue } from "../";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import chalk from "chalk";
+
+export const loadAggregatorAccount = async (
+  feedName: string,
+  program?: anchor.Program
+): Promise<AggregatorAccount | null> => {
+  const anchorProgram = program ? program : await loadAnchor();
+  const readKey = readSecretKey("aggregator_account", ["feeds", feedName]);
+  if (readKey) {
+    try {
+      const aggregatorAccount = new AggregatorAccount({
+        program: anchorProgram,
+        keypair: readKey,
+      });
+      return aggregatorAccount;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  return null;
+};
 
 export const getAggregatorAccount = async (
   feed: FeedDefinition,
@@ -24,35 +44,30 @@ export const getAggregatorAccount = async (
   if (!oracleQueueAccount)
     throw new ConfigError("queueAccount not created yet");
 
-  const fileName = `${feed.name.toString()}`;
-  const readKey = readSecretKey(fileName, ["feeds"]);
-  if (readKey) {
-    try {
-      const aggregatorAccount = new AggregatorAccount({
-        program: anchorProgram,
-        keypair: readKey,
-      });
-      if (aggregatorAccount.publicKey)
-        console.log(
-          "Local:".padEnd(8, " "),
-          toAccountString(fileName, aggregatorAccount?.publicKey)
-        );
-      await parseAggregatorJobs(feed, anchorProgram, aggregatorAccount);
-      return aggregatorAccount;
-    } catch (err) {
-      console.error(err);
-    }
+  const feedName = feed.name.toString();
+
+  const aggAccount = await loadAggregatorAccount(feedName, anchorProgram);
+  if (aggAccount) {
+    if (aggAccount.publicKey)
+      console.log(
+        "Local:".padEnd(8, " "),
+        toAccountString(feedName, aggAccount?.publicKey)
+      );
+    await verifyAggregatorJobs(feed, anchorProgram, aggAccount);
+    return aggAccount;
   }
 
   const aggregatorAccount = await AggregatorAccount.create(anchorProgram, {
     ...feed,
     queueAccount: oracleQueueAccount,
   });
+  await sleep(500); // need to give it time to update or else "account doesn't exist"
   // add all jobs
+
   const jobs: OracleJob[] = await aggregatorAccount.loadJobs();
-  console.log(jobs);
-  if (!jobs) {
-    for await (const j of feed.jobs) {
+  console.log(feedName, "jobs:", jobs);
+  if (jobs) {
+    for await (const [i, j] of feed.jobs.entries()) {
       const data = Buffer.from(
         OracleJob.encodeDelimited(
           OracleJob.create({
@@ -61,17 +76,20 @@ export const getAggregatorAccount = async (
         ).finish()
       );
       const keypair = anchor.web3.Keypair.generate();
-      await aggregatorAccount.addJob(
-        await JobAccount.create(anchorProgram, { data, keypair })
-      );
+      const job: JobAccount = await JobAccount.create(anchorProgram, {
+        data,
+        keypair,
+      });
+      await aggregatorAccount.addJob(job);
+      writeKeys(`job_account_${i}`, aggregatorAccount, ["feeds", feedName]);
     }
   }
 
-  writeKeys(fileName, aggregatorAccount, ["feeds"]);
+  writeKeys("aggregator_account", aggregatorAccount, ["feeds", feedName]);
   if (aggregatorAccount.publicKey)
     console.log(
       "Created:".padEnd(8, " "),
-      toAccountString(fileName, aggregatorAccount?.publicKey)
+      toAccountString(feedName, aggregatorAccount?.publicKey)
     );
   return aggregatorAccount;
 };
@@ -79,7 +97,7 @@ export const getAggregatorAccount = async (
 /**
  * Adds/Deletes necessary jobs from Aggregator based on FeedDefinition
  */
-export const parseAggregatorJobs = async (
+export const verifyAggregatorJobs = async (
   feed: FeedDefinition,
   program: anchor.Program,
   aggregatorAccount: AggregatorAccount

@@ -10,6 +10,5 @@ export const getFullSubdirectoryPath = (
     fullPath += `/${path}`;
     if (!fs.existsSync(fullPath)) fs.mkdirSync(fullPath);
   }
-  console.log(fullPath);
   return fullPath;
 };
