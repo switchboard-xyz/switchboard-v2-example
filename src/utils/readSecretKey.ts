@@ -2,8 +2,8 @@ import { Keypair } from "@solana/web3.js";
 import { KEYPAIR_OUTPUT } from "../types/const";
 import fs from "fs";
 
-export const readSecretKey = (fName: string): Keypair | null => {
-  const fullName = `${KEYPAIR_OUTPUT}/${fName}.json`;
+export const readSecretKey = (fileName: string): Keypair | null => {
+  const fullName = `${KEYPAIR_OUTPUT}/${fileName}.json`;
   if (!fs.existsSync(fullName)) return null;
   try {
     const keypairString = fs.readFileSync(fullName, "utf8");

@@ -9,8 +9,8 @@ export const getCrankAccount = async (
   program: anchor.Program,
   oracleQueueAccount: OracleQueueAccount
 ): Promise<CrankAccount> => {
-  const fName = "crank_account";
-  const readKey = readSecretKey(fName);
+  const fileName = "crank_account";
+  const readKey = readSecretKey(fileName);
   if (readKey) {
     try {
       const crankAccount = new CrankAccount({
@@ -19,11 +19,11 @@ export const getCrankAccount = async (
       });
       console.log(
         "Local:".padEnd(8, " "),
-        toAccountString(fName, crankAccount.publicKey)
+        toAccountString(fileName, crankAccount.publicKey)
       );
       return crankAccount;
     } catch (err) {
-      console.error("error loading account", fName, err);
+      console.error("error loading account", fileName, err);
     }
   }
   const crankAccount = await CrankAccount.create(program, {
@@ -33,11 +33,11 @@ export const getCrankAccount = async (
     maxRows: 100,
   });
   if (crankAccount?.keypair) {
-    writeSecretKey(fName, crankAccount?.keypair);
+    writeSecretKey(fileName, crankAccount?.keypair);
   }
   console.log(
     "Created:".padEnd(8, " "),
-    toAccountString(fName, crankAccount.publicKey)
+    toAccountString(fileName, crankAccount.publicKey)
   );
   return crankAccount;
 };

@@ -6,7 +6,7 @@ import { UpdateAuthorityError } from "../../types";
 import { toAccountString, readSecretKey } from "../../utils";
 
 export const getAuthorityKeypair = (): Keypair => {
-  const fName = "authority-keypair";
+  const fileName = "authority-keypair";
   const argv = yargs(process.argv.slice(2))
     .options({
       updateAuthorityKeypair: {
@@ -25,15 +25,15 @@ export const getAuthorityKeypair = (): Keypair => {
     const updateAuthority = Keypair.fromSecretKey(updateAuthorityBuffer);
     console.log(
       "Arg:".padEnd(8, " "),
-      toAccountString(fName, updateAuthority.publicKey)
+      toAccountString(fileName, updateAuthority.publicKey)
     );
     return updateAuthority;
   }
-  const updateAuthority = readSecretKey(fName);
+  const updateAuthority = readSecretKey(fileName);
   if (!updateAuthority) throw new UpdateAuthorityError();
   console.log(
     "Local:".padEnd(8, " "),
-    toAccountString(fName, updateAuthority.publicKey)
+    toAccountString(fileName, updateAuthority.publicKey)
   );
 
   return updateAuthority;

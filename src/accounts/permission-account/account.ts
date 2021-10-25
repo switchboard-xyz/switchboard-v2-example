@@ -22,8 +22,8 @@ export const getOracleQueuePermissionAccount = async (
   const oracleQueueAccount = oracleQueue ? oracleQueue : await getOracleQueue();
   const oracleAccount = oracle ? oracle : await getOracleAccount();
 
-  const fName = "oracle_queue_permission_account";
-  const publicKey = readPublicKey(fName);
+  const fileName = "oracle_queue_permission_account";
+  const publicKey = readPublicKey(fileName);
   if (publicKey) {
     try {
       const permissionAccount = new PermissionAccount({
@@ -32,7 +32,7 @@ export const getOracleQueuePermissionAccount = async (
       });
       console.log(
         "Local:".padEnd(8, " "),
-        toAccountString(fName, permissionAccount.publicKey)
+        toAccountString(fileName, permissionAccount.publicKey)
       );
       return permissionAccount;
     } catch (err) {
@@ -46,11 +46,11 @@ export const getOracleQueuePermissionAccount = async (
     grantee: oracleAccount.publicKey,
   });
   if (permissionAccount?.publicKey) {
-    writePublicKey(fName, permissionAccount?.publicKey);
+    writePublicKey(fileName, permissionAccount?.publicKey);
   }
   console.log(
     "Created:".padEnd(8, " "),
-    toAccountString(fName, permissionAccount.publicKey)
+    toAccountString(fileName, permissionAccount.publicKey)
   );
   return permissionAccount;
 };

@@ -10,6 +10,9 @@ import {
 } from "../accounts";
 import chalk from "chalk";
 import { getAuthorityKeypair } from "../accounts/authority/keypair";
+import { AggregatorAccount } from "@switchboard-xyz/switchboard-v2";
+import { getAggregatorAccount } from "../accounts/aggregator/account";
+import { ALL_FEEDS } from "../accounts/aggregator";
 
 async function main(): Promise<void> {
   const program = await loadAnchor();
@@ -49,6 +52,13 @@ async function main(): Promise<void> {
 
   const crankAccount = await getCrankAccount(program, oracleQueueAccount);
 
+  const aggAccounts: AggregatorAccount[] = [];
+  for await (const f of ALL_FEEDS) {
+    aggAccounts.push(
+      await getAggregatorAccount(f, program, oracleQueueAccount)
+    );
+  }
+  console.log(aggAccounts);
   return;
 }
 

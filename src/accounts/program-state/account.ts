@@ -9,8 +9,8 @@ export const getProgramStateAccount = async (
   const anchorProgram = program ? program : await loadAnchor();
 
   // try to read file, if not found create
-  const fName = "program_account";
-  const publicKey = readPublicKey(fName);
+  const fileName = "program_account";
+  const publicKey = readPublicKey(fileName);
   if (publicKey) {
     try {
       const programAccount = new ProgramStateAccount({
@@ -19,7 +19,7 @@ export const getProgramStateAccount = async (
       });
       console.log(
         "Local:".padEnd(8, " "),
-        toAccountString(fName, programAccount.publicKey)
+        toAccountString(fileName, programAccount.publicKey)
       );
       return programAccount;
     } catch (err) {
@@ -34,11 +34,11 @@ export const getProgramStateAccount = async (
     [programAccount, _bump] = ProgramStateAccount.fromSeed(anchorProgram);
   }
   if (programAccount?.publicKey) {
-    writePublicKey(fName, programAccount?.publicKey);
+    writePublicKey(fileName, programAccount?.publicKey);
   }
   console.log(
     "Created:".padEnd(8, " "),
-    toAccountString(fName, programAccount.publicKey)
+    toAccountString(fileName, programAccount.publicKey)
   );
   return programAccount;
 };
