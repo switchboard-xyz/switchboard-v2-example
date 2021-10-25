@@ -1,14 +1,15 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { KEYPAIR_OUTPUT, SwitchboardAccount } from "../types";
+import { KEYPAIR_OUTPUT } from "../types";
 import fs from "fs";
+import { getFullSubdirectoryPath } from ".";
 
 export const readSecretKey = (
   fileName: string,
-  subdirectory?: string
+  subdirectory?: string[]
 ): Keypair | null => {
-  const fullFileName = subdirectory
-    ? `${KEYPAIR_OUTPUT}/${subdirectory}/${fileName}.json`
-    : `${KEYPAIR_OUTPUT}/${fileName}.json`;
+  const fullFileName = `${getFullSubdirectoryPath(
+    subdirectory
+  )}/${fileName}.json`;
   if (!fs.existsSync(fullFileName)) return null;
 
   try {
@@ -24,11 +25,11 @@ export const readSecretKey = (
 
 export const readPublicKey = (
   fileName: string,
-  subdirectory?: string
+  subdirectory?: string[]
 ): PublicKey | null => {
-  const fullFileName = subdirectory
-    ? `${KEYPAIR_OUTPUT}/${subdirectory}/${fileName}.txt`
-    : `${KEYPAIR_OUTPUT}/${fileName}.txt`;
+  const fullFileName = `${getFullSubdirectoryPath(
+    subdirectory
+  )}/${fileName}.txt`;
   if (!fs.existsSync(fullFileName)) return null;
 
   try {

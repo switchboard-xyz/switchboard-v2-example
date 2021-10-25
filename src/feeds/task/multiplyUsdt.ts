@@ -12,7 +12,7 @@ import { readSecretKey } from "../../utils";
 async function getUSDT(): Promise<AggregatorAccount> {
   const anchorProgram = await loadAnchor();
   // const fileName = "USDT_USD_aggregator_account";
-  const readKey = readSecretKey("USDT_USD", "feeds");
+  const readKey = readSecretKey("USDT_USD", ["feeds"]);
   if (readKey) {
     try {
       const aggregatorAccount = new AggregatorAccount({

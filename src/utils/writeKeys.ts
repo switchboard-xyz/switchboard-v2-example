@@ -2,11 +2,12 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { KEYPAIR_OUTPUT, SwitchboardAccount } from "../types";
 import fs from "fs";
 import chalk from "chalk";
+import { getFullSubdirectoryPath } from ".";
 
 export const writeKeys = (
   fileName: string,
   account: SwitchboardAccount,
-  subdirectory?: string
+  subdirectory?: string[]
 ): void => {
   if (account.keypair) {
     writeSecretKey(fileName, account.keypair, subdirectory);
@@ -21,12 +22,12 @@ export const writeKeys = (
 export const writeSecretKey = (
   fileName: string,
   keypair: Keypair | undefined,
-  subdirectory?: string
+  subdirectory?: string[]
 ): void => {
   if (!keypair) return;
-  const fullFileName = subdirectory
-    ? `${KEYPAIR_OUTPUT}/${subdirectory}/${fileName}.json`
-    : `${KEYPAIR_OUTPUT}/${fileName}.json`;
+  const fullFileName = `${getFullSubdirectoryPath(
+    subdirectory
+  )}/${fileName}.json`;
 
   if (!fs.existsSync(KEYPAIR_OUTPUT)) fs.mkdirSync(KEYPAIR_OUTPUT);
   if (subdirectory && !fs.existsSync(`${KEYPAIR_OUTPUT}/${subdirectory}`))
@@ -43,12 +44,12 @@ export const writeSecretKey = (
 export const writePublicKey = (
   fileName: string,
   pubkey: PublicKey | undefined,
-  subdirectory?: string
+  subdirectory?: string[]
 ): void => {
   if (!pubkey) return;
-  const fullFileName = subdirectory
-    ? `${KEYPAIR_OUTPUT}/${subdirectory}/${fileName}.txt`
-    : `${KEYPAIR_OUTPUT}/${fileName}.txt`;
+  const fullFileName = `${getFullSubdirectoryPath(
+    subdirectory
+  )}/${fileName}.txt`;
 
   if (!fs.existsSync(KEYPAIR_OUTPUT)) fs.mkdirSync(KEYPAIR_OUTPUT);
   if (subdirectory && !fs.existsSync(`${KEYPAIR_OUTPUT}/${subdirectory}`))

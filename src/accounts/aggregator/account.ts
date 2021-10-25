@@ -1,7 +1,6 @@
 import {
   OracleQueueAccount,
   AggregatorAccount,
-  AggregatorInitParams,
   JobAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
@@ -10,7 +9,6 @@ import { FeedDefinition, ConfigError } from "../../types";
 import { loadAnchor } from "../../anchor";
 import { getOracleQueue } from "../";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import readline from "readline-sync";
 import chalk from "chalk";
 
 export const getAggregatorAccount = async (
@@ -27,7 +25,7 @@ export const getAggregatorAccount = async (
     throw new ConfigError("queueAccount not created yet");
 
   const fileName = `${feed.name.toString()}`;
-  const readKey = readSecretKey(fileName, "feeds");
+  const readKey = readSecretKey(fileName, ["feeds"]);
   if (readKey) {
     try {
       const aggregatorAccount = new AggregatorAccount({
@@ -69,7 +67,7 @@ export const getAggregatorAccount = async (
     }
   }
 
-  writeKeys(fileName, aggregatorAccount, "feeds");
+  writeKeys(fileName, aggregatorAccount, ["feeds"]);
   if (aggregatorAccount.publicKey)
     console.log(
       "Created:".padEnd(8, " "),
