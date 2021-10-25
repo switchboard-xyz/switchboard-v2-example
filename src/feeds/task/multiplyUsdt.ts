@@ -11,8 +11,8 @@ import { readSecretKey } from "../../utils";
 
 async function getUSDT(): Promise<AggregatorAccount> {
   const anchorProgram = await loadAnchor();
-  const fileName = "USDT_USD_aggregator_account";
-  const readKey = readSecretKey(fileName);
+  // const fileName = "USDT_USD_aggregator_account";
+  const readKey = readSecretKey("USDT_USD", "feeds");
   if (readKey) {
     try {
       const aggregatorAccount = new AggregatorAccount({
@@ -24,7 +24,9 @@ async function getUSDT(): Promise<AggregatorAccount> {
       console.error(err);
     }
   }
-  throw new ConfigError("Failed to read USDT public key");
+  throw new ConfigError(
+    "Failed to read USDT public key. Has an aggregator account been created for it yet?"
+  );
 }
 
 export async function multiplyUsdtTask(): Promise<OracleJob.Task> {

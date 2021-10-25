@@ -1,5 +1,4 @@
-export * from "./readPublicKey";
-export * from "./readSecretKey";
+export * from "./readKeys";
 export * from "./writeKeys";
 export * from "./sleep";
 export * from "./toAccountString";

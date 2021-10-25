@@ -1,0 +1,19 @@
+[
+  {
+    "name": "SOL_USD",
+    "batchSize": 1,
+    "minRequiredOracleResults": 1,
+    "minRequiredJobResults": 1,
+    "minUpdateDelaySeconds": 6,
+    "jobs": {
+      "binanceCom": "SOLUSDT",
+      "binanceUs": "SOLUSD",
+      "bitfinex": "tSOLUSD",
+      "ftxCom": "SOL/USD",
+      "ftxUs": "sol/usd",
+      "huobi": "solusdt",
+      "mxc": "SOL_USDT",
+      "okex": "SOL-USDT"
+    }
+  }
+]

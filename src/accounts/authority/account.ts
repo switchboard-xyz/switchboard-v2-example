@@ -3,7 +3,7 @@ import yargs from "yargs/yargs";
 import fs from "fs";
 import resolve from "resolve-dir";
 import { UpdateAuthorityError } from "../../types";
-import { toAccountString, readSecretKey } from "../../utils";
+import { readSecretKey, prettyAccountString } from "../../utils";
 
 export const getAuthorityKeypair = (): Keypair => {
   const fileName = "authority-keypair";
@@ -24,19 +24,15 @@ export const getAuthorityKeypair = (): Keypair => {
     );
     const updateAuthority = Keypair.fromSecretKey(updateAuthorityBuffer);
     console.log(
-      "Arg:".padEnd(8, " "),
-      toAccountString(fileName, updateAuthority.publicKey)
+      prettyAccountString("Arg", fileName, updateAuthority.publicKey)
     );
+
     return updateAuthority;
   }
 
   // read update authority from local directory
   const updateAuthority = readSecretKey(fileName);
   if (!updateAuthority) throw new UpdateAuthorityError();
-  console.log(
-    "Local:".padEnd(8, " "),
-    toAccountString(fileName, updateAuthority.publicKey)
-  );
 
   return updateAuthority;
 };

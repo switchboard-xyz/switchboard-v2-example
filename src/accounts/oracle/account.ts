@@ -28,7 +28,7 @@ export const getOracleAccount = async (
     : await getOracleQueue();
   if (!oracleQueueAccount)
     throw new ConfigError("queueAccount not created yet");
-  // try to read file, if not found create
+
   const fileName = "oracle_account";
   const readKey = readPublicKey(fileName);
   if (readKey) {

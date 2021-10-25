@@ -6,6 +6,7 @@ import {
   CrankAccount,
   AggregatorAccount,
   LeaseAccount,
+  JobAccount,
 } from "@switchboard-xyz/switchboard-v2";
 
 export type SwitchboardAccount =
@@ -15,4 +16,5 @@ export type SwitchboardAccount =
   | CrankAccount
   | AggregatorAccount
   | PermissionAccount
-  | LeaseAccount;
+  | LeaseAccount
+  | JobAccount;

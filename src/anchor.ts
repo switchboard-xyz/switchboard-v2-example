@@ -36,9 +36,6 @@ export async function loadAnchor(): Promise<anchor.Program> {
     if (!anchorIdl) {
       throw new ConfigError(`failed to read idl for ${programId}`);
     }
-    console.log("Local:".padEnd(8, " "), chalk.blue("anchor-idl"));
-  } else {
-    console.log("Anchor:".padEnd(8, " "), chalk.blue("anchor-idl"));
   }
   const program = new anchor.Program(anchorIdl, programId, provider);
 

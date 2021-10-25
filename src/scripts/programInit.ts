@@ -13,6 +13,7 @@ import { getAuthorityKeypair } from "../accounts/authority/account";
 import { AggregatorAccount } from "@switchboard-xyz/switchboard-v2";
 import { getAggregatorAccount } from "../accounts/aggregator/account";
 import { getAllFeeds } from "../feeds";
+import { getUsdtUsd } from "../feeds/usdtUsd";
 
 async function programInit(): Promise<void> {
   const program = await loadAnchor();
@@ -52,16 +53,23 @@ async function programInit(): Promise<void> {
 
   const crankAccount = await getCrankAccount(program, oracleQueueAccount);
 
-  const allFeeds = await getAllFeeds();
-
+  // need to create usdt feed first as other feeds might need the public key for job definitions
   const aggAccounts: AggregatorAccount[] = [];
+  aggAccounts.push(
+    await getAggregatorAccount(await getUsdtUsd(), program, oracleQueueAccount)
+  );
+  const allFeeds = await getAllFeeds();
   for await (const f of allFeeds) {
-    console.log("loop", f.name.toString());
     aggAccounts.push(
       await getAggregatorAccount(f, program, oracleQueueAccount)
     );
   }
-  console.log(aggAccounts);
+
+  // fund leases
+  // for await (const agg of aggAccounts) {
+  //   const leaseAccount =
+  // }
+
   return;
 }
 
