@@ -1,15 +1,9 @@
 import { loadAnchor } from "../anchor";
 import { getOracleAccount } from "../accounts";
-import { toAccountString } from "../utils";
-import { EventEmitter } from "events";
-import { waitFor } from "wait-for-event";
+import { toAccountString, waitForever } from "../utils";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 
-function waitForever(): Promise<void> {
-  return waitFor("", new EventEmitter());
-}
-
-async function main(): Promise<void> {
+async function oracleHeartbeat(): Promise<void> {
   const program = await loadAnchor();
 
   const oracleAccount = await getOracleAccount(program);
@@ -26,7 +20,7 @@ async function main(): Promise<void> {
   return;
 }
 
-main().then(
+oracleHeartbeat().then(
   () => {
     process.exit();
   },

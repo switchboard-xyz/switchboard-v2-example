@@ -1,10 +1,10 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./task/multiplyUsdt";
+import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
-export function buildCoinbaseTask(
+export async function buildCoinbaseTask(
   pair: string,
   maxDataAgeSeconds = 15
-): Array<OracleJob.Task> {
+): Promise<Array<OracleJob.Task>> {
   const tasks = [
     OracleJob.Task.create({
       websocketTask: OracleJob.WebsocketTask.create({
@@ -29,7 +29,7 @@ export function buildCoinbaseTask(
     }),
   ];
   if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(multiplyUsdtTask());
+    tasks.push(await multiplyUsdtTask());
   }
   return tasks;
 }

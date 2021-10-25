@@ -27,13 +27,16 @@ export async function loadAnchor(): Promise<anchor.Program> {
   // get idl
   let anchorIdl = await anchor.Program.fetchIdl(programId, provider);
   if (anchorIdl === null) {
-    console.log("Local:".padEnd(8, " "), chalk.blue("anchor-idl"));
+    const localIdlFile = "switchboard_v2.json";
+    if (!fs.existsSync(localIdlFile))
+      throw new ConfigError(`no local anchor idl file found: ${localIdlFile}`);
     anchorIdl = JSON.parse(
       fs.readFileSync("switchboard_v2.json", "utf8")
     ) as anchor.Idl;
     if (!anchorIdl) {
-      throw new ConfigError(`failed to get idl for ${programId}`);
+      throw new ConfigError(`failed to read idl for ${programId}`);
     }
+    console.log("Local:".padEnd(8, " "), chalk.blue("anchor-idl"));
   } else {
     console.log("Anchor:".padEnd(8, " "), chalk.blue("anchor-idl"));
   }

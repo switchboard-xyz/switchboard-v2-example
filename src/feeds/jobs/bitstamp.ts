@@ -1,7 +1,9 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./task/multiplyUsdt";
+import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
-export function buildBitstampTask(pair: string): Array<OracleJob.Task> {
+export async function buildBitstampTask(
+  pair: string
+): Promise<Array<OracleJob.Task>> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({
@@ -25,7 +27,7 @@ export function buildBitstampTask(pair: string): Array<OracleJob.Task> {
     }),
   ];
   if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(multiplyUsdtTask());
+    tasks.push(await multiplyUsdtTask());
   }
   return tasks;
 }

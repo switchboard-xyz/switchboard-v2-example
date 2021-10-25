@@ -9,12 +9,12 @@ import {
   getCrankAccount,
 } from "../accounts";
 import chalk from "chalk";
-import { getAuthorityKeypair } from "../accounts/authority/keypair";
+import { getAuthorityKeypair } from "../accounts/authority/account";
 import { AggregatorAccount } from "@switchboard-xyz/switchboard-v2";
 import { getAggregatorAccount } from "../accounts/aggregator/account";
-import { ALL_FEEDS } from "../accounts/aggregator";
+import { getAllFeeds } from "../feeds";
 
-async function main(): Promise<void> {
+async function programInit(): Promise<void> {
   const program = await loadAnchor();
 
   const programStateAccount = await getProgramStateAccount(program);
@@ -37,13 +37,13 @@ async function main(): Promise<void> {
     chalk.green(`   -> Funding oracle account with ${amount.toNumber()} tokens`)
   );
 
-  const permissionAccount1 = await getOracleQueuePermissionAccount(
+  const permissionAccount = await getOracleQueuePermissionAccount(
     program,
     payerKeypair.publicKey,
     oracleQueueAccount,
     oracleAccount
   );
-  await permissionAccount1.set({
+  await permissionAccount.set({
     authority: payerKeypair,
     permission: sbv2.SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
     enable: true,
@@ -52,8 +52,11 @@ async function main(): Promise<void> {
 
   const crankAccount = await getCrankAccount(program, oracleQueueAccount);
 
+  const allFeeds = await getAllFeeds();
+
   const aggAccounts: AggregatorAccount[] = [];
-  for await (const f of ALL_FEEDS) {
+  for await (const f of allFeeds) {
+    console.log("loop", f.name.toString());
     aggAccounts.push(
       await getAggregatorAccount(f, program, oracleQueueAccount)
     );
@@ -62,7 +65,7 @@ async function main(): Promise<void> {
   return;
 }
 
-main().then(
+programInit().then(
   () => {
     process.exit();
   },

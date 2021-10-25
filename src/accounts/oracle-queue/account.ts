@@ -1,9 +1,14 @@
 import { OracleQueueAccount } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { writeSecretKey, readSecretKey, toAccountString } from "../../utils";
+import {
+  writeKeys,
+  writeSecretKey,
+  readSecretKey,
+  toAccountString,
+} from "../../utils";
 import { loadAnchor } from "../../anchor";
-import { getAuthorityKeypair } from "../authority/keypair";
+import { getAuthorityKeypair } from "../authority/account";
 
 export const getOracleQueue = async (
   program?: anchor.Program,
@@ -39,9 +44,8 @@ export const getOracleQueue = async (
     minStake: new anchor.BN(0),
     authority: updateAuthority,
   });
-  if (oracleQueueAccount?.keypair) {
-    writeSecretKey(fileName, oracleQueueAccount?.keypair);
-  }
+  writeSecretKey(fileName, oracleQueueAccount.keypair);
+
   console.log(
     "Created:".padEnd(8, " "),
     toAccountString(fileName, oracleQueueAccount.publicKey)

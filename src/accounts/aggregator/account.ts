@@ -1,24 +1,14 @@
 import {
   OracleQueueAccount,
   AggregatorAccount,
+  AggregatorInitParams,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import {
-  writePublicKey,
-  readPublicKey,
-  writeSecretKey,
-  toAccountString,
-} from "../../utils";
-import { FeedDefinition } from "../../types";
+import { toAccountString, readSecretKey, writeKeys } from "../../utils";
+import { FeedDefinition, ConfigError } from "../../types";
 import { loadAnchor } from "../../anchor";
 import { getOracleQueue } from "../";
-import { ALL_FEEDS } from "./";
-import { readSecretKey } from "../../utils/readSecretKey";
 
-/**
- * checks for public key file and if not found creates PDA account of oracle queue
- * @returns oracle account
- */
 export const getAggregatorAccount = async (
   feed: FeedDefinition,
   program?: anchor.Program,
@@ -28,8 +18,11 @@ export const getAggregatorAccount = async (
   const oracleQueueAccount = queueAccount
     ? queueAccount
     : await getOracleQueue();
-  // try to read file, if not found create
-  const fileName = `${feed.name}_aggregator_account`;
+
+  if (!oracleQueueAccount)
+    throw new ConfigError("queueAccount not created yet");
+
+  const fileName = `${feed.name.toString()}_aggregator_account`;
   const readKey = readSecretKey(fileName);
   if (readKey) {
     try {
@@ -37,34 +30,37 @@ export const getAggregatorAccount = async (
         program: anchorProgram,
         keypair: readKey,
       });
-      if (aggregatorAccount?.keypair) {
-        writeSecretKey(fileName, aggregatorAccount?.keypair);
-      }
-      //   console.log(
-      //     "Local:".padEnd(8, " "),
-      //     toAccountString(fileName, aggregatorAccount?.publicKey)
-      //   );
+      if (aggregatorAccount.publicKey)
+        console.log(
+          "Local:".padEnd(8, " "),
+          toAccountString(fileName, aggregatorAccount?.publicKey)
+        );
       return aggregatorAccount;
     } catch (err) {
       console.error(err);
     }
   }
-  //   if (!oracleQueueAccount)
-  //     throw new ConfigError("queueAccount not created yet");
 
-  const aggregatorAccount = await AggregatorAccount.create(anchorProgram, {
-    ...ALL_FEEDS[0],
+  const initParams: AggregatorInitParams = {
+    // name: feed.name,
+    // batchSize: feed.batchSize,
+    // minRequiredOracleResults: feed.minRequiredOracleResults,
+    // minRequiredJobResults: feed.minRequiredJobResults,
+    // minUpdateDelaySeconds: feed.minUpdateDelaySeconds,
+    ...feed,
     queueAccount: oracleQueueAccount,
-  });
-  if (aggregatorAccount?.publicKey) {
-    writePublicKey(fileName, aggregatorAccount?.publicKey);
-  }
-  if (aggregatorAccount?.keypair) {
-    writeSecretKey(fileName, aggregatorAccount?.keypair);
-  }
-  //   console.log(
-  //     "Created:".padEnd(8, " "),
-  //     toAccountString(fileName, aggregatorAccount.publicKey)
-  //   );
+  };
+  const aggregatorAccount = await AggregatorAccount.create(
+    anchorProgram,
+    initParams
+  );
+  console.log("created ", feed.name.toString());
+  // now add jobs
+  writeKeys(fileName, aggregatorAccount);
+  if (aggregatorAccount.publicKey)
+    console.log(
+      "Created:".padEnd(8, " "),
+      toAccountString(fileName, aggregatorAccount?.publicKey)
+    );
   return aggregatorAccount;
 };

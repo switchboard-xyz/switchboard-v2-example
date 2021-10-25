@@ -1,6 +1,8 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 
-export function buildKucoinTask(pair: string): Array<OracleJob.Task> {
+export async function buildKucoinTask(
+  pair: string
+): Promise<Array<OracleJob.Task>> {
   return [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({

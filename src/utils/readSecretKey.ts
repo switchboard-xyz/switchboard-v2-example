@@ -1,5 +1,5 @@
-import { Keypair } from "@solana/web3.js";
-import { KEYPAIR_OUTPUT } from "../types/const";
+import { Keypair, PublicKey } from "@solana/web3.js";
+import { KEYPAIR_OUTPUT, SwitchboardAccount } from "../types";
 import fs from "fs";
 
 export const readSecretKey = (fileName: string): Keypair | null => {

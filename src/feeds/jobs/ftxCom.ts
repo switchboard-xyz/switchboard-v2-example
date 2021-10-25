@@ -1,11 +1,21 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./task/multiplyUsdt";
+import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
-export function buildBittrexTask(pair: string): Array<OracleJob.Task> {
+export async function buildFtxComTask(
+  pair: string,
+  maxDataAgeSeconds = 15
+): Promise<Array<OracleJob.Task>> {
   const tasks = [
     OracleJob.Task.create({
-      httpTask: OracleJob.HttpTask.create({
-        url: `https://api.bittrex.com/v3/markets/${pair}/ticker`,
+      websocketTask: OracleJob.WebsocketTask.create({
+        url: "wss://ftx.com/ws/",
+        subscription: JSON.stringify({
+          op: "subscribe",
+          channel: "ticker",
+          market: pair,
+        }),
+        maxDataAgeSeconds: maxDataAgeSeconds,
+        filter: `$[?(@.type == 'update' && @.channel == 'ticker' && @.market == '${pair}')]`,
       }),
     }),
     OracleJob.Task.create({
@@ -13,17 +23,17 @@ export function buildBittrexTask(pair: string): Array<OracleJob.Task> {
         tasks: [
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.askRate",
+              path: "$.data.bid",
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.bidRate",
+              path: "$.data.ask",
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.lastTradeRate",
+              path: "$.data.last",
             }),
           }),
         ],
@@ -31,7 +41,7 @@ export function buildBittrexTask(pair: string): Array<OracleJob.Task> {
     }),
   ];
   if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(multiplyUsdtTask());
+    tasks.push(await multiplyUsdtTask());
   }
   return tasks;
 }

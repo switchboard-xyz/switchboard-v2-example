@@ -16,8 +16,8 @@ export const getAuthorityKeypair = (): Keypair => {
       },
     })
     .parseSync();
-  // get update authority wallet
 
+  // read update authority from command line
   if (argv.updateAuthorityKeypair) {
     const updateAuthorityBuffer = new Uint8Array(
       JSON.parse(fs.readFileSync(resolve(argv.updateAuthorityKeypair), "utf-8"))
@@ -29,6 +29,8 @@ export const getAuthorityKeypair = (): Keypair => {
     );
     return updateAuthority;
   }
+
+  // read update authority from local directory
   const updateAuthority = readSecretKey(fileName);
   if (!updateAuthority) throw new UpdateAuthorityError();
   console.log(

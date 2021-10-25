@@ -1,11 +1,13 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "./task/multiplyUsdt";
+import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
-export function buildMxcTask(pair: string): Array<OracleJob.Task> {
+export async function buildBittrexTask(
+  pair: string
+): Promise<Array<OracleJob.Task>> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({
-        url: `https://www.mxc.com/open/api/v2/market/ticker?symbol=${pair}`,
+        url: `https://api.bittrex.com/v3/markets/${pair}/ticker`,
       }),
     }),
     OracleJob.Task.create({
@@ -13,17 +15,17 @@ export function buildMxcTask(pair: string): Array<OracleJob.Task> {
         tasks: [
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.data[0].ask",
+              path: "$.askRate",
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.data[0].bid",
+              path: "$.bidRate",
             }),
           }),
           OracleJob.Task.create({
             jsonParseTask: OracleJob.JsonParseTask.create({
-              path: "$.data[0].last",
+              path: "$.lastTradeRate",
             }),
           }),
         ],
@@ -31,7 +33,7 @@ export function buildMxcTask(pair: string): Array<OracleJob.Task> {
     }),
   ];
   if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(multiplyUsdtTask());
+    tasks.push(await multiplyUsdtTask());
   }
   return tasks;
 }

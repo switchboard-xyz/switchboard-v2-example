@@ -3,7 +3,12 @@ import {
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writeSecretKey, readSecretKey, toAccountString } from "../../utils";
+import {
+  writeSecretKey,
+  readSecretKey,
+  toAccountString,
+  writeKeys,
+} from "../../utils";
 
 export const getCrankAccount = async (
   program: anchor.Program,
@@ -32,9 +37,7 @@ export const getCrankAccount = async (
     queueAccount: oracleQueueAccount,
     maxRows: 100,
   });
-  if (crankAccount?.keypair) {
-    writeSecretKey(fileName, crankAccount?.keypair);
-  }
+  writeSecretKey(fileName, crankAccount.keypair);
   console.log(
     "Created:".padEnd(8, " "),
     toAccountString(fileName, crankAccount.publicKey)

@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "ts-node src/main.ts",
-    "queue:init": "ts-node src/scripts/oracleQueueInit.ts",
+    "program:init": "ts-node src/scripts/programInit.ts",
     "oracle:heartbeat": "ts-node src/scripts/oracleHeartbeat.ts",
     "build": "tsc",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix"

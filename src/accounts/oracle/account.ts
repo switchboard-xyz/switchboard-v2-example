@@ -8,6 +8,7 @@ import {
   readPublicKey,
   writeSecretKey,
   toAccountString,
+  writeKeys,
 } from "../../utils";
 import { ConfigError } from "../../types";
 import { loadAnchor } from "../../anchor";
@@ -25,6 +26,8 @@ export const getOracleAccount = async (
   const oracleQueueAccount = queueAccount
     ? queueAccount
     : await getOracleQueue();
+  if (!oracleQueueAccount)
+    throw new ConfigError("queueAccount not created yet");
   // try to read file, if not found create
   const fileName = "oracle_account";
   const readKey = readPublicKey(fileName);
@@ -34,9 +37,6 @@ export const getOracleAccount = async (
         program: anchorProgram,
         publicKey: readKey,
       });
-      if (oracleAccount?.keypair) {
-        writeSecretKey(fileName, oracleAccount?.keypair);
-      }
       console.log(
         "Local:".padEnd(8, " "),
         toAccountString(fileName, oracleAccount.publicKey)
@@ -51,12 +51,7 @@ export const getOracleAccount = async (
   const oracleAccount = await OracleAccount.create(anchorProgram, {
     queueAccount: oracleQueueAccount,
   });
-  if (oracleAccount?.publicKey) {
-    writePublicKey(fileName, oracleAccount?.publicKey);
-  }
-  if (oracleAccount?.keypair) {
-    writeSecretKey(fileName, oracleAccount?.keypair);
-  }
+  writeKeys(fileName, oracleAccount);
   console.log(
     "Created:".padEnd(8, " "),
     toAccountString(fileName, oracleAccount.publicKey)
