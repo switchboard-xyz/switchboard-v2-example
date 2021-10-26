@@ -1,3 +1,7 @@
+/**
+ * Deprecated, moved to class based implementation
+ */
+
 import {
   OracleQueueAccount,
   AggregatorAccount,

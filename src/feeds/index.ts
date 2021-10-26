@@ -6,9 +6,13 @@ import { getUsdtUsd } from "./usdtUsd";
 
 export async function getAllFeeds(): Promise<FeedDefinition[]> {
   const feeds: FeedDefinition[] = [];
-  // feeds.push(await getUsdtUsd());
+  const usdt = await getUsdtUsd();
+  const sol = await getSolUsd();
+  const btc = await getBtcUsd();
+  const eth = await getEthUsd();
+  feeds.push(await getUsdtUsd());
   feeds.push(await getSolUsd());
   feeds.push(await getBtcUsd());
   feeds.push(await getEthUsd());
-  return feeds;
+  return [sol, btc, eth];
 }

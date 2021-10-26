@@ -3,44 +3,26 @@ import {
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import {
-  writeSecretKey,
-  readSecretKey,
-  toAccountString,
-  writeKeys,
-} from "../../utils";
+import { loadCrankAccount } from "./load";
+import { writeKeys } from "../../utils";
+import { loadAnchor } from "../../anchor";
 
 export const getCrankAccount = async (
   program: anchor.Program,
   oracleQueueAccount: OracleQueueAccount
 ): Promise<CrankAccount> => {
+  const anchorProgram = program ? program : await loadAnchor();
+
   const fileName = "crank_account";
-  const readKey = readSecretKey(fileName);
-  if (readKey) {
-    try {
-      const crankAccount = new CrankAccount({
-        program,
-        keypair: readKey,
-      });
-      console.log(
-        "Local:".padEnd(8, " "),
-        toAccountString(fileName, crankAccount.publicKey)
-      );
-      return crankAccount;
-    } catch (err) {
-      console.error("error loading account", fileName, err);
-    }
-  }
-  const crankAccount = await CrankAccount.create(program, {
+  const crnkContract = loadCrankAccount(fileName, anchorProgram);
+  if (crnkContract) return crnkContract;
+
+  const crankAccount = await CrankAccount.create(anchorProgram, {
     name: Buffer.from("crank1"),
     metadata: Buffer.from(""),
     queueAccount: oracleQueueAccount,
     maxRows: 100,
   });
-  writeSecretKey(fileName, crankAccount.keypair);
-  console.log(
-    "Created:".padEnd(8, " "),
-    toAccountString(fileName, crankAccount.publicKey)
-  );
+  writeKeys(fileName, crankAccount);
   return crankAccount;
 };

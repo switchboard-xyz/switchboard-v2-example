@@ -15,7 +15,8 @@ import { writeKeys } from "../../utils";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import chalk from "chalk";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { loadLeaseContract } from "../lease-contract/account";
+import { loadLeaseContract } from "../lease-contract/load";
+import { loadAggregatorPermissionAccount } from "../aggregator-permission/load";
 
 export class Aggregator {
   private program: anchor.Program;
@@ -51,32 +52,35 @@ export class Aggregator {
     return;
   }
 
-  public async permitQueue(authority?: Keypair): Promise<void> {
-    try {
-      if (!this.queue) {
-        this.queue = await getOracleQueue();
-      }
-      if (!this.account?.publicKey) {
-        throw new Error(`failed to permit account ${this.feedName}`);
-      }
-      const updateAuthority = authority ? authority : getAuthorityKeypair();
-      const permissionAccount = await PermissionAccount.create(this.program, {
-        authority: this.program.provider.wallet.publicKey,
-        granter: this.queue.publicKey,
-        grantee: this.account.publicKey,
-      });
-      await permissionAccount.set({
-        authority: updateAuthority,
-        permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
-        enable: true,
-      });
-      writeKeys("oracle_queue_permission_account", permissionAccount, [
-        "feeds",
-        this.feedName,
-      ]);
-    } catch (e) {
-      console.error(e);
+  public async permitQueue(authority?: Keypair): Promise<PermissionAccount> {
+    if (!this.queue) {
+      this.queue = await getOracleQueue();
     }
+    if (!this.account?.publicKey) {
+      throw new Error(`failed to permit account ${this.feedName}`);
+    }
+    const updateAuthority = authority ? authority : getAuthorityKeypair();
+
+    const fileName = "aggregator_permission_account";
+    const permAccount = loadAggregatorPermissionAccount(
+      fileName,
+      this.feedName,
+      this.program
+    );
+    if (permAccount) return permAccount;
+
+    const permissionAccount = await PermissionAccount.create(this.program, {
+      authority: this.program.provider.wallet.publicKey,
+      granter: this.queue.publicKey,
+      grantee: this.account.publicKey,
+    });
+    await permissionAccount.set({
+      authority: updateAuthority,
+      permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
+      enable: true,
+    });
+    writeKeys(fileName, permissionAccount, ["feeds", this.feedName]);
+    return permissionAccount;
   }
 
   public async verifyJobs(): Promise<Error | null> {
@@ -157,7 +161,12 @@ export class Aggregator {
       return new Error(`failed to get account to fund ${this.feedName}`);
     const funderAuthority = authority ? authority : getAuthorityKeypair();
 
-    const lseContract = await loadLeaseContract("feedName", this.program);
+    const fileName = "lease_contract";
+    const lseContract = await loadLeaseContract(
+      fileName,
+      this.feedName,
+      this.program
+    );
     if (lseContract) return lseContract;
 
     const leaseContract = await LeaseAccount.create(this.program, {
@@ -167,13 +176,25 @@ export class Aggregator {
       oracleQueueAccount: this.queue,
       aggregatorAccount: this.account,
     });
-    writeKeys("lease_contract", leaseContract, ["feeds", this.feedName]);
+    writeKeys(fileName, leaseContract, ["feeds", this.feedName]);
     return leaseContract;
   }
 
   public async addToCrank(crankAccount: CrankAccount): Promise<void> {
-    if (!this.account)
+    if (!this.account?.publicKey)
       throw new Error(`failed to get account to add to crank ${this.feedName}`);
-    await crankAccount.push({ aggregatorAccount: this.account });
+    const allCrankpqData: { pubkey: PublicKey; nextTimestamp: anchor.BN }[] = (
+      await crankAccount.loadData()
+    ).pqData;
+    const allCrankAccounts: PublicKey[] = allCrankpqData.map(
+      (crank: { pubkey: PublicKey; nextTimestamp: anchor.BN }) => crank.pubkey
+    );
+    if (allCrankAccounts.indexOf(this.account.publicKey)) {
+      console.log(
+        `${this.feedName} already added to crank ${crankAccount.publicKey}`
+      );
+    } else {
+      await crankAccount.push({ aggregatorAccount: this.account });
+    }
   }
 }

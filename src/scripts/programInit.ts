@@ -10,13 +10,10 @@ import {
 } from "../accounts";
 import chalk from "chalk";
 import { getAuthorityKeypair } from "../accounts/authority/account";
-import { AggregatorAccount } from "@switchboard-xyz/switchboard-v2";
-import { getAggregatorAccount } from "../accounts/aggregator/account";
 import { getAllFeeds } from "../feeds";
-import { getUsdtUsd } from "../feeds/usdtUsd";
-import { getLeaseContractAccount } from "../accounts/lease-contract/account";
 import { Aggregator } from "../accounts/aggregator/aggregator";
 import { sleep } from "../utils";
+import { getUsdtUsd } from "../feeds/usdtUsd";
 
 async function programInit(): Promise<void> {
   const program = await loadAnchor();
@@ -61,12 +58,10 @@ async function programInit(): Promise<void> {
   const usdt = new Aggregator(program, await getUsdtUsd()); // load from local storage
   if (usdt.account === null) {
     await usdt.create(oracleQueueAccount); // create a new account on-chain
-    await sleep(1000); // need enough time for new account to be detected
+    await sleep(2000); // need enough time for new account to be detected
   }
-  console.log(usdt.account);
   const err = await usdt.verifyJobs();
   if (err) throw err;
-  await usdt.verifyJobs();
   await usdt.permitQueue(payerKeypair);
   await usdt.fundLease(100, publisher, payerKeypair);
   await usdt.addToCrank(crankAccount);
@@ -85,20 +80,6 @@ async function programInit(): Promise<void> {
     await agg.fundLease(100, publisher, payerKeypair);
     await agg.addToCrank(crankAccount);
     aggregatorAccounts.push(agg);
-    // const aggregatorAccount = await getAggregatorAccount(
-    //   f,
-    //   program,
-    //   oracleQueueAccount
-    // );
-    // const leaseContract = await getLeaseContractAccount(
-    //   f.name.toString(),
-    //   aggregatorAccount,
-    //   publisher,
-    //   program,
-    //   payerKeypair,
-    //   oracleQueueAccount
-    // );
-    // await crankAccount.push({ aggregatorAccount });
   }
 
   return;

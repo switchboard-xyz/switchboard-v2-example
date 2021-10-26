@@ -7,7 +7,8 @@ import * as anchor from "@project-serum/anchor";
 import { writePublicKey, readPublicKey, toAccountString } from "../../utils";
 import { PublicKey } from "@solana/web3.js";
 import { loadAnchor } from "../../anchor";
-import { getAuthorityKeypair, getOracleAccount, getOracleQueue } from "../";
+import { getAuthorityKeypair, getOracleAccount, getOracleQueue } from "..";
+import { loadOraclePermissionAccount } from "./load";
 
 export const getOracleQueuePermissionAccount = async (
   program?: anchor.Program,
@@ -22,23 +23,9 @@ export const getOracleQueuePermissionAccount = async (
   const oracleQueueAccount = oracleQueue ? oracleQueue : await getOracleQueue();
   const oracleAccount = oracle ? oracle : await getOracleAccount();
 
-  const fileName = "oracle_queue_permission_account";
-  const publicKey = readPublicKey(fileName);
-  if (publicKey) {
-    try {
-      const permissionAccount = new PermissionAccount({
-        program: anchorProgram,
-        publicKey,
-      });
-      console.log(
-        "Local:".padEnd(8, " "),
-        toAccountString(fileName, permissionAccount.publicKey)
-      );
-      return permissionAccount;
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  const fileName = "oracle_permission_account";
+  const permAccount = loadOraclePermissionAccount(fileName, anchorProgram);
+  if (permAccount) return permAccount;
 
   const permissionAccount = await PermissionAccount.create(anchorProgram, {
     authority: updateAuthority,
@@ -48,9 +35,6 @@ export const getOracleQueuePermissionAccount = async (
   if (permissionAccount?.publicKey) {
     writePublicKey(fileName, permissionAccount?.publicKey);
   }
-  console.log(
-    "Created:".padEnd(8, " "),
-    toAccountString(fileName, permissionAccount.publicKey)
-  );
+
   return permissionAccount;
 };
