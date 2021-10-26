@@ -3,9 +3,9 @@ import { Connection } from "@solana/web3.js";
 import fs from "fs";
 import { ConfigError, RPC_URL } from "./types";
 import { getAuthorityKeypair } from "./accounts";
-import chalk from "chalk";
+
 /**
- * Setup
+ * Attempts to load Anchor IDL on-chain and falls back to local JSON if not found
  */
 export async function loadAnchor(): Promise<anchor.Program> {
   if (!process.env.PID) {
@@ -42,6 +42,9 @@ export async function loadAnchor(): Promise<anchor.Program> {
   return program;
 }
 
+/**
+ * Loads anchor IDL from local JSON
+ */
 export function loadAnchorSync(): anchor.Program {
   if (!process.env.PID) {
     throw new ConfigError("failed to provide PID environment variable");

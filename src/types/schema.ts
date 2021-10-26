@@ -32,6 +32,7 @@ export interface AggregatorDefinition {
   minRequiredOracleResults: number;
   minRequiredJobResults: number;
   minUpdateDelaySeconds: number;
+  cranks?: string[];
   jobs: JobDefinition[];
 }
 export interface AggregatorSchema extends AggregatorDefinition {
@@ -88,7 +89,4 @@ export class keypair {
       publicKey: `${this.publicKey?.toString()}`,
     };
   }
-  // public toKeypair(): Keypair {
-  //   return new Keypair.fromSecretKey(this.secretKey);
-  // }
 }

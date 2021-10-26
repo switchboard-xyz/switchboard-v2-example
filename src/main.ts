@@ -2,8 +2,18 @@ import { OracleQueue } from "./accounts";
 import { OracleQueueDefinition, OracleQueueSchema } from "./types";
 import fs from "fs";
 import prompts from "prompts";
+import dotenv from "dotenv";
+dotenv.config();
 
-async function queueInit(): Promise<void> {
+export const RPC_URL = process.env.RPC_URL
+  ? process.env.RPC_URL
+  : "https://api.devnet.solana.com";
+
+export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
+  ? `keypairs-${process.env.KEYPAIR_OUTPUT}` // use prefix for gitignore glob pattern
+  : "keypairs";
+
+async function main(): Promise<void> {
   const fileBuffer = fs.readFileSync("input.json");
   const queueDefinition: OracleQueueDefinition = JSON.parse(
     fileBuffer.toString()
@@ -11,19 +21,20 @@ async function queueInit(): Promise<void> {
 
   // check if output file exists
   const outFile = "output.json";
+  const fullOutFile = `${KEYPAIR_OUTPUT}/${outFile}`;
   let queueSchemaDefinition: OracleQueueSchema;
-  if (fs.existsSync(outFile)) {
-    const fileBuffer = fs.readFileSync(outFile);
+  if (fs.existsSync(fullOutFile)) {
+    const fileBuffer = fs.readFileSync(fullOutFile);
     queueSchemaDefinition = JSON.parse(fileBuffer.toString());
-    console.log("Oracle Queue built from local schema");
+    console.log("Oracle Queue built from local schema", fullOutFile);
   } else {
     const oracleQueue = new OracleQueue(queueDefinition);
-    queueSchemaDefinition = await oracleQueue.create();
+    queueSchemaDefinition = await oracleQueue.createSchema();
     fs.writeFileSync(
-      "output.json",
+      fullOutFile,
       JSON.stringify(queueSchemaDefinition, null, 2)
     );
-    console.log("Oracle Queue built");
+    console.log("Oracle Queue schema built");
   }
   const answer = await prompts([
     {
@@ -61,7 +72,7 @@ async function queueInit(): Promise<void> {
   console.log("selected:", answer.action);
 }
 
-queueInit().then(
+main().then(
   () => {
     process.exit();
   },

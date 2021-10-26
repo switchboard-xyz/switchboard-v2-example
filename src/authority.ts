@@ -2,8 +2,8 @@ import { Keypair } from "@solana/web3.js";
 import yargs from "yargs/yargs";
 import fs from "fs";
 import resolve from "resolve-dir";
-import { UpdateAuthorityError } from "../types";
-import { readSecretKey, prettyAccountString } from "../utils";
+import { UpdateAuthorityError } from "./types";
+import { readSecretKey } from "./utils";
 
 export const getAuthorityKeypair = (): Keypair => {
   const fileName = "authority-keypair";
@@ -17,15 +17,12 @@ export const getAuthorityKeypair = (): Keypair => {
     })
     .parseSync();
 
-  // read update authority from command line
+  // read update authority from command line arguement
   if (argv.updateAuthorityKeypair) {
     const updateAuthorityBuffer = new Uint8Array(
       JSON.parse(fs.readFileSync(resolve(argv.updateAuthorityKeypair), "utf-8"))
     );
     const updateAuthority = Keypair.fromSecretKey(updateAuthorityBuffer);
-    console.log(
-      prettyAccountString("Arg", fileName, updateAuthority.publicKey)
-    );
 
     return updateAuthority;
   }
@@ -33,8 +30,6 @@ export const getAuthorityKeypair = (): Keypair => {
   // read update authority from local directory
   const updateAuthority = readSecretKey(fileName);
   if (!updateAuthority) throw new UpdateAuthorityError();
-  // console.log(
-  //   prettyAccountString("Local", fileName, updateAuthority.publicKey)
-  // );
+
   return updateAuthority;
 };

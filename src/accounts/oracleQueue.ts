@@ -8,8 +8,8 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { loadAnchor, loadAnchorSync } from "../anchor";
-import { getAuthorityKeypair } from "./authority";
+import { loadAnchorSync } from "../anchor";
+import { getAuthorityKeypair } from "../authority";
 import {
   CrankSchema,
   OracleQueueDefinition,
@@ -20,69 +20,66 @@ import {
 } from "../types";
 import { Aggregator } from "./aggregator";
 import { toAccountString } from "../utils";
+import { loadAggregatorAccount, loadCrankAccount } from "./load";
 
 export class OracleQueue {
   private program = loadAnchorSync();
   private authority = getAuthorityKeypair();
-  public definition: OracleQueueDefinition;
-  public programStateAccount?: ProgramStateAccount;
-  public oracleQueueAccount?: OracleQueueAccount;
-  public publisher?: PublicKey;
-  public oracles?: OracleSchemaDefinition[];
-  public cranks?: CrankSchema[];
-  public feeds?: AggregatorSchema[];
+  public queueDefinition: OracleQueueDefinition;
 
   constructor(queueDefinition: OracleQueueDefinition) {
-    this.definition = queueDefinition;
+    this.queueDefinition = queueDefinition;
   }
 
-  public async create(): Promise<OracleQueueSchema> {
-    this.programStateAccount = await this.createProgramStateAccount();
-    console.log(
-      toAccountString(
-        "program-state-account",
-        this.programStateAccount.publicKey
-      )
-    );
-    this.publisher = await this.createTokenMint(this.programStateAccount);
-    await this.transferTokens(this.programStateAccount, this.publisher, 10000);
-    this.oracleQueueAccount = await this.createOracleQueueAccount();
-    if (!this.oracleQueueAccount.keypair)
+  /**
+   * Creates the neccesary oracle queue accounts based on the input definition
+   * 1. Loads programStateAccount
+   * 2. Funds publisher for adding new feeds
+   * 3. Creates new OracleQueue account
+   * 4. Creates new Oracles and adds them to the queue
+   * 5. Creates new Cranks and adds them to the queue
+   * 6. Creates new Aggregator accounts, with job definitions, and funds leaseContract
+   * 7. Adds aggregators to cranks
+   */
+  public async createSchema(): Promise<OracleQueueSchema> {
+    const programStateAccount = await this.createProgramStateAccount();
+    console.log(toAccountString("program-state-account", programStateAccount));
+
+    const publisher = await this.createTokenMint(programStateAccount);
+    await this.transferTokens(programStateAccount, publisher, 10000);
+
+    const oracleQueueAccount = await this.createOracleQueueAccount();
+    if (!oracleQueueAccount.keypair)
       throw new Error(`oracle-queue-account missing keypair`);
-    console.log(
-      toAccountString("oracle-queue-account", this.oracleQueueAccount.publicKey)
-    );
-    this.oracles = await this.createOracles();
-    this.cranks = await this.createCranks();
-    this.feeds = await this.createFeeds();
+    console.log(toAccountString("oracle-queue-account", oracleQueueAccount));
+
+    const oracles = await this.createOracles(oracleQueueAccount);
+    const cranks = await this.createCranks(oracleQueueAccount);
+    const feeds = await this.createFeeds(oracleQueueAccount, publisher);
+
+    if (feeds && cranks) await this.addFeedsToCranks(feeds, cranks);
+
     return {
-      ...this.definition,
-      keypair: new keypair(this.oracleQueueAccount.keypair),
-      programStateAccount: this.programStateAccount.publicKey.toString(),
-      oracles: this.oracles,
-      cranks: this.cranks,
-      feeds: this.feeds,
+      ...this.queueDefinition,
+      keypair: new keypair(oracleQueueAccount.keypair),
+      programStateAccount: programStateAccount.publicKey.toString(),
+      oracles,
+      cranks,
+      feeds,
     };
   }
 
   private async createProgramStateAccount(): Promise<ProgramStateAccount> {
     let programAccount: ProgramStateAccount;
-    let _bump;
+
     try {
-      programAccount = await ProgramStateAccount.create(this.program, {});
+      [programAccount] = ProgramStateAccount.fromSeed(this.program);
     } catch (e) {
-      [programAccount, _bump] = ProgramStateAccount.fromSeed(this.program);
+      programAccount = await ProgramStateAccount.create(this.program, {});
     }
-    this.programStateAccount = programAccount;
     return programAccount;
   }
-  public async getPublisher(): Promise<PublicKey> {
-    if (this.publisher) return this.publisher;
-    const programState = this.programStateAccount
-      ? this.programStateAccount
-      : await this.createProgramStateAccount();
-    return await this.createTokenMint(programState);
-  }
+
   private async createTokenMint(
     programStateAccount: ProgramStateAccount
   ): Promise<PublicKey> {
@@ -101,36 +98,32 @@ export class OracleQueue {
       amount: new anchor.BN(amount),
     });
   }
-  public async getOracleQueueAccount(): Promise<OracleQueueAccount> {
-    if (this.oracleQueueAccount) return this.oracleQueueAccount;
-    return await this.createOracleQueueAccount();
-  }
+
   private async createOracleQueueAccount(): Promise<OracleQueueAccount> {
     return OracleQueueAccount.create(this.program, {
       name: Buffer.from("q1"),
       metadata: Buffer.from(""),
       slashingEnabled: false,
       reward: new anchor.BN(0),
-      minStake: new anchor.BN(this.definition.minStake),
+      minStake: new anchor.BN(this.queueDefinition.minStake),
       authority: this.authority.publicKey,
     });
   }
-  private async createOracles(): Promise<OracleSchemaDefinition[]> {
+  private async createOracles(
+    oracleQueueAccount: OracleQueueAccount
+  ): Promise<OracleSchemaDefinition[]> {
     const oracleAccounts: OracleSchemaDefinition[] = [];
-    if (this.definition.oracles.length === 0) return oracleAccounts;
-    const queueAccount = this.oracleQueueAccount
-      ? this.oracleQueueAccount
-      : await this.createOracleQueueAccount();
+    if (this.queueDefinition.oracles.length === 0) return oracleAccounts;
 
-    for await (const o of this.definition.oracles) {
+    for await (const o of this.queueDefinition.oracles) {
       const oracleAccount = await OracleAccount.create(this.program, {
         name: Buffer.from(o.name),
-        queueAccount,
+        queueAccount: oracleQueueAccount,
       });
-      console.log(toAccountString(o.name, oracleAccount.publicKey));
+      console.log(toAccountString(o.name, oracleQueueAccount));
       const permissionAccount = await PermissionAccount.create(this.program, {
         authority: this.authority.publicKey,
-        granter: queueAccount.publicKey,
+        granter: oracleQueueAccount.publicKey,
         grantee: oracleAccount.publicKey,
       });
       await permissionAccount.set({
@@ -143,26 +136,26 @@ export class OracleQueue {
         publicKey: oracleAccount.publicKey.toString(),
         queuePermissionAccount: permissionAccount.publicKey.toString(),
       });
-      console.log(
-        toAccountString(`${o.name}-permission`, oracleAccount.publicKey)
-      );
+      console.log(toAccountString(`${o.name}-permission`, oracleAccount));
     }
     return oracleAccounts;
   }
 
-  private async createCranks(): Promise<CrankSchema[]> {
+  private async createCranks(
+    oracleQueueAccount: OracleQueueAccount
+  ): Promise<CrankSchema[]> {
     const crankAccounts: CrankSchema[] = [];
-    if (!this.definition.cranks || this.definition.cranks.length === 0)
+    if (
+      !this.queueDefinition.cranks ||
+      this.queueDefinition.cranks.length === 0
+    )
       return crankAccounts;
-    const queueAccount = this.oracleQueueAccount
-      ? this.oracleQueueAccount
-      : await this.createOracleQueueAccount();
 
-    for await (const o of this.definition.cranks) {
+    for await (const o of this.queueDefinition.cranks) {
       const crankAccount = await CrankAccount.create(this.program, {
         name: Buffer.from(o.name),
         metadata: Buffer.from(""),
-        queueAccount,
+        queueAccount: oracleQueueAccount,
         maxRows: o.maxRows,
       });
       if (!crankAccount.keypair) throw new Error(`${o.name} missing keypair`);
@@ -170,24 +163,56 @@ export class OracleQueue {
         ...o,
         keypair: new keypair(crankAccount.keypair),
       });
-      console.log(toAccountString(`${o.name}`, crankAccount.publicKey));
+      console.log(toAccountString(`${o.name}`, crankAccount));
     }
     return crankAccounts;
   }
 
-  private async createFeeds(): Promise<AggregatorSchema[]> {
+  private async createFeeds(
+    oracleQueueAccount: OracleQueueAccount,
+    publisher: PublicKey
+  ): Promise<AggregatorSchema[]> {
     const aggregators: AggregatorSchema[] = [];
-    for await (const f of this.definition.feeds) {
+    for await (const f of this.queueDefinition.feeds) {
       const aggregator = new Aggregator(
         this.program,
         this.authority,
-        await this.getPublisher(),
-        await this.getOracleQueueAccount(),
+        publisher,
+        oracleQueueAccount,
         f
       );
-      aggregators.push(await aggregator.create());
-      // console.log(toAccountString(`${f.name}`, aggregator.account?.publicKey));
+      aggregators.push(await aggregator.createSchema());
     }
     return aggregators;
+  }
+  private async addFeedsToCranks(
+    feeds: AggregatorSchema[],
+    cranks: CrankSchema[]
+  ): Promise<void> {
+    for await (const f of feeds) {
+      if (!f.cranks || !f.keypair?.publicKey) break;
+      for await (const crankName of f.cranks) {
+        // find crank by name
+        const crankScehma = cranks.find((c) => c.name === crankName);
+        if (!crankScehma) return;
+        const crankAccount = loadCrankAccount(this.program, crankScehma);
+        // make sure aggregator is not already added to crank
+        const allCrankpqData: {
+          pubkey: PublicKey;
+          nextTimestamp: anchor.BN;
+        }[] = (await crankAccount.loadData()).pqData;
+        const allCrankAccounts: PublicKey[] = allCrankpqData.map(
+          (crank: { pubkey: PublicKey; nextTimestamp: anchor.BN }) =>
+            crank.pubkey
+        );
+        if (allCrankAccounts.indexOf(f.keypair?.publicKey)) {
+          console.log(`${f.name} already added to crank ${crankName}`);
+        } else {
+          const aggregatorAccount = loadAggregatorAccount(this.program, f);
+          await crankAccount.push({ aggregatorAccount });
+          console.log(`${f.name} added to crank ${crankName}`);
+        }
+      }
+    }
   }
 }

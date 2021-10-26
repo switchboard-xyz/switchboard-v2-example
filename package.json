@@ -6,7 +6,6 @@
   "private": true,
   "scripts": {
     "start": "ts-node src/main.ts",
-    "queue:init": "ts-node src/main.ts",
     "build": "tsc",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix"
   },
