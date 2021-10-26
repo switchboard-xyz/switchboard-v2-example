@@ -10,13 +10,13 @@ import {
   AggregatorDefinition,
   JobSchema,
   AggregatorSchema,
+  JobDefinition,
   keypair as oKeypair,
-} from "../types";
+} from ".";
 import * as anchor from "@project-serum/anchor";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { toAccountString } from "../utils";
-import { JobDefinition } from "../types";
 import {
   buildBinanceComTask,
   buildBinanceUsTask,

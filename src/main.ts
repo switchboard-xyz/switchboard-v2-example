@@ -1,5 +1,4 @@
-import { OracleQueue } from "./accounts/oracleQueue";
-import { OracleQueueDefinition, OracleQueueSchema } from "./types";
+import { OracleQueueDefinition, OracleQueueSchema, OracleQueue } from "./types";
 import fs from "fs";
 import prompts from "prompts";
 import chalk from "chalk";
@@ -15,14 +14,14 @@ export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
   : "keypairs";
 
 async function main(): Promise<void> {
-  const fileBuffer = fs.readFileSync("input.json");
+  const fileBuffer = fs.readFileSync("oracleQueue.definition.json");
   const queueDefinition: OracleQueueDefinition = JSON.parse(
     fileBuffer.toString()
   );
 
   // check if output file exists
-  const outFile = "output.json";
-  const fullOutFile = `${KEYPAIR_OUTPUT}/${outFile}`;
+  const outFile = "oracleQueue.schema.json";
+  const fullOutFile = `${outFile}`;
   let queueSchemaDefinition: OracleQueueSchema;
   if (fs.existsSync(fullOutFile)) {
     const fileBuffer = fs.readFileSync(fullOutFile);

@@ -20,7 +20,7 @@ import {
 } from "../types";
 import { Aggregator } from "./aggregator";
 import { toAccountString } from "../utils";
-import { loadAggregatorAccount, loadCrankAccount } from "./load";
+import { loadAggregatorAccount, loadCrankAccount } from "../utils/loadAccounts";
 
 export class OracleQueue {
   private program = loadAnchorSync();

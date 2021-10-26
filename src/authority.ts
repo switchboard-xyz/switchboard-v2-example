@@ -22,6 +22,7 @@ export const getAuthorityKeypair = (): Keypair => {
       JSON.parse(fs.readFileSync(resolve(argv.updateAuthorityKeypair), "utf-8"))
     );
     const updateAuthority = Keypair.fromSecretKey(updateAuthorityBuffer);
+    console.log("Loaded authority keypair from command line arguement");
 
     return updateAuthority;
   }

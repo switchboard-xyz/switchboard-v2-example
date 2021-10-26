@@ -15,7 +15,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 keypairs*/**/*.json
 keypairs*/**/*.txt
 keypairs*
-
+*oracleQueue.schema.json
+*oracleQueue.definition.json
 switchboard_v2.json
 
 *keypair.json
