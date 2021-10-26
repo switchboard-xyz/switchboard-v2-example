@@ -14,11 +14,9 @@ async function queueInit(): Promise<void> {
   const oracleQueue = new OracleQueue(queueDefinition);
   const oracleQueueSchema = await oracleQueue.create();
   console.log(oracleQueueSchema);
-  // const oracleSchema = new OracleSchema(oracleQueueSchema);
-  // console.log(oracleSchema
+
   fs.writeFileSync("output.json", JSON.stringify(oracleQueueSchema, null, 2));
-  console.log("Typeof", typeof oracleQueueSchema);
-  // console.log(oracleQueueSchema instanceof OracleQueueSchema);
+  console.log("schema", oracleQueueSchema.keypair);
 }
 
 queueInit().then(
