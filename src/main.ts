@@ -2,6 +2,7 @@ import { OracleQueue } from "./accounts";
 import { OracleQueueDefinition, OracleQueueSchema } from "./types";
 import fs from "fs";
 import prompts from "prompts";
+import chalk from "chalk";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -26,7 +27,10 @@ async function main(): Promise<void> {
   if (fs.existsSync(fullOutFile)) {
     const fileBuffer = fs.readFileSync(fullOutFile);
     queueSchemaDefinition = JSON.parse(fileBuffer.toString());
-    console.log("Oracle Queue built from local schema", fullOutFile);
+    console.log(
+      chalk.green("Oracle Queue built from local schema:"),
+      fullOutFile
+    );
   } else {
     const oracleQueue = new OracleQueue(queueDefinition);
     queueSchemaDefinition = await oracleQueue.createSchema();
@@ -34,7 +38,7 @@ async function main(): Promise<void> {
       fullOutFile,
       JSON.stringify(queueSchemaDefinition, null, 2)
     );
-    console.log("Oracle Queue schema built");
+    console.log(chalk.green("Oracle Queue schema built"), fullOutFile);
   }
   const answer = await prompts([
     {

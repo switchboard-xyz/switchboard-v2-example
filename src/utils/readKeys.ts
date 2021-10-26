@@ -1,7 +1,6 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { KEYPAIR_OUTPUT } from "../../types";
 import fs from "fs";
-import { getFullSubdirectoryPath } from "..";
+import { getFullSubdirectoryPath } from ".";
 
 export const readSecretKey = (
   fileName: string,

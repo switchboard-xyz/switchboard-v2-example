@@ -2,7 +2,6 @@ import { Keypair } from "@solana/web3.js";
 import yargs from "yargs/yargs";
 import fs from "fs";
 import resolve from "resolve-dir";
-import { UpdateAuthorityError } from "./types";
 import { readSecretKey } from "./utils";
 
 export const getAuthorityKeypair = (): Keypair => {
@@ -29,7 +28,10 @@ export const getAuthorityKeypair = (): Keypair => {
 
   // read update authority from local directory
   const updateAuthority = readSecretKey(fileName);
-  if (!updateAuthority) throw new UpdateAuthorityError();
+  if (!updateAuthority)
+    throw new Error(
+      "failed to read update authority from keypair directory or command line arguement"
+    );
 
   return updateAuthority;
 };
