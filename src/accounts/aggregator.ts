@@ -15,8 +15,24 @@ import {
 import * as anchor from "@project-serum/anchor";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { getJobTask } from "./jobs";
 import { toAccountString } from "../utils";
+import { JobDefinition } from "../types";
+import {
+  buildBinanceComTask,
+  buildBinanceUsTask,
+  buildBitfinexTask,
+  buildBitstampTask,
+  buildBittrexTask,
+  buildCoinbaseTask,
+  buildFtxUsTask,
+  buildFtxComTask,
+  buildHuobiTask,
+  buildKrakenTask,
+  buildKucoinTask,
+  buildMxcTask,
+  buildOkexTask,
+  buildOrcaApiTask,
+} from "../dataDefinitions/jobs";
 
 export class Aggregator {
   private program: anchor.Program;
@@ -42,7 +58,7 @@ export class Aggregator {
   }
 
   /**
-   * Creates the neccesary accounts to create and fund an aggregator
+   * Creates the neccesary accounts to add a feed to a queue and fund updates
    * 1. Create Aggregator account and assign it to an oracle queue
    * 2. Create Job account with job definitions
    * 3. Create Permission account for Aggregator to join an Oracle Queue
@@ -87,7 +103,7 @@ export class Aggregator {
     const jobs: JobSchema[] = [];
     if (!this.feed.jobs || this.feed.jobs.length === 0) return jobs;
     for await (const job of this.feed.jobs) {
-      const tasks = await getJobTask(job);
+      const tasks = await mapJobTask(job);
       const data = Buffer.from(
         OracleJob.encodeDelimited(
           OracleJob.create({
@@ -148,4 +164,39 @@ export class Aggregator {
     console.log(toAccountString(`${this.feedName}-lease`, leaseContract));
     return leaseContract;
   }
+}
+export async function mapJobTask(
+  job: JobDefinition
+): Promise<OracleJob.Task[]> {
+  switch (job.source) {
+    case "binanceCom":
+      return await buildBinanceComTask(job.id);
+    case "binanceUs":
+      return await buildBinanceUsTask(job.id);
+    case "bitfinex":
+      return await buildBitfinexTask(job.id);
+    case "bitstamp":
+      return await buildBitstampTask(job.id);
+    case "bittrex":
+      return await buildBittrexTask(job.id);
+    case "coinbase":
+      return await buildCoinbaseTask(job.id);
+    case "ftxUs":
+      return await buildFtxUsTask(job.id);
+    case "ftxCom":
+      return await buildFtxComTask(job.id);
+    case "huobi":
+      return await buildHuobiTask(job.id);
+    case "kraken":
+      return await buildKrakenTask(job.id);
+    case "kucoin":
+      return await buildKucoinTask(job.id);
+    case "mxc":
+      return await buildMxcTask(job.id);
+    case "okex":
+      return await buildOkexTask(job.id);
+    case "orca":
+      return await buildOrcaApiTask(job.id);
+  }
+  return [] as OracleJob.Task[];
 }

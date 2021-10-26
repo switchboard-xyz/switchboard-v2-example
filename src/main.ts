@@ -1,4 +1,4 @@
-import { OracleQueue } from "./accounts";
+import { OracleQueue } from "./accounts/oracleQueue";
 import { OracleQueueDefinition, OracleQueueSchema } from "./types";
 import fs from "fs";
 import prompts from "prompts";

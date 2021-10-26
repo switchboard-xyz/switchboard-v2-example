@@ -2,7 +2,7 @@ import * as anchor from "@project-serum/anchor";
 import { Connection } from "@solana/web3.js";
 import fs from "fs";
 import { RPC_URL } from "./main";
-import { getAuthorityKeypair } from "./accounts";
+import { getAuthorityKeypair } from "./authority";
 
 /**
  * Attempts to load Anchor IDL on-chain and falls back to local JSON if not found
