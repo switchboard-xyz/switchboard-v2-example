@@ -31,7 +31,7 @@
       "minRequiredOracleResults": 1,
       "minRequiredJobResults": 1,
       "minUpdateDelaySeconds": 6,
-      "jobDefinitions": [
+      "jobs": [
         {
           "source": "kraken",
           "id": "USDTZUSD"
@@ -56,7 +56,7 @@
       "minRequiredOracleResults": 1,
       "minRequiredJobResults": 1,
       "minUpdateDelaySeconds": 6,
-      "jobDefinitions": [
+      "jobs": [
         {
           "source": "binanceCom",
           "id": "SOLUSDT"
@@ -97,7 +97,7 @@
       "minRequiredOracleResults": 1,
       "minRequiredJobResults": 1,
       "minUpdateDelaySeconds": 6,
-      "jobDefinitions": [
+      "jobs": [
         {
           "source": "bittrex",
           "id": "btc-usd"

@@ -24,7 +24,6 @@ export interface JobDefinition {
 }
 export interface JobSchema extends JobDefinition {
   keypair?: keypair;
-  publicKey: PublicKey;
 }
 
 export interface AggregatorDefinition {
@@ -37,9 +36,8 @@ export interface AggregatorDefinition {
 }
 export interface AggregatorSchema extends AggregatorDefinition {
   keypair?: keypair;
-  publicKey?: PublicKey;
-  queuePermissionAccount: PublicKey;
-  leaseContract: PublicKey;
+  queuePermissionAccount: string;
+  leaseContract: string;
   jobs: JobSchema[];
 }
 
@@ -49,18 +47,12 @@ export interface CrankDefinition {
 }
 export interface CrankSchema extends CrankDefinition {
   keypair?: keypair;
-  publicKey?: PublicKey;
 }
-// export interface CrankSchemaDefinition extends CrankDefinition {
-//   keypair?: string;
-//   publicKey?: string;
-// }
-
 export interface OracleDefiniton {
   name: string;
 }
 export interface OracleSchemaDefinition extends OracleDefiniton {
-  publicKey?: PublicKey;
+  publicKey?: string;
   queuePermissionAccount?: PublicKey;
 }
 

@@ -18,6 +18,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { getJobTask } from "./jobs";
 import chalk from "chalk";
+import { toAccountString } from "./utils";
 
 export class Aggregator {
   private program: anchor.Program;
@@ -59,9 +60,8 @@ export class Aggregator {
     return {
       ...this.feed,
       keypair: new oKeypair(this.account.keypair),
-      publicKey: this.account.publicKey,
-      queuePermissionAccount: this.permissionAccount.publicKey,
-      leaseContract: this.leaseContract.publicKey,
+      queuePermissionAccount: this.permissionAccount.publicKey.toString(),
+      leaseContract: this.leaseContract.publicKey.toString(),
       jobs: this.jobs,
     };
   }
@@ -82,6 +82,7 @@ export class Aggregator {
     account: AggregatorAccount
   ): Promise<JobSchema[]> {
     const jobs: JobSchema[] = [];
+    if (!this.feed.jobs || this.feed.jobs.length === 0) return jobs;
     for await (const job of this.feed.jobs) {
       const tasks = await getJobTask(job);
       const data = Buffer.from(
@@ -100,8 +101,10 @@ export class Aggregator {
       jobs.push({
         ...job,
         keypair: new oKeypair(keypair),
-        publicKey: jobAccount.publicKey,
       });
+      console.log(
+        toAccountString(`${job.source}-job-account`, jobAccount.publicKey)
+      );
     }
     return jobs;
   }

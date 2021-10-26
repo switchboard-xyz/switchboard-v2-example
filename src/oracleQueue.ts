@@ -140,7 +140,7 @@ export class OracleQueue {
       });
       oracleAccounts.push({
         ...o,
-        publicKey: oracleAccount.publicKey,
+        publicKey: oracleAccount.publicKey.toString(),
         queuePermissionAccount: permissionAccount.publicKey,
       });
       console.log(
@@ -169,7 +169,6 @@ export class OracleQueue {
       crankAccounts.push({
         ...o,
         keypair: new keypair(crankAccount.keypair),
-        publicKey: crankAccount.publicKey,
       });
       console.log(toAccountString(`${o.name}`, crankAccount.publicKey));
     }
