@@ -4,7 +4,12 @@ import {
   OracleAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writePublicKey, readPublicKey, toAccountString } from "../../utils";
+import {
+  writePublicKey,
+  readPublicKey,
+  toAccountString,
+  prettyAccountString,
+} from "../../utils";
 import { PublicKey } from "@solana/web3.js";
 import { loadAnchor } from "../../anchor";
 import { getAuthorityKeypair, getOracleAccount, getOracleQueue } from "..";
@@ -25,7 +30,10 @@ export const getOracleQueuePermissionAccount = async (
 
   const fileName = "oracle_permission_account";
   const permAccount = loadOraclePermissionAccount(fileName, anchorProgram);
-  if (permAccount) return permAccount;
+  if (permAccount) {
+    console.log(prettyAccountString("Local:", fileName, permAccount.publicKey));
+    return permAccount;
+  }
 
   const permissionAccount = await PermissionAccount.create(anchorProgram, {
     authority: updateAuthority,
@@ -35,6 +43,9 @@ export const getOracleQueuePermissionAccount = async (
   if (permissionAccount?.publicKey) {
     writePublicKey(fileName, permissionAccount?.publicKey);
   }
+  console.log(
+    prettyAccountString("Created:", fileName, permissionAccount.publicKey)
+  );
 
   return permissionAccount;
 };

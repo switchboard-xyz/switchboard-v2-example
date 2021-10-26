@@ -17,14 +17,9 @@ import { getUsdtUsd } from "../feeds/usdtUsd";
 
 async function programInit(): Promise<void> {
   const program = await loadAnchor();
-
   const programStateAccount = await getProgramStateAccount(program);
   const payerKeypair = getAuthorityKeypair();
-  const oracleQueueAccount = await getOracleQueue(
-    program,
-    payerKeypair.publicKey
-  );
-  const oracleAccount = await getOracleAccount(program, oracleQueueAccount);
+
   const switchTokenMint = await programStateAccount.getTokenMint();
   const publisher = await switchTokenMint.createAccount(
     program.provider.wallet.publicKey
@@ -37,6 +32,12 @@ async function programInit(): Promise<void> {
   console.log(
     chalk.green(`   -> Funding oracle account with ${amount.toNumber()} tokens`)
   );
+
+  const oracleQueueAccount = await getOracleQueue(
+    program,
+    payerKeypair.publicKey
+  );
+  const oracleAccount = await getOracleAccount(program, oracleQueueAccount);
 
   const permissionAccount = await getOracleQueuePermissionAccount(
     program,
@@ -62,7 +63,7 @@ async function programInit(): Promise<void> {
   }
   const err = await usdt.verifyJobs();
   if (err) throw err;
-  await usdt.permitQueue(payerKeypair);
+  await usdt.permitToQueue(payerKeypair);
   await usdt.fundLease(100, publisher, payerKeypair);
   await usdt.addToCrank(crankAccount);
   aggregatorAccounts.push(usdt);
@@ -76,7 +77,7 @@ async function programInit(): Promise<void> {
     }
     const err = await agg.verifyJobs();
     if (err) throw err;
-    await agg.permitQueue(payerKeypair);
+    await agg.permitToQueue(payerKeypair);
     await agg.fundLease(100, publisher, payerKeypair);
     await agg.addToCrank(crankAccount);
     aggregatorAccounts.push(agg);

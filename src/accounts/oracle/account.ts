@@ -3,7 +3,7 @@ import {
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
-import { writeKeys } from "../../utils";
+import { prettyAccountString, writeKeys } from "../../utils";
 import { ConfigError } from "../../types";
 import { loadAnchor } from "../../anchor";
 import { getOracleQueue } from "../";
@@ -24,15 +24,21 @@ export const getOracleAccount = async (
   if (!oracleQueueAccount)
     throw new ConfigError("queueAccount not created yet");
 
-  if (!queueAccount) throw new ConfigError("queueAccount not created yet");
-
   const fileName = "oracle_account";
   const orcleAccount = loadOracleAccount(fileName, anchorProgram);
-  if (orcleAccount) return orcleAccount;
+  if (orcleAccount) {
+    console.log(
+      prettyAccountString("Local:", fileName, orcleAccount.publicKey)
+    );
+    return orcleAccount;
+  }
 
   const oracleAccount = await OracleAccount.create(anchorProgram, {
     queueAccount: oracleQueueAccount,
   });
   writeKeys(fileName, oracleAccount);
+  console.log(
+    prettyAccountString("Created:", fileName, oracleAccount.publicKey)
+  );
   return oracleAccount;
 };

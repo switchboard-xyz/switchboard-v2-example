@@ -11,7 +11,7 @@ import { FeedDefinition } from "../../types";
 import * as anchor from "@project-serum/anchor";
 import { getAuthorityKeypair, getOracleQueue } from "../";
 import { loadAggregatorAccount } from "./load";
-import { writeKeys } from "../../utils";
+import { prettyAccountString, writeKeys } from "../../utils";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import chalk from "chalk";
 import { Keypair, PublicKey } from "@solana/web3.js";
@@ -40,19 +40,21 @@ export class Aggregator {
       : await getOracleQueue();
     this.queue = oracleQueueAccount;
 
+    const fileName = "aggregator_account";
     const aggregatorAccount = await AggregatorAccount.create(this.program, {
       ...this.feed,
       queueAccount: oracleQueueAccount,
     });
     this.account = aggregatorAccount;
-    writeKeys("aggregator_account", aggregatorAccount, [
-      "feeds",
-      this.feedName,
-    ]);
+    writeKeys(fileName, aggregatorAccount, ["feeds", this.feedName]);
+    if (this.account.publicKey)
+      console.log(
+        prettyAccountString("Created:", fileName, this.account.publicKey)
+      );
     return;
   }
 
-  public async permitQueue(authority?: Keypair): Promise<PermissionAccount> {
+  public async permitToQueue(authority?: Keypair): Promise<PermissionAccount> {
     if (!this.queue) {
       this.queue = await getOracleQueue();
     }
@@ -67,7 +69,12 @@ export class Aggregator {
       this.feedName,
       this.program
     );
-    if (permAccount) return permAccount;
+    if (permAccount) {
+      console.log(
+        prettyAccountString("Local:", fileName, permAccount.publicKey)
+      );
+      return permAccount;
+    }
 
     const permissionAccount = await PermissionAccount.create(this.program, {
       authority: this.program.provider.wallet.publicKey,
@@ -80,10 +87,13 @@ export class Aggregator {
       enable: true,
     });
     writeKeys(fileName, permissionAccount, ["feeds", this.feedName]);
+    console.log(
+      prettyAccountString("Created:", fileName, permissionAccount.publicKey)
+    );
     return permissionAccount;
   }
 
-  public async verifyJobs(): Promise<Error | null> {
+  public async verifyJobs(silent = true): Promise<Error | null> {
     if (!this.account)
       return new Error(`failed to verify account ${this.feedName}`);
     const aggregator = await this.account.loadData();
@@ -107,7 +117,7 @@ export class Aggregator {
         }
       }
       if (shouldDelete) {
-        console.log(` ${chalk.red("Deleting Job:")} ${jobJson}`);
+        if (!silent) console.log(` ${chalk.red("Deleting Job:")} ${jobJson}`);
         await this.account.removeJob(
           new JobAccount({ program: this.program, publicKey: jobKey })
         );
@@ -129,7 +139,7 @@ export class Aggregator {
         );
 
         const keypair = anchor.web3.Keypair.generate();
-        console.log(` ${chalk.green("Adding Job:")} ${tasksJson}`);
+        if (!silent) console.log(` ${chalk.green("Adding Job:")} ${tasksJson}`);
 
         try {
           const job = await JobAccount.create(this.program, {
@@ -167,7 +177,12 @@ export class Aggregator {
       this.feedName,
       this.program
     );
-    if (lseContract) return lseContract;
+    if (lseContract) {
+      console.log(
+        prettyAccountString("Local:", fileName, lseContract.publicKey)
+      );
+      return lseContract;
+    }
 
     const leaseContract = await LeaseAccount.create(this.program, {
       loadAmount: new anchor.BN(loadAmount),
@@ -177,6 +192,9 @@ export class Aggregator {
       aggregatorAccount: this.account,
     });
     writeKeys(fileName, leaseContract, ["feeds", this.feedName]);
+    console.log(
+      prettyAccountString("Created:", fileName, leaseContract.publicKey)
+    );
     return leaseContract;
   }
 
@@ -195,6 +213,7 @@ export class Aggregator {
       );
     } else {
       await crankAccount.push({ aggregatorAccount: this.account });
+      console.log(`${this.feedName} added to crank ${crankAccount.publicKey}`);
     }
   }
 }
