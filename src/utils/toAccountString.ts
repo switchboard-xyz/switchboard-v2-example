@@ -3,8 +3,9 @@ import chalk from "chalk";
 
 export const toAccountString = (
   label: string,
-  publicKey: PublicKey
+  publicKey?: PublicKey
 ): string => {
+  if (!publicKey) return "";
   return `${chalk.blue(label.padEnd(24, " "))} ${chalk.yellow(publicKey)}`;
 };
 

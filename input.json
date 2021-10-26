@@ -14,7 +14,7 @@
       "name": "oracle-3"
     }
   ],
-  "crankDefinitions": [
+  "cranks": [
     {
       "name": "crank-1",
       "maxRows": 1

@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "start": "ts-node src/main.ts",
+    "queue:init": "ts-node src/scripts/queueInit.ts",
     "program:init": "ts-node src/scripts/programInit.ts",
     "oracle:heartbeat": "ts-node src/scripts/oracleHeartbeat.ts",
     "build": "tsc",

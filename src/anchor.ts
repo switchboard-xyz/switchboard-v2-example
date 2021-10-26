@@ -41,3 +41,30 @@ export async function loadAnchor(): Promise<anchor.Program> {
 
   return program;
 }
+
+export function loadAnchorSync(): anchor.Program {
+  if (!process.env.PID) {
+    throw new ConfigError("failed to provide PID environment variable");
+  }
+  const connection = new Connection(RPC_URL, { commitment: "confirmed" });
+  const programId = new anchor.web3.PublicKey(process.env.PID);
+
+  // get update authority wallet
+  const updateAuthority = getAuthorityKeypair();
+  const wallet = new anchor.Wallet(updateAuthority);
+
+  // get provider
+  const provider = new anchor.Provider(connection, wallet, {
+    commitment: "processed",
+    preflightCommitment: "processed",
+  });
+  const localIdlFile = "switchboard_v2.json";
+  if (!fs.existsSync(localIdlFile))
+    throw new ConfigError(`no local anchor idl file found: ${localIdlFile}`);
+  const anchorIdl = JSON.parse(
+    fs.readFileSync("switchboard_v2.json", "utf8")
+  ) as anchor.Idl;
+  const program = new anchor.Program(anchorIdl, programId, provider);
+
+  return program;
+}

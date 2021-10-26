@@ -33,8 +33,8 @@ export const getAuthorityKeypair = (): Keypair => {
   // read update authority from local directory
   const updateAuthority = readSecretKey(fileName);
   if (!updateAuthority) throw new UpdateAuthorityError();
-  console.log(
-    prettyAccountString("Local", fileName, updateAuthority.publicKey)
-  );
+  // console.log(
+  //   prettyAccountString("Local", fileName, updateAuthority.publicKey)
+  // );
   return updateAuthority;
 };
