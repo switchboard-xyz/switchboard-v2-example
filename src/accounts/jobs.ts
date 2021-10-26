@@ -14,7 +14,7 @@ import {
   buildMxcTask,
   buildOkexTask,
   buildOrcaApiTask,
-} from "../feeds/jobs";
+} from "../dataDefinitions/jobs";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 
 export async function getJobTask(
