@@ -16,7 +16,7 @@ keypairs*/**/*.json
 keypairs*/**/*.txt
 keypairs*
 *oracleQueue.schema.json
-*oracleQueue.definition.json
+
 switchboard_v2.json
 
 *keypair.json
