@@ -53,10 +53,11 @@ export interface OracleDefiniton {
 }
 export interface OracleSchemaDefinition extends OracleDefiniton {
   publicKey?: string;
-  queuePermissionAccount?: PublicKey;
+  queuePermissionAccount?: string;
 }
 
 export interface OracleQueueDefinition {
+  type: string;
   name: string;
   reward: anchor.BN;
   minStake: anchor.BN;
@@ -67,7 +68,7 @@ export interface OracleQueueDefinition {
 
 export interface OracleQueueSchema extends OracleQueueDefinition {
   keypair?: keypair;
-  programStateAccount: PublicKey;
+  programStateAccount: string;
   oracles: OracleSchemaDefinition[];
   cranks: CrankSchema[];
   feeds: AggregatorSchema[];
@@ -87,4 +88,7 @@ export class keypair {
       publicKey: `${this.publicKey?.toString()}`,
     };
   }
+  // public toKeypair(): Keypair {
+  //   return new Keypair.fromSecretKey(this.secretKey);
+  // }
 }

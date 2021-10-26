@@ -12,13 +12,13 @@ import {
   JobSchema,
   AggregatorSchema,
   keypair as oKeypair,
-} from "./types";
+} from "../types";
 import * as anchor from "@project-serum/anchor";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { getJobTask } from "./jobs";
 import chalk from "chalk";
-import { toAccountString } from "./utils";
+import { toAccountString } from "../utils";
 
 export class Aggregator {
   private program: anchor.Program;

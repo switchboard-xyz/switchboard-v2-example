@@ -1,16 +1,27 @@
-/**
- * This will be the CLI entry point where user will be given the options:
- * 1. Run wizard (Create oracle, queues, load feeds)
- * 2. Oracle Heartbeat
- * 3. Turn Crank
- * 4. Read last result from a feed
- * 5. Print accounts? (look at account structures, queues > oracles/cranks/feeds)
- */
-async function main(): Promise<void> {
-  console.log("Hello World");
+import { OracleQueueDefinition, OracleQueueSchema } from "./types";
+import fs from "fs";
+import { OracleQueue } from "./accounts";
+
+async function queueInit(): Promise<void> {
+  const fileBuffer = fs.readFileSync("input.json");
+  const queueDefinition: OracleQueueDefinition = JSON.parse(
+    fileBuffer.toString()
+  );
+
+  // check if output file exists
+  if (fs.existsSync("output.json")) return;
+
+  const oracleQueue = new OracleQueue(queueDefinition);
+  const oracleQueueSchema = await oracleQueue.create();
+  console.log(oracleQueueSchema);
+  // const oracleSchema = new OracleSchema(oracleQueueSchema);
+  // console.log(oracleSchema
+  fs.writeFileSync("output.json", JSON.stringify(oracleQueueSchema, null, 2));
+  console.log("Typeof", typeof oracleQueueSchema);
+  // console.log(oracleQueueSchema instanceof OracleQueueSchema);
 }
 
-main().then(
+queueInit().then(
   () => {
     process.exit();
   },

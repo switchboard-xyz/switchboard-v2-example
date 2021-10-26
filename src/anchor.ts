@@ -1,7 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import { Connection } from "@solana/web3.js";
 import fs from "fs";
-import { ConfigError, RPC_URL, AnchorConfig } from "./types";
+import { ConfigError, RPC_URL } from "./types";
 import { getAuthorityKeypair } from "./accounts";
 import chalk from "chalk";
 /**

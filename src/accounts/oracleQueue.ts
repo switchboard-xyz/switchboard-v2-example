@@ -8,8 +8,8 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { loadAnchor, loadAnchorSync } from "./anchor";
-import { getAuthorityKeypair } from "./accounts";
+import { loadAnchor, loadAnchorSync } from "../anchor";
+import { getAuthorityKeypair } from "./authority";
 import {
   CrankSchema,
   OracleQueueDefinition,
@@ -17,9 +17,9 @@ import {
   AggregatorSchema,
   OracleQueueSchema,
   keypair,
-} from "./types";
+} from "../types";
 import { Aggregator } from "./aggregator";
-import { toAccountString } from "./utils";
+import { toAccountString } from "../utils";
 
 export class OracleQueue {
   private program = loadAnchorSync();
@@ -58,7 +58,7 @@ export class OracleQueue {
     return {
       ...this.definition,
       keypair: new keypair(this.oracleQueueAccount.keypair),
-      programStateAccount: this.programStateAccount.publicKey,
+      programStateAccount: this.programStateAccount.publicKey.toString(),
       oracles: this.oracles,
       cranks: this.cranks,
       feeds: this.feeds,
@@ -141,7 +141,7 @@ export class OracleQueue {
       oracleAccounts.push({
         ...o,
         publicKey: oracleAccount.publicKey.toString(),
-        queuePermissionAccount: permissionAccount.publicKey,
+        queuePermissionAccount: permissionAccount.publicKey.toString(),
       });
       console.log(
         toAccountString(`${o.name}-permission`, oracleAccount.publicKey)
@@ -186,7 +186,7 @@ export class OracleQueue {
         f
       );
       aggregators.push(await aggregator.create());
-      console.log(toAccountString(`${f.name}`, aggregator.account?.publicKey));
+      // console.log(toAccountString(`${f.name}`, aggregator.account?.publicKey));
     }
     return aggregators;
   }

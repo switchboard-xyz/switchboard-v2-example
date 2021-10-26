@@ -1,4 +1,4 @@
-import { JobDefinition } from "./types";
+import { JobDefinition } from "../types";
 import {
   buildBinanceComTask,
   buildBinanceUsTask,
@@ -14,7 +14,7 @@ import {
   buildMxcTask,
   buildOkexTask,
   buildOrcaApiTask,
-} from "./feeds/jobs";
+} from "../feeds/jobs";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 
 export async function getJobTask(

@@ -2,8 +2,8 @@ import { Keypair } from "@solana/web3.js";
 import yargs from "yargs/yargs";
 import fs from "fs";
 import resolve from "resolve-dir";
-import { UpdateAuthorityError } from "../../types";
-import { readSecretKey, prettyAccountString } from "../../utils";
+import { UpdateAuthorityError } from "../types";
+import { readSecretKey, prettyAccountString } from "../utils";
 
 export const getAuthorityKeypair = (): Keypair => {
   const fileName = "authority-keypair";
