@@ -3,6 +3,7 @@ import yargs from "yargs/yargs";
 import fs from "fs";
 import resolve from "resolve-dir";
 import { readSecretKey } from "./utils";
+import { KEYPAIR_OUTPUT } from "./main";
 
 export const getAuthorityKeypair = (): Keypair => {
   const fileName = "authority-keypair";
@@ -31,7 +32,7 @@ export const getAuthorityKeypair = (): Keypair => {
   const updateAuthority = readSecretKey(fileName);
   if (!updateAuthority)
     throw new Error(
-      "failed to read update authority from keypair directory or command line arguement"
+      `failed to read update authority from keypair directory or command line arguement ${KEYPAIR_OUTPUT}/${fileName}.json`
     );
 
   return updateAuthority;

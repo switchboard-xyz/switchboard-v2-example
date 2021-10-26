@@ -9,19 +9,24 @@ import {
   PermissionAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import { CrankSchema, AggregatorSchema, OracleQueueSchema } from "../types";
+import {
+  CrankSchema,
+  AggregatorSchema,
+  OracleQueueSchema,
+  getKeypair,
+} from "../types";
 
 export function loadCrankAccount(
   program: anchor.Program,
   crank: CrankSchema
 ): CrankAccount {
-  const secret = crank.keypair?.secretKey;
-  if (!secret) throw new Error(`failed to load Crank account ${crank.name}`);
-  const keypair = Keypair.fromSecretKey(secret);
+  const keypair = getKeypair(crank.keypair);
+  // const keypair = Keypair.fromSecretKey(crank.keypair.secretKey as Uint8Array);
   const crankAccount = new CrankAccount({
     program,
     keypair,
   });
+
   return crankAccount;
 }
 
@@ -29,10 +34,8 @@ export function loadAggregatorAccount(
   program: anchor.Program,
   aggregator: AggregatorSchema
 ): AggregatorAccount {
-  const secret = aggregator.keypair?.secretKey;
-  if (!secret)
-    throw new Error(`failed to load Aggregator account ${aggregator.name}`);
-  const keypair = Keypair.fromSecretKey(secret);
+  // const keypair = getKeypair(aggregator.keypair);
+  const keypair = Keypair.fromSecretKey(aggregator.keypair.secretKey);
   const aggregatorAccount = new AggregatorAccount({
     program,
     keypair,
@@ -44,10 +47,8 @@ export function loadOracleQueueAccount(
   program: anchor.Program,
   oracleQueue: OracleQueueSchema
 ): OracleQueueAccount {
-  const secret = oracleQueue.keypair?.secretKey;
-  if (!secret)
-    throw new Error(`failed to load Oracle Queue account ${oracleQueue.name}`);
-  const keypair = Keypair.fromSecretKey(secret);
+  // const keypair = getKeypair(oracleQueue.keypair);
+  const keypair = Keypair.fromSecretKey(oracleQueue.keypair.secretKey);
   const oracleQueueAccount = new OracleQueueAccount({
     program,
     keypair,

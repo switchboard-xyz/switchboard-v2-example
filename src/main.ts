@@ -3,6 +3,9 @@ import fs from "fs";
 import prompts from "prompts";
 import chalk from "chalk";
 import dotenv from "dotenv";
+import { loadAnchorSync } from "./anchor";
+import { popCrank } from "./actions/popCrank";
+import { readCrank } from "./actions/readCrank";
 dotenv.config();
 
 export const RPC_URL = process.env.RPC_URL
@@ -11,7 +14,7 @@ export const RPC_URL = process.env.RPC_URL
 
 export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
   ? `keypairs-${process.env.KEYPAIR_OUTPUT}` // use prefix for gitignore glob pattern
-  : "keypairs";
+  : "."; // root
 
 async function main(): Promise<void> {
   const fileBuffer = fs.readFileSync("oracleQueue.definition.json");
@@ -72,7 +75,21 @@ async function main(): Promise<void> {
       ],
     },
   ]);
+  const program = loadAnchorSync();
   console.log("selected:", answer.action);
+  switch (answer.action) {
+    case "readCrank":
+      await readCrank(program, queueSchemaDefinition);
+      break;
+    case "crankTurn":
+      await popCrank(program, queueSchemaDefinition);
+      break;
+    case "aggregatorResult":
+      console.log("Printing latest result");
+      break;
+    default:
+      console.log("Not implemented yet");
+  }
 }
 
 main().then(

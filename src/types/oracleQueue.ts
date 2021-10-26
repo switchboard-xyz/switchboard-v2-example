@@ -13,7 +13,7 @@ import { getAuthorityKeypair } from "../authority";
 import {
   CrankSchema,
   OracleQueueDefinition,
-  OracleSchemaDefinition,
+  OracleSchema,
   AggregatorSchema,
   OracleQueueSchema,
   keypair,
@@ -21,6 +21,7 @@ import {
 import { Aggregator } from "./aggregator";
 import { toAccountString } from "../utils";
 import { loadAggregatorAccount, loadCrankAccount } from "../utils/loadAccounts";
+import chalk from "chalk";
 
 export class OracleQueue {
   private program = loadAnchorSync();
@@ -111,8 +112,8 @@ export class OracleQueue {
   }
   private async createOracles(
     oracleQueueAccount: OracleQueueAccount
-  ): Promise<OracleSchemaDefinition[]> {
-    const oracleAccounts: OracleSchemaDefinition[] = [];
+  ): Promise<OracleSchema[]> {
+    const oracleAccounts: OracleSchema[] = [];
     if (this.queueDefinition.oracles.length === 0) return oracleAccounts;
 
     for await (const o of this.queueDefinition.oracles) {
@@ -190,28 +191,39 @@ export class OracleQueue {
     cranks: CrankSchema[]
   ): Promise<void> {
     for await (const f of feeds) {
-      if (!f.cranks || !f.keypair?.publicKey) break;
+      if (!f.cranks) break;
+      const aggregatorAccount = loadAggregatorAccount(this.program, f);
       for await (const crankName of f.cranks) {
         // find crank by name
         const crankScehma = cranks.find((c) => c.name === crankName);
-        if (!crankScehma) return;
+        if (!crankScehma) {
+          console.log(`${chalk.red("crank not found", crankName)}`);
+          return;
+        }
         const crankAccount = loadCrankAccount(this.program, crankScehma);
-        // make sure aggregator is not already added to crank
-        const allCrankpqData: {
-          pubkey: PublicKey;
-          nextTimestamp: anchor.BN;
-        }[] = (await crankAccount.loadData()).pqData;
-        const allCrankAccounts: PublicKey[] = allCrankpqData.map(
-          (crank: { pubkey: PublicKey; nextTimestamp: anchor.BN }) =>
-            crank.pubkey
-        );
-        if (allCrankAccounts.indexOf(f.keypair?.publicKey)) {
-          console.log(`${f.name} already added to crank ${crankName}`);
-        } else {
-          const aggregatorAccount = loadAggregatorAccount(this.program, f);
+        try {
           await crankAccount.push({ aggregatorAccount });
           console.log(`${f.name} added to crank ${crankName}`);
+        } catch (err) {
+          console.log(`${chalk.red(f.name, "not added to", crankName)}`);
         }
+
+        // make sure aggregator is not already added to crank
+        // const allCrankpqData: {
+        //   pubkey: PublicKey;
+        //   nextTimestamp: anchor.BN;
+        // }[] = (await crankAccount.loadData()).pqData;
+        // const allCrankAccounts: PublicKey[] = allCrankpqData.map(
+        //   (crank: { pubkey: PublicKey; nextTimestamp: anchor.BN }) =>
+        //     crank.pubkey
+        // );
+        // if (allCrankAccounts.indexOf(f.keypair.publicKey)) {
+        //   console.log(`${chalk.red(f.name, "not added to", crankName)}`);
+        //   // await crankAccount.push({ aggregatorAccount });
+        // } else {
+        //   await crankAccount.push({ aggregatorAccount });
+        //   console.log(`${f.name} added to crank ${crankName}`);
+        // }
       }
     }
   }

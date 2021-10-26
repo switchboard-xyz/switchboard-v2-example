@@ -23,7 +23,7 @@ export interface JobDefinition {
   id: string;
 }
 export interface JobSchema extends JobDefinition {
-  keypair?: keypair;
+  keypair: keypair;
 }
 
 export interface AggregatorDefinition {
@@ -36,7 +36,7 @@ export interface AggregatorDefinition {
   jobs: JobDefinition[];
 }
 export interface AggregatorSchema extends AggregatorDefinition {
-  keypair?: keypair;
+  keypair: keypair;
   queuePermissionAccount: string;
   leaseContract: string;
   jobs: JobSchema[];
@@ -47,13 +47,13 @@ export interface CrankDefinition {
   maxRows: number;
 }
 export interface CrankSchema extends CrankDefinition {
-  keypair?: keypair;
+  keypair: keypair;
 }
 export interface OracleDefiniton {
   name: string;
 }
-export interface OracleSchemaDefinition extends OracleDefiniton {
-  publicKey?: string;
+export interface OracleSchema extends OracleDefiniton {
+  publicKey: string;
   queuePermissionAccount?: string;
 }
 
@@ -68,25 +68,51 @@ export interface OracleQueueDefinition {
 }
 
 export interface OracleQueueSchema extends OracleQueueDefinition {
-  keypair?: keypair;
+  keypair: keypair;
   programStateAccount: string;
-  oracles: OracleSchemaDefinition[];
+  oracles: OracleSchema[];
   cranks: CrankSchema[];
   feeds: AggregatorSchema[];
 }
 
 export class keypair {
-  public secretKey?: Uint8Array;
-  public publicKey?: PublicKey;
+  public secretKey: Uint8Array;
+  public publicKey: PublicKey;
 
   constructor(k: Keypair) {
     this.secretKey = k.secretKey;
     this.publicKey = k.publicKey;
   }
-  public toJSON(): any {
-    return {
+  // public getSecretKey(): Uint8Array {
+  //   const obj: Uint8Array = JSON.parse(this.secretKey);
+  //   console.log(obj);
+  //   return Uint8Array.from(obj);
+  // }
+  // public getPublicKey(): PublicKey {
+  //   return new PublicKey(this.publicKey);
+  // }
+  // public getKeypair(): Keypair {
+  //   const secretKey = new Uint8Array(this.secretKey);
+  //   return Keypair.fromSecretKey(secretKey);
+  // }
+  public toJSON(): keypairJSON {
+    const json: keypairJSON = {
       secretKey: `[${this.secretKey}]`,
-      publicKey: `${this.publicKey?.toString()}`,
+      publicKey: this.publicKey.toString(),
     };
+    return json;
   }
+}
+
+interface keypairJSON {
+  secretKey: string;
+  publicKey: string;
+}
+
+// JSON.parse doesnt create instance of class so doesnt inherit functions
+// TO DO: Capture interfaces on Ikeypair
+export function getKeypair(keypair: keypair): Keypair {
+  const secretKey = keypair.secretKey.toString();
+  const secretArray = new Uint8Array(JSON.parse(secretKey));
+  return Keypair.fromSecretKey(secretArray);
 }
