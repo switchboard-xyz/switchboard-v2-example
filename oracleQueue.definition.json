@@ -16,11 +16,11 @@
   "cranks": [
     {
       "name": "crank-1",
-      "maxRows": 1
+      "maxRows": 5
     },
     {
       "name": "crank-2",
-      "maxRows": 5
+      "maxRows": 1
     }
   ],
   "feeds": [
@@ -56,7 +56,7 @@
       "minRequiredOracleResults": 1,
       "minRequiredJobResults": 1,
       "minUpdateDelaySeconds": 6,
-      "cranks": ["crank-1", "crank-2"],
+      "cranks": ["crank-1"],
       "jobs": [
         {
           "source": "binanceCom",
@@ -89,64 +89,6 @@
         {
           "source": "okex",
           "id": "SOL-USDT"
-        }
-      ]
-    },
-    {
-      "name": "BTC_USD",
-      "batchSize": 1,
-      "minRequiredOracleResults": 1,
-      "minRequiredJobResults": 1,
-      "minUpdateDelaySeconds": 6,
-      "cranks": ["crank-1"],
-      "jobs": [
-        {
-          "source": "bittrex",
-          "id": "btc-usd"
-        },
-        {
-          "source": "binanceCom",
-          "id": "BTCUSDT"
-        },
-        {
-          "source": "binanceUs",
-          "id": "BTCUSD"
-        },
-        {
-          "source": "bitfinex",
-          "id": "tBTCUSD"
-        },
-        {
-          "source": "bitstamp",
-          "id": "btcusd"
-        },
-        {
-          "source": "coinbase",
-          "id": "BTC-USD"
-        },
-        {
-          "source": "ftxCom",
-          "id": "BTC/USD"
-        },
-        {
-          "source": "ftxUs",
-          "id": "btc/usd"
-        },
-        {
-          "source": "huobi",
-          "id": "btcusdt"
-        },
-        {
-          "source": "kraken",
-          "id": "XXBTZUSD"
-        },
-        {
-          "source": "mxc",
-          "id": "BTC_USDT"
-        },
-        {
-          "source": "okex",
-          "id": "BTC-USDT"
         }
       ]
     }

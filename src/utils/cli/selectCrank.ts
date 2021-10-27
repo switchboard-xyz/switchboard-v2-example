@@ -1,7 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import { CrankAccount } from "@switchboard-xyz/switchboard-v2";
 import prompts, { Choice } from "prompts";
-import { CrankSchema } from "../../types";
+import { CrankSchema } from "../../accounts";
 import { loadCrankAccount } from "../loadAccounts";
 
 export async function selectCrank(

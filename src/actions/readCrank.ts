@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { CrankAccount } from "@switchboard-xyz/switchboard-v2";
-import { OracleQueueSchema } from "../types";
+import { OracleQueueSchema } from "../accounts";
 import { selectCrank } from "../utils/cli/selectCrank";
 import { RPC_URL } from "../main";
 import { PublicKey } from "@solana/web3.js";

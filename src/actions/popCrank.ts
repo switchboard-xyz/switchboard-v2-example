@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { CrankAccount } from "@switchboard-xyz/switchboard-v2";
-import { OracleQueueSchema } from "../types";
+import { OracleQueueSchema } from "../accounts";
 import { selectCrank } from "../utils/cli/selectCrank";
 import { RPC_URL } from "../main";
 import { Connection, Context, SignatureResult } from "@solana/web3.js";
@@ -13,7 +13,7 @@ export async function popCrank(
   const crank: CrankAccount = await selectCrank(program, schema.cranks);
   const txn = await crank.pop({
     payoutWallet: program.provider.wallet.publicKey,
-    queuePubkey: schema.keypair.publicKey,
+    queuePubkey: schema.publicKey,
     queueAuthority: program.provider.wallet.publicKey,
   });
   console.log(txn);

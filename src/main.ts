@@ -1,14 +1,16 @@
-import { OracleQueueDefinition, OracleQueueSchema, OracleQueue } from "./types";
+import "reflect-metadata"; // need global
+import { OracleQueueDefinition, OracleQueueSchema } from "./accounts";
+import { AnchorProgram } from "./program";
 import fs from "fs";
 import prompts from "prompts";
 import chalk from "chalk";
 import dotenv from "dotenv";
-import { loadAnchorSync } from "./anchor";
 import { popCrank } from "./actions/popCrank";
 import { readCrank } from "./actions/readCrank";
 import { TypedJSON } from "typedjson";
 // import DEFINITIONS from "../oracleQueue.definition.json";
-import "reflect-metadata";
+
+import { getAuthorityKeypair } from "./authority";
 dotenv.config();
 
 export const RPC_URL = process.env.RPC_URL
@@ -20,16 +22,16 @@ export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
   : "."; // root
 
 async function main(): Promise<void> {
+  const authority = getAuthorityKeypair();
+
   let queueDefinition: OracleQueueDefinition | undefined;
   try {
     const fileBuffer = fs.readFileSync("oracleQueue.definition.json");
     const fileString = fileBuffer.toString();
     queueDefinition = TypedJSON.parse(fileString, OracleQueueDefinition);
-    console.log("q", queueDefinition);
   } catch (err) {
     console.error(err);
     process.exit(-1);
-    return;
   }
   if (!queueDefinition) {
     console.error("no queue");
@@ -37,25 +39,36 @@ async function main(): Promise<void> {
   }
 
   // check if output file exists
-  const outFile = "src/oracleQueue.schema.json";
+  const outFile = "oracleQueue.schema.json";
   const fullOutFile = `${outFile}`;
-  let queueSchemaDefinition: OracleQueueSchema;
+  let queueSchemaDefinition: OracleQueueSchema | undefined;
   if (fs.existsSync(fullOutFile)) {
-    const fileBuffer = fs.readFileSync(fullOutFile);
-    queueSchemaDefinition = JSON.parse(fileBuffer.toString());
     console.log(
       chalk.green("Oracle Queue built from local schema:"),
       fullOutFile
     );
+    const fileBuffer = fs.readFileSync(fullOutFile);
+    const fileString = `${fileBuffer}`;
+    queueSchemaDefinition = TypedJSON.parse(fileString, OracleQueueSchema);
   } else {
-    const oracleQueue = new OracleQueue(queueDefinition);
-    queueSchemaDefinition = await oracleQueue.createSchema();
-    fs.writeFileSync(
-      fullOutFile,
-      JSON.stringify(queueSchemaDefinition, null, 2)
-    );
-    console.log(chalk.green("Oracle Queue schema built"), fullOutFile);
+    queueSchemaDefinition = await queueDefinition.toSchema(authority);
   }
+  if (!queueSchemaDefinition || !queueSchemaDefinition.name)
+    throw new Error(`failed to parse schema input`);
+
+  const schemaString = TypedJSON.stringify(
+    queueSchemaDefinition,
+    OracleQueueSchema
+  );
+  const schemaClass = TypedJSON.parse(schemaString, OracleQueueSchema);
+  const newSchemaString = TypedJSON.stringify(schemaClass, OracleQueueSchema);
+  console.log("Schema", newSchemaString);
+  if (newSchemaString) {
+    fs.writeFileSync(fullOutFile, newSchemaString);
+  } else {
+    throw new Error("failed to write json schema output");
+  }
+
   const answer = await prompts([
     {
       type: "select",
@@ -89,7 +102,7 @@ async function main(): Promise<void> {
       ],
     },
   ]);
-  const program = loadAnchorSync();
+  const program = AnchorProgram.getInstance().program;
   console.log("selected:", answer.action);
   switch (answer.action) {
     case "readCrank":

@@ -9,15 +9,13 @@ import {
   PermissionAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import { CrankSchema, AggregatorSchema, OracleQueueSchema } from "../types";
-import { getKeypair } from "../types/schema";
+import { CrankSchema, AggregatorSchema, OracleQueueSchema } from "../accounts";
 
 export function loadCrankAccount(
   program: anchor.Program,
   crank: CrankSchema
 ): CrankAccount {
-  const keypair = getKeypair(crank.keypair);
-  // const keypair = Keypair.fromSecretKey(crank.keypair.secretKey as Uint8Array);
+  const keypair = Keypair.fromSecretKey(crank.secretKey);
   const crankAccount = new CrankAccount({
     program,
     keypair,
@@ -31,7 +29,7 @@ export function loadAggregatorAccount(
   aggregator: AggregatorSchema
 ): AggregatorAccount {
   // const keypair = getKeypair(aggregator.keypair);
-  const keypair = Keypair.fromSecretKey(aggregator.keypair.secretKey);
+  const keypair = Keypair.fromSecretKey(aggregator.secretKey);
   const aggregatorAccount = new AggregatorAccount({
     program,
     keypair,
@@ -44,7 +42,7 @@ export function loadOracleQueueAccount(
   oracleQueue: OracleQueueSchema
 ): OracleQueueAccount {
   // const keypair = getKeypair(oracleQueue.keypair);
-  const keypair = Keypair.fromSecretKey(oracleQueue.keypair.secretKey);
+  const keypair = Keypair.fromSecretKey(oracleQueue.secretKey);
   const oracleQueueAccount = new OracleQueueAccount({
     program,
     keypair,
