@@ -1,14 +1,13 @@
 import * as anchor from "@project-serum/anchor";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 import {
   OracleAccount,
   OracleQueueAccount,
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Transform, Exclude, Type } from "class-transformer";
+import { Expose, Exclude } from "class-transformer";
 import { AnchorProgram } from "../program";
-import TransformPublicKey from "../types/transformPublicKey";
 import { toAccountString } from "../utils";
 
 export class OracleDefiniton {

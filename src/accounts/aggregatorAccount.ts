@@ -7,18 +7,11 @@ import {
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
-import {
-  Expose,
-  Type,
-  Exclude,
-  plainToClass,
-  Transform,
-} from "class-transformer";
+import { Expose, Type, Exclude } from "class-transformer";
 import { toAccountString } from "../utils";
 import { JobDefinition, JobSchema } from "./";
 import { AnchorProgram } from "../program";
-import TransformPublicKey from "../types/transformPublicKey";
-import TransformSecretKey from "../types/transformSecretKey";
+
 export interface IAggregatorDefinition {
   name: string;
   batchSize: number;
@@ -87,7 +80,7 @@ export class AggregatorDefinition {
 
     return {
       ...this,
-      secretKey: aggregatorAccount.keypair.secretKey,
+      secretKey: `[${aggregatorAccount.keypair.secretKey}]`,
       publicKey: aggregatorAccount.keypair.publicKey.toString(),
       queuePermissionAccount: permissionAccount.publicKey.toString(),
       leaseContract: leaseContract.publicKey.toString(),
@@ -165,9 +158,7 @@ export class AggregatorDefinition {
 
 export class AggregatorSchema extends AggregatorDefinition {
   @Expose()
-  @Type(() => Uint8Array)
-  @TransformSecretKey()
-  public secretKey!: Uint8Array;
+  public secretKey!: string;
   @Expose()
   public publicKey!: string;
   @Expose()

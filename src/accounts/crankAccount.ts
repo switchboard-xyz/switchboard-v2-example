@@ -1,14 +1,12 @@
 import * as anchor from "@project-serum/anchor";
-import { PublicKey } from "@solana/web3.js";
 import {
   CrankAccount,
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Exclude, Transform, Type } from "class-transformer";
+import { Expose, Exclude } from "class-transformer";
 import { toAccountString } from "../utils";
 import { AnchorProgram } from "../program";
-import TransformPublicKey from "../types/transformPublicKey";
-import TransformSecretKey from "../types/transformSecretKey";
+
 export class CrankDefinition {
   @Exclude()
   private _program: anchor.Program = AnchorProgram.getInstance().program;
@@ -31,7 +29,7 @@ export class CrankDefinition {
 
     return {
       ...this,
-      secretKey: crankAccount.keypair.secretKey,
+      secretKey: `[${crankAccount.keypair.secretKey}]`,
       publicKey: crankAccount.keypair.publicKey.toString(),
     };
   }
@@ -39,9 +37,7 @@ export class CrankDefinition {
 
 export class CrankSchema extends CrankDefinition {
   @Expose()
-  @Type(() => Uint8Array)
-  @TransformSecretKey()
-  public secretKey!: Uint8Array;
+  public secretKey!: string;
   @Expose()
   public publicKey!: string;
 }

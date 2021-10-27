@@ -4,7 +4,7 @@ import {
   OracleQueueAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Type, Exclude, Transform } from "class-transformer";
+import { Expose, Type, Exclude } from "class-transformer";
 import { toAccountString } from "../utils";
 import { loadAggregatorAccount, loadCrankAccount } from "../utils/loadAccounts";
 import {
@@ -17,9 +17,8 @@ import {
 } from "./";
 import { AnchorProgram } from "../program";
 import chalk from "chalk";
-import TransformPublicKey from "../types/transformPublicKey";
 import TransformAnchorBN from "../types/transformAnchorBN";
-import TransformSecretKey from "../types/transformSecretKey";
+
 export class OracleQueueDefinition {
   @Exclude()
   private _program: anchor.Program = AnchorProgram.getInstance().program;
@@ -77,7 +76,7 @@ export class OracleQueueDefinition {
 
     return {
       ...this,
-      secretKey: oracleQueueAccount.keypair.secretKey,
+      secretKey: `[${oracleQueueAccount.keypair.secretKey}]`,
       publicKey: oracleQueueAccount.keypair.publicKey.toString(),
       programStateAccount: programStateAccount.publicKey.toString(),
       oracles,
@@ -193,9 +192,7 @@ export class OracleQueueDefinition {
 
 export class OracleQueueSchema extends OracleQueueDefinition {
   @Expose()
-  @Type(() => Uint8Array)
-  @TransformSecretKey()
-  public secretKey!: Uint8Array;
+  public secretKey!: string;
   @Expose()
   public publicKey!: string;
   @Expose()

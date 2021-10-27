@@ -1,7 +1,6 @@
 /**
  * Not working
  */
-import { PublicKey } from "@solana/web3.js";
 import { Transform } from "class-transformer";
 
 export default function TransformSecretKey() {
@@ -10,10 +9,7 @@ export default function TransformSecretKey() {
   });
 
   const toClass = Transform(
-    (value) => {
-      const parsed = JSON.parse(value.value);
-      return new Uint8Array(parsed);
-    },
+    (value) => new Uint8Array(JSON.parse(value.value)),
     {
       toClassOnly: true,
     }

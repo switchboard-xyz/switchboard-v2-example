@@ -10,12 +10,13 @@ import {
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import { CrankSchema, AggregatorSchema, OracleQueueSchema } from "../accounts";
+import { unwrapSecretKey } from "../types";
 
 export function loadCrankAccount(
   program: anchor.Program,
   crank: CrankSchema
 ): CrankAccount {
-  const keypair = Keypair.fromSecretKey(crank.secretKey);
+  const keypair = Keypair.fromSecretKey(unwrapSecretKey(crank.secretKey));
   const crankAccount = new CrankAccount({
     program,
     keypair,
@@ -29,7 +30,7 @@ export function loadAggregatorAccount(
   aggregator: AggregatorSchema
 ): AggregatorAccount {
   // const keypair = getKeypair(aggregator.keypair);
-  const keypair = Keypair.fromSecretKey(aggregator.secretKey);
+  const keypair = Keypair.fromSecretKey(unwrapSecretKey(aggregator.secretKey));
   const aggregatorAccount = new AggregatorAccount({
     program,
     keypair,
@@ -42,7 +43,7 @@ export function loadOracleQueueAccount(
   oracleQueue: OracleQueueSchema
 ): OracleQueueAccount {
   // const keypair = getKeypair(oracleQueue.keypair);
-  const keypair = Keypair.fromSecretKey(oracleQueue.secretKey);
+  const keypair = Keypair.fromSecretKey(unwrapSecretKey(oracleQueue.secretKey));
   const oracleQueueAccount = new OracleQueueAccount({
     program,
     keypair,

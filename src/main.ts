@@ -62,8 +62,7 @@ async function main(): Promise<void> {
   });
   if (queueSchema) {
     const queueSchemaString = classToPlain(queueSchemaClass);
-    console.log(JSON.stringify(queueSchemaString));
-    fs.writeFileSync(fullOutFile, JSON.stringify(queueSchemaString));
+    fs.writeFileSync(fullOutFile, JSON.stringify(queueSchemaString, null, 2));
   } else {
     throw new Error("failed to write json schema output");
   }

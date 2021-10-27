@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import { Expose, Exclude, Transform, Type } from "class-transformer";
+import { Expose, Exclude } from "class-transformer";
 import { AnchorProgram } from "../program";
 import {
   buildBinanceComTask,
@@ -18,11 +18,8 @@ import {
   buildOrcaApiTask,
 } from "../dataDefinitions/jobs";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { PublicKey } from "@solana/web3.js";
 import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
-import { toAccountString } from "../utils";
-import TransformPublicKey from "../types/transformPublicKey";
-import TransformSecretKey from "../types/transformSecretKey";
+
 export type EndpointEnum =
   | "binanceCom"
   | "binanceUs"
@@ -65,10 +62,10 @@ export class JobDefinition {
       keypair,
     });
     await aggregatorAccount.addJob(jobAccount);
-    console.log(toAccountString(`${this.source}-job-account`, jobAccount));
+    // console.log(toAccountString(`${this.source}-job-account`, jobAccount));
     return {
       ...this,
-      secretKey: keypair.secretKey,
+      secretKey: `[${keypair.secretKey}]`,
       publicKey: keypair.publicKey.toString(),
     };
   }
@@ -109,9 +106,7 @@ export class JobDefinition {
 
 export class JobSchema extends JobDefinition {
   @Expose()
-  @Type(() => Uint8Array)
-  @TransformSecretKey()
-  public secretKey!: Uint8Array;
+  public secretKey!: string;
   @Expose()
   public publicKey!: string;
 }
