@@ -18,6 +18,7 @@ keypairs*
 *oracleQueue.schema.json
 
 .archive*
+configs.json*
 switchboard_v2.json
 
 *keypair.json
