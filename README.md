@@ -28,3 +28,9 @@ npm install
 npm run start
 ```
 
+## Oracle
+After running, set the ORACLE_KEY in your .env file or hardcode into docker-compose.yml
+
+```bash
+docker-compose up
+```
