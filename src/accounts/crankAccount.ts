@@ -5,9 +5,8 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import { Expose, Exclude, plainToClass } from "class-transformer";
 import { toAccountString } from "../utils";
-import { AnchorProgram } from "../types/anchorProgram";
+import { unwrapSecretKey, AnchorProgram } from "../types";
 import { Keypair } from "@solana/web3.js";
-import { unwrapSecretKey } from "../types";
 
 export class CrankDefinition {
   @Exclude()

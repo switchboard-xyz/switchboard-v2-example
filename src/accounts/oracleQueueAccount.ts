@@ -14,9 +14,8 @@ import {
   AggregatorSchema,
   OracleSchema,
 } from "./";
-import { AnchorProgram } from "../types/anchorProgram";
+import { AnchorProgram, TransformAnchorBN } from "../types";
 import chalk from "chalk";
-import TransformAnchorBN from "../types/transformAnchorBN";
 
 export class OracleQueueDefinition {
   @Exclude()

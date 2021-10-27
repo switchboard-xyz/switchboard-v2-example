@@ -1,16 +1,19 @@
 import "reflect-metadata"; // need global
 import { OracleQueueDefinition, OracleQueueSchema } from "./accounts";
 import { AnchorProgram } from "./types";
+import {
+  popCrank,
+  readCrank,
+  aggregatorUpdate,
+  oracleHeartbeat,
+  aggregatorResult,
+} from "./actions";
 import fs from "fs";
 import prompts from "prompts";
 import chalk from "chalk";
 import dotenv from "dotenv";
-import { popCrank } from "./actions/popCrank";
-import { readCrank } from "./actions/readCrank";
 import { plainToClass, classToPlain } from "class-transformer";
-import { aggregatorUpdate } from "./actions/aggregatorUpdate";
-import { oracleHeartbeat } from "./actions/oracleHeartbeat";
-import { aggregatorResult } from "./actions/aggregatorResult";
+
 dotenv.config();
 
 export const RPC_URL = process.env.RPC_URL

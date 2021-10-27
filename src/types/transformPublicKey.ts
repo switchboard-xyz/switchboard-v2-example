@@ -4,7 +4,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { Transform } from "class-transformer";
 
-export default function TransformPublicKey() {
+export function TransformPublicKey() {
   const toPlain = Transform((value) => (value.value as PublicKey).toString(), {
     toPlainOnly: true,
   });

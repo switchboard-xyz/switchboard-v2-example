@@ -3,7 +3,7 @@
  */
 import { Transform } from "class-transformer";
 
-export default function TransformSecretKey() {
+export function TransformSecretKey() {
   const toPlain = Transform((value) => `[${value.value}]`, {
     toPlainOnly: true,
   });

@@ -10,8 +10,7 @@ import {
 import { Expose, Type, Exclude, plainToClass } from "class-transformer";
 import { toAccountString } from "../utils";
 import { JobDefinition, JobSchema } from "./";
-import { AnchorProgram } from "../types/anchorProgram";
-import { unwrapSecretKey } from "../types";
+import { unwrapSecretKey, AnchorProgram } from "../types";
 
 export class AggregatorDefinition {
   @Exclude()

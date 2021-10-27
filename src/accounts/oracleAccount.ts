@@ -7,7 +7,7 @@ import {
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import { Expose, Exclude, plainToClass } from "class-transformer";
-import { AnchorProgram } from "../types/anchorProgram";
+import { AnchorProgram } from "../types";
 import { toAccountString } from "../utils";
 
 export class OracleDefiniton {

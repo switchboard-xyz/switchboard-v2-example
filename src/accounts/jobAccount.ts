@@ -1,6 +1,5 @@
 import * as anchor from "@project-serum/anchor";
 import { Expose, Exclude, plainToClass } from "class-transformer";
-import { AnchorProgram } from "../types/anchorProgram";
 import {
   buildBinanceComTask,
   buildBinanceUsTask,
@@ -19,7 +18,7 @@ import {
 } from "../dataDefinitions/jobs";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
-import { unwrapSecretKey } from "../types";
+import { unwrapSecretKey, AnchorProgram } from "../types";
 import { Keypair } from "@solana/web3.js";
 
 export type EndpointEnum =
