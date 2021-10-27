@@ -8,6 +8,9 @@ import dotenv from "dotenv";
 import { popCrank } from "./actions/popCrank";
 import { readCrank } from "./actions/readCrank";
 import { plainToClass, classToPlain } from "class-transformer";
+import { aggregatorUpdate } from "./actions/aggregatorUpdate";
+import { oracleHeartbeat } from "./actions/oracleHeartbeat";
+import { aggregatorResult } from "./actions/aggregatorResult";
 dotenv.config();
 
 export const RPC_URL = process.env.RPC_URL
@@ -73,27 +76,23 @@ async function main(): Promise<void> {
       message: "what do you want to do?",
       choices: [
         {
-          title: "1. Verify Job Definitions",
-          value: "verifyJobs",
-        },
-        {
-          title: "2. Oracle Heartbeat",
+          title: "1. Oracle Heartbeat",
           value: "oracleHeartbeat",
         },
         {
-          title: "3. Request Aggregator Update",
+          title: "2. Request Aggregator Update",
           value: "aggregatorUpdate",
         },
         {
-          title: "4. Read Aggregator Result",
+          title: "3. Read Aggregator Result",
           value: "aggregatorResult",
         },
         {
-          title: "5. Turn the Crank",
+          title: "4. Turn the Crank",
           value: "crankTurn",
         },
         {
-          title: "6. Read the Crank",
+          title: "5. Read the Crank",
           value: "readCrank",
         },
       ],
@@ -101,14 +100,20 @@ async function main(): Promise<void> {
   ]);
   console.log("selected:", answer.action);
   switch (answer.action) {
+    case "oracleHeartbeat":
+      await oracleHeartbeat(queueSchemaClass);
+      break;
+    case "aggregatorUpdate":
+      await aggregatorUpdate(queueSchemaClass);
+      break;
+    case "aggregatorResult":
+      await aggregatorResult(queueSchemaClass);
+      break;
     case "readCrank":
       await readCrank(queueSchemaClass);
       break;
     case "crankTurn":
       await popCrank(queueSchemaClass);
-      break;
-    case "aggregatorResult":
-      console.log("Printing latest result");
       break;
     default:
       console.log("Not implemented yet");

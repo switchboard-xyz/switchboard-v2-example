@@ -5,3 +5,7 @@ export * from "./toAccountString";
 export * from "./toDateString";
 export * from "./waitForever";
 export * from "./getFullSubdirectoryPath";
+export * from "./cli/selectCrank";
+export * from "./cli/selectFeed";
+export * from "./cli/selectOracle";
+export * from "./watchTransaction";
