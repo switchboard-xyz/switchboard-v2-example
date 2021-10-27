@@ -6,6 +6,9 @@ import dotenv from "dotenv";
 import { loadAnchorSync } from "./anchor";
 import { popCrank } from "./actions/popCrank";
 import { readCrank } from "./actions/readCrank";
+import { TypedJSON } from "typedjson";
+// import DEFINITIONS from "../oracleQueue.definition.json";
+import "reflect-metadata";
 dotenv.config();
 
 export const RPC_URL = process.env.RPC_URL
@@ -17,13 +20,24 @@ export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
   : "."; // root
 
 async function main(): Promise<void> {
-  const fileBuffer = fs.readFileSync("oracleQueue.definition.json");
-  const queueDefinition: OracleQueueDefinition = JSON.parse(
-    fileBuffer.toString()
-  );
+  let queueDefinition: OracleQueueDefinition | undefined;
+  try {
+    const fileBuffer = fs.readFileSync("oracleQueue.definition.json");
+    const fileString = fileBuffer.toString();
+    queueDefinition = TypedJSON.parse(fileString, OracleQueueDefinition);
+    console.log("q", queueDefinition);
+  } catch (err) {
+    console.error(err);
+    process.exit(-1);
+    return;
+  }
+  if (!queueDefinition) {
+    console.error("no queue");
+    return;
+  }
 
   // check if output file exists
-  const outFile = "oracleQueue.schema.json";
+  const outFile = "src/oracleQueue.schema.json";
   const fullOutFile = `${outFile}`;
   let queueSchemaDefinition: OracleQueueSchema;
   if (fs.existsSync(fullOutFile)) {

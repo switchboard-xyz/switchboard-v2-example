@@ -6,13 +6,13 @@ import {
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
+import { keypair as oKeypair } from "./schema";
 import {
   AggregatorDefinition,
   JobSchema,
   AggregatorSchema,
   JobDefinition,
-  keypair as oKeypair,
-} from ".";
+} from "./";
 import * as anchor from "@project-serum/anchor";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { Keypair, PublicKey } from "@solana/web3.js";

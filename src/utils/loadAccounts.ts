@@ -9,12 +9,8 @@ import {
   PermissionAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import {
-  CrankSchema,
-  AggregatorSchema,
-  OracleQueueSchema,
-  getKeypair,
-} from "../types";
+import { CrankSchema, AggregatorSchema, OracleQueueSchema } from "../types";
+import { getKeypair } from "../types/schema";
 
 export function loadCrankAccount(
   program: anchor.Program,

@@ -18,62 +18,61 @@ export type EndpointEnum =
   | "orca"
   | "orcaLp";
 
-export interface JobDefinition {
-  source: EndpointEnum;
-  id: string;
-}
-export interface JobSchema extends JobDefinition {
-  keypair: keypair;
-}
+// export interface JobDefinition {
+//   source: EndpointEnum;
+//   id: string;
+// }
+// export interface JobSchema extends JobDefinition {
+//   keypair: keypair;
+// }
 
-export interface AggregatorDefinition {
-  name: string;
-  batchSize: number;
-  minRequiredOracleResults: number;
-  minRequiredJobResults: number;
-  minUpdateDelaySeconds: number;
-  cranks?: string[];
-  jobs: JobDefinition[];
-}
-export interface AggregatorSchema extends AggregatorDefinition {
-  keypair: keypair;
-  queuePermissionAccount: string;
-  leaseContract: string;
-  jobs: JobSchema[];
-}
+// export interface AggregatorDefinition {
+//   name: string;
+//   batchSize: number;
+//   minRequiredOracleResults: number;
+//   minRequiredJobResults: number;
+//   minUpdateDelaySeconds: number;
+//   cranks?: string[];
+//   jobs: JobDefinition[];
+// }
+// export interface AggregatorSchema extends AggregatorDefinition {
+//   keypair: keypair;
+//   queuePermissionAccount: string;
+//   leaseContract: string;
+//   jobs: JobSchema[];
+// }
 
-export interface CrankDefinition {
-  name: string;
-  maxRows: number;
-}
-export interface CrankSchema extends CrankDefinition {
-  keypair: keypair;
-}
-export interface OracleDefiniton {
-  name: string;
-}
-export interface OracleSchema extends OracleDefiniton {
-  publicKey: string;
-  queuePermissionAccount?: string;
-}
+// export interface CrankDefinition {
+//   name: string;
+//   maxRows: number;
+// }
+// export interface CrankSchema extends CrankDefinition {
+//   keypair: keypair;
+// }
+// export interface OracleDefiniton {
+//   name: string;
+// }
+// export interface OracleSchema extends OracleDefiniton {
+//   publicKey: string;
+//   queuePermissionAccount?: string;
+// }
 
-export interface OracleQueueDefinition {
-  type: string;
-  name: string;
-  reward: anchor.BN;
-  minStake: anchor.BN;
-  oracles: OracleDefiniton[];
-  cranks: CrankDefinition[];
-  feeds: AggregatorDefinition[];
-}
+// export interface OracleQueueDefinition {
+//   name: string;
+//   reward: anchor.BN;
+//   minStake: anchor.BN;
+//   oracles: OracleDefiniton[];
+//   cranks: CrankDefinition[];
+//   feeds: AggregatorDefinition[];
+// }
 
-export interface OracleQueueSchema extends OracleQueueDefinition {
-  keypair: keypair;
-  programStateAccount: string;
-  oracles: OracleSchema[];
-  cranks: CrankSchema[];
-  feeds: AggregatorSchema[];
-}
+// export interface OracleQueueSchema extends OracleQueueDefinition {
+//   keypair: keypair;
+//   programStateAccount: string;
+//   oracles: OracleSchema[];
+//   cranks: CrankSchema[];
+//   feeds: AggregatorSchema[];
+// }
 
 export class keypair {
   public secretKey: Uint8Array;

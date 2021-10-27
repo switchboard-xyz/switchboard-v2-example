@@ -10,14 +10,14 @@ import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { loadAnchorSync } from "../anchor";
 import { getAuthorityKeypair } from "../authority";
+import { keypair } from "./schema";
 import {
   CrankSchema,
   OracleQueueDefinition,
   OracleSchema,
   AggregatorSchema,
   OracleQueueSchema,
-  keypair,
-} from "../types";
+} from "./";
 import { Aggregator } from "./aggregator";
 import { toAccountString } from "../utils";
 import { loadAggregatorAccount, loadCrankAccount } from "../utils/loadAccounts";
