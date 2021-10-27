@@ -19,6 +19,7 @@
     "@switchboard-xyz/switchboard-v2": "github:switchboard-xyz/switchboardv2-api",
     "big.js": "^6.1.1",
     "chalk": "^4.1.2",
+    "class-transformer": "^0.4.0",
     "dotenv": "^10.0.0",
     "fs": "^0.0.1-security",
     "node-fetch": "^2.0.0",
@@ -26,7 +27,6 @@
     "readline-sync": "^1.4.10",
     "reflect-metadata": "^0.1.13",
     "resolve-dir": "^1.0.1",
-    "typedjson": "^1.8.0",
     "wait-for-event": "^2.0.1",
     "yargs": "^17.2.1"
   },

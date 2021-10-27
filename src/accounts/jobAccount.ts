@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import { jsonObject, jsonMember, toJson } from "typedjson";
+import { Expose, Exclude, Transform, Type } from "class-transformer";
 import { AnchorProgram } from "../program";
 import {
   buildBinanceComTask,
@@ -21,7 +21,8 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { PublicKey } from "@solana/web3.js";
 import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
 import { toAccountString } from "../utils";
-
+import TransformPublicKey from "../types/transformPublicKey";
+import TransformSecretKey from "../types/transformSecretKey";
 export type EndpointEnum =
   | "binanceCom"
   | "binanceUs"
@@ -39,13 +40,13 @@ export type EndpointEnum =
   | "orca"
   | "orcaLp";
 
-@jsonObject
 export class JobDefinition {
-  @jsonMember
+  @Exclude()
+  private _program: anchor.Program = AnchorProgram.getInstance().program;
+  @Expose()
   public source!: EndpointEnum;
-  @jsonMember
+  @Expose()
   public id!: string;
-  program: anchor.Program = AnchorProgram.getInstance().program;
 
   public async toSchema(
     aggregatorAccount: AggregatorAccount
@@ -59,7 +60,7 @@ export class JobDefinition {
       ).finish()
     );
     const keypair = anchor.web3.Keypair.generate();
-    const jobAccount = await JobAccount.create(this.program, {
+    const jobAccount = await JobAccount.create(this._program, {
       data,
       keypair,
     });
@@ -68,7 +69,7 @@ export class JobDefinition {
     return {
       ...this,
       secretKey: keypair.secretKey,
-      publicKey: keypair.publicKey,
+      publicKey: keypair.publicKey.toString(),
     };
   }
   private async mapJobTask(): Promise<OracleJob.Task[]> {
@@ -106,12 +107,12 @@ export class JobDefinition {
   }
 }
 
-@toJson({ overwrite: true })
-@jsonObject
 export class JobSchema extends JobDefinition {
-  @jsonMember
+  @Expose()
+  @Type(() => Uint8Array)
+  @TransformSecretKey()
   public secretKey!: Uint8Array;
-  @jsonMember
-  public publicKey!: PublicKey;
+  @Expose()
+  public publicKey!: string;
 }
 export {};

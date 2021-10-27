@@ -7,9 +7,7 @@ import chalk from "chalk";
 import dotenv from "dotenv";
 import { popCrank } from "./actions/popCrank";
 import { readCrank } from "./actions/readCrank";
-import { TypedJSON } from "typedjson";
-// import DEFINITIONS from "../oracleQueue.definition.json";
-
+import { plainToClass, serialize, classToPlain } from "class-transformer";
 import { getAuthorityKeypair } from "./authority";
 dotenv.config();
 
@@ -27,8 +25,11 @@ async function main(): Promise<void> {
   let queueDefinition: OracleQueueDefinition | undefined;
   try {
     const fileBuffer = fs.readFileSync("oracleQueue.definition.json");
-    const fileString = fileBuffer.toString();
-    queueDefinition = TypedJSON.parse(fileString, OracleQueueDefinition);
+    const definition = JSON.parse(fileBuffer.toString());
+    queueDefinition = plainToClass(OracleQueueDefinition, definition, {
+      excludePrefixes: ["_"],
+      excludeExtraneousValues: true,
+    });
   } catch (err) {
     console.error(err);
     process.exit(-1);
@@ -41,30 +42,28 @@ async function main(): Promise<void> {
   // check if output file exists
   const outFile = "oracleQueue.schema.json";
   const fullOutFile = `${outFile}`;
-  let queueSchemaDefinition: OracleQueueSchema | undefined;
+  let queueSchema: OracleQueueSchema | undefined;
   if (fs.existsSync(fullOutFile)) {
     console.log(
       chalk.green("Oracle Queue built from local schema:"),
       fullOutFile
     );
     const fileBuffer = fs.readFileSync(fullOutFile);
-    const fileString = `${fileBuffer}`;
-    queueSchemaDefinition = TypedJSON.parse(fileString, OracleQueueSchema);
+    queueSchema = JSON.parse(fileBuffer.toString());
   } else {
-    queueSchemaDefinition = await queueDefinition.toSchema(authority);
+    queueSchema = await queueDefinition.toSchema(authority);
   }
-  if (!queueSchemaDefinition || !queueSchemaDefinition.name)
+  if (!queueSchema || !queueSchema.name)
     throw new Error(`failed to parse schema input`);
 
-  const schemaString = TypedJSON.stringify(
-    queueSchemaDefinition,
-    OracleQueueSchema
-  );
-  const schemaClass = TypedJSON.parse(schemaString, OracleQueueSchema);
-  const newSchemaString = TypedJSON.stringify(schemaClass, OracleQueueSchema);
-  console.log("Schema", newSchemaString);
-  if (newSchemaString) {
-    fs.writeFileSync(fullOutFile, newSchemaString);
+  const queueSchemaClass = plainToClass(OracleQueueSchema, queueSchema, {
+    excludePrefixes: ["_"],
+    excludeExtraneousValues: true,
+  });
+  if (queueSchema) {
+    const queueSchemaString = classToPlain(queueSchemaClass);
+    console.log(JSON.stringify(queueSchemaString));
+    fs.writeFileSync(fullOutFile, JSON.stringify(queueSchemaString));
   } else {
     throw new Error("failed to write json schema output");
   }
@@ -106,10 +105,10 @@ async function main(): Promise<void> {
   console.log("selected:", answer.action);
   switch (answer.action) {
     case "readCrank":
-      await readCrank(program, queueSchemaDefinition);
+      await readCrank(program, queueSchemaClass);
       break;
     case "crankTurn":
-      await popCrank(program, queueSchemaDefinition);
+      await popCrank(program, queueSchemaClass);
       break;
     case "aggregatorResult":
       console.log("Printing latest result");

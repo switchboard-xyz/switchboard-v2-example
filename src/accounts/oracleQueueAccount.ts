@@ -4,13 +4,7 @@ import {
   OracleQueueAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import {
-  jsonObject,
-  jsonMember,
-  jsonArrayMember,
-  toJson,
-  TypedJSON,
-} from "typedjson";
+import { Expose, Type, Exclude, Transform } from "class-transformer";
 import { toAccountString } from "../utils";
 import { loadAggregatorAccount, loadCrankAccount } from "../utils/loadAccounts";
 import {
@@ -23,49 +17,32 @@ import {
 } from "./";
 import { AnchorProgram } from "../program";
 import chalk from "chalk";
-
-TypedJSON.mapType(anchor.BN, {
-  deserializer: (json) => (json == null ? json : new anchor.BN(json)),
-  serializer: (value) => (value == null ? value : value.toString()),
-});
-
-TypedJSON.mapType(PublicKey, {
-  deserializer: (json) => (json == null ? json : new PublicKey(json)),
-  serializer: (value) => (value == null ? value : value.toString()),
-});
-
-@toJson({ overwrite: true })
-@jsonObject
+import TransformPublicKey from "../types/transformPublicKey";
+import TransformAnchorBN from "../types/transformAnchorBN";
+import TransformSecretKey from "../types/transformSecretKey";
 export class OracleQueueDefinition {
-  @jsonMember
+  @Exclude()
+  private _program: anchor.Program = AnchorProgram.getInstance().program;
+  @Expose()
   public name!: string;
-  @jsonMember
+  @Expose()
+  @TransformAnchorBN()
+  @Type(() => anchor.BN)
   public reward!: anchor.BN;
-  @jsonMember
+  @Expose()
+  @TransformAnchorBN()
+  @Type(() => anchor.BN)
   public minStake!: anchor.BN;
-  @jsonArrayMember(OracleDefiniton)
+  @Expose()
+  @Type(() => OracleDefiniton)
   public oracles!: OracleDefiniton[];
-  @jsonArrayMember(CrankDefinition)
+  @Expose()
+  @Type(() => CrankDefinition)
   public cranks!: CrankDefinition[];
-  @jsonArrayMember(AggregatorDefinition)
+  @Expose()
+  @Type(() => AggregatorDefinition)
   public feeds!: AggregatorDefinition[];
-  public program: anchor.Program = AnchorProgram.getInstance().program;
 
-  // constructor(
-  //   name: string,
-  //   reward: anchor.BN,
-  //   minStake: anchor.BN,
-  //   oracles?: OracleDefiniton[],
-  //   cranks?: CrankDefinition[],
-  //   feeds?: AggregatorDefinition[]
-  // ) {
-  //   this.name = name;
-  //   this.reward = reward;
-  //   this.minStake = minStake;
-  //   if (oracles) this.oracles = oracles;
-  //   if (cranks) this.cranks = cranks;
-  //   if (feeds) this.feeds = feeds;
-  // }
   /**
    * Creates the neccesary oracle queue accounts based on the input definition
    * 1. Loads programStateAccount
@@ -101,8 +78,8 @@ export class OracleQueueDefinition {
     return {
       ...this,
       secretKey: oracleQueueAccount.keypair.secretKey,
-      publicKey: oracleQueueAccount.keypair.publicKey,
-      programStateAccount: programStateAccount.publicKey,
+      publicKey: oracleQueueAccount.keypair.publicKey.toString(),
+      programStateAccount: programStateAccount.publicKey.toString(),
       oracles,
       cranks,
       feeds,
@@ -113,9 +90,9 @@ export class OracleQueueDefinition {
     let programAccount: ProgramStateAccount;
 
     try {
-      programAccount = await ProgramStateAccount.create(this.program, {});
+      programAccount = await ProgramStateAccount.create(this._program, {});
     } catch (e) {
-      [programAccount] = ProgramStateAccount.fromSeed(this.program);
+      [programAccount] = ProgramStateAccount.fromSeed(this._program);
     }
     return programAccount;
   }
@@ -125,7 +102,7 @@ export class OracleQueueDefinition {
   ): Promise<PublicKey> {
     const switchTokenMint = await programStateAccount.getTokenMint();
     const publisher = await switchTokenMint.createAccount(
-      this.program.provider.wallet.publicKey
+      this._program.provider.wallet.publicKey
     );
     return publisher;
   }
@@ -141,13 +118,13 @@ export class OracleQueueDefinition {
   }
 
   private async createOracleQueueAccount(): Promise<OracleQueueAccount> {
-    return OracleQueueAccount.create(this.program, {
+    return OracleQueueAccount.create(this._program, {
       name: Buffer.from(this.name),
       metadata: Buffer.from(""),
       slashingEnabled: false,
       reward: this.reward,
       minStake: this.minStake,
-      authority: this.program.provider.wallet.publicKey,
+      authority: this._program.provider.wallet.publicKey,
     });
   }
   private async createOracles(
@@ -194,7 +171,7 @@ export class OracleQueueDefinition {
   ): Promise<void> {
     for await (const f of feeds) {
       if (!f.cranks) break;
-      const aggregatorAccount = loadAggregatorAccount(this.program, f);
+      const aggregatorAccount = loadAggregatorAccount(this._program, f);
       for await (const crankName of f.cranks) {
         // find crank by name
         const crankScehma = cranks.find((c) => c.name === crankName);
@@ -202,7 +179,7 @@ export class OracleQueueDefinition {
           console.log(`${chalk.red("crank not found", crankName)}`);
           return;
         }
-        const crankAccount = loadCrankAccount(this.program, crankScehma);
+        const crankAccount = loadCrankAccount(this._program, crankScehma);
         try {
           await crankAccount.push({ aggregatorAccount });
           console.log(`${f.name} added to crank ${crankName}`);
@@ -214,40 +191,23 @@ export class OracleQueueDefinition {
   }
 }
 
-@toJson({ overwrite: true })
-@jsonObject
 export class OracleQueueSchema extends OracleQueueDefinition {
-  @jsonMember
+  @Expose()
+  @Type(() => Uint8Array)
+  @TransformSecretKey()
   public secretKey!: Uint8Array;
-  @jsonMember
-  public publicKey!: PublicKey;
-  @jsonMember
-  public programStateAccount!: PublicKey;
-  @jsonArrayMember(OracleSchema)
+  @Expose()
+  public publicKey!: string;
+  @Expose()
+  public programStateAccount!: string;
+  @Expose()
+  @Type(() => OracleSchema)
   public oracles!: OracleSchema[];
-  @jsonArrayMember(CrankSchema)
+  @Expose()
+  @Type(() => CrankSchema)
   public cranks!: CrankSchema[];
-  @jsonArrayMember(AggregatorSchema)
+  @Expose()
+  @Type(() => AggregatorSchema)
   public feeds!: AggregatorSchema[];
-
-  // constructor(
-  //   name: string,
-  //   reward: anchor.BN,
-  //   minStake: anchor.BN,
-  //   oracles: OracleSchema[],
-  //   cranks: CrankSchema[],
-  //   feeds: AggregatorSchema[],
-  //   secretKey: Uint8Array,
-  //   publicKey: PublicKey,
-  //   programStateAccount: PublicKey
-  // ) {
-  //   super(name, reward, minStake);
-  //   this.oracles = oracles;
-  //   this.cranks = cranks;
-  //   this.feeds = feeds;
-  //   this.secretKey = secretKey;
-  //   this.publicKey = publicKey;
-  //   this.programStateAccount = programStateAccount;
-  // }
 }
 export {};

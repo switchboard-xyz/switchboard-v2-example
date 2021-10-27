@@ -71,21 +71,3 @@ export function loadAnchorSync(): anchor.Program {
 
   return program;
 }
-
-export class AnchorProgram {
-  private static _instance: AnchorProgram;
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private constructor() {
-    AnchorProgram._instance = loadAnchorSync();
-  }
-
-  static getInstance(): AnchorProgram {
-    if (this._instance) {
-      return this._instance;
-    }
-
-    this._instance = new AnchorProgram();
-    return this._instance;
-  }
-}

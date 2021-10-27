@@ -4,21 +4,23 @@ import {
   CrankAccount,
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import { jsonObject, jsonMember, toJson } from "typedjson";
+import { Expose, Exclude, Transform, Type } from "class-transformer";
 import { toAccountString } from "../utils";
 import { AnchorProgram } from "../program";
-
-@jsonObject
+import TransformPublicKey from "../types/transformPublicKey";
+import TransformSecretKey from "../types/transformSecretKey";
 export class CrankDefinition {
-  @jsonMember
+  @Exclude()
+  private _program: anchor.Program = AnchorProgram.getInstance().program;
+  @Expose()
   public name!: string;
-  @jsonMember
+  @Expose()
   public maxRows!: number;
-  program: anchor.Program = AnchorProgram.getInstance().program;
+
   public async toSchema(
     oracleQueueAccount: OracleQueueAccount
   ): Promise<CrankSchema> {
-    const crankAccount = await CrankAccount.create(this.program, {
+    const crankAccount = await CrankAccount.create(this._program, {
       name: Buffer.from(this.name),
       metadata: Buffer.from(""),
       queueAccount: oracleQueueAccount,
@@ -30,17 +32,17 @@ export class CrankDefinition {
     return {
       ...this,
       secretKey: crankAccount.keypair.secretKey,
-      publicKey: crankAccount.keypair.publicKey,
+      publicKey: crankAccount.keypair.publicKey.toString(),
     };
   }
 }
 
-@toJson({ overwrite: true })
-@jsonObject
 export class CrankSchema extends CrankDefinition {
-  @jsonMember
+  @Expose()
+  @Type(() => Uint8Array)
+  @TransformSecretKey()
   public secretKey!: Uint8Array;
-  @jsonMember
-  public publicKey!: PublicKey;
+  @Expose()
+  public publicKey!: string;
 }
 export {};

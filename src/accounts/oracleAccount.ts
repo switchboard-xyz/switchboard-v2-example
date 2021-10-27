@@ -6,26 +6,27 @@ import {
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
-import { jsonObject, jsonMember, toJson } from "typedjson";
+import { Expose, Transform, Exclude, Type } from "class-transformer";
 import { AnchorProgram } from "../program";
+import TransformPublicKey from "../types/transformPublicKey";
 import { toAccountString } from "../utils";
 
-@jsonObject
 export class OracleDefiniton {
-  @jsonMember
+  @Exclude()
+  private _program: anchor.Program = AnchorProgram.getInstance().program;
+  @Expose()
   public name!: string;
-  program: anchor.Program = AnchorProgram.getInstance().program;
 
   public async toSchema(
     oracleQueueAccount: OracleQueueAccount,
     authority: Keypair
   ): Promise<OracleSchema> {
-    const oracleAccount = await OracleAccount.create(this.program, {
+    const oracleAccount = await OracleAccount.create(this._program, {
       name: Buffer.from(this.name),
       queueAccount: oracleQueueAccount,
     });
     console.log(toAccountString(this.name, oracleQueueAccount));
-    const permissionAccount = await PermissionAccount.create(this.program, {
+    const permissionAccount = await PermissionAccount.create(this._program, {
       authority: authority.publicKey,
       granter: oracleQueueAccount.publicKey,
       grantee: oracleAccount.publicKey,
@@ -38,18 +39,16 @@ export class OracleDefiniton {
     console.log(toAccountString(`${this.name}-permission`, oracleAccount));
     return {
       ...this,
-      publicKey: oracleAccount.publicKey,
-      queuePermissionAccount: permissionAccount.publicKey,
+      publicKey: oracleAccount.publicKey.toString(),
+      queuePermissionAccount: permissionAccount.publicKey.toString(),
     };
   }
 }
 
-@toJson({ overwrite: true })
-@jsonObject
 export class OracleSchema extends OracleDefiniton {
-  @jsonMember
-  public publicKey!: PublicKey;
-  @jsonMember
-  public queuePermissionAccount!: PublicKey;
+  @Expose()
+  public publicKey!: string;
+  @Expose()
+  public queuePermissionAccount!: string;
 }
 export {};
