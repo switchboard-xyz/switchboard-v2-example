@@ -9,7 +9,7 @@ export default function TransformSecretKey() {
   });
 
   const toClass = Transform(
-    (value) => new Uint8Array(JSON.parse(value.value)),
+    (value) => new Uint8Array(JSON.parse(value.value as string)),
     {
       toClassOnly: true,
     }

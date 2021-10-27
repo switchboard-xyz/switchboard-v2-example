@@ -2,10 +2,8 @@ import * as anchor from "@project-serum/anchor";
 import { CrankAccount } from "@switchboard-xyz/switchboard-v2";
 import prompts, { Choice } from "prompts";
 import { CrankSchema } from "../../accounts";
-import { loadCrankAccount } from "../loadAccounts";
 
 export async function selectCrank(
-  program: anchor.Program,
   cranks: CrankSchema[]
 ): Promise<CrankAccount> {
   const choices: Choice[] = cranks.map((c) => ({
@@ -22,6 +20,5 @@ export async function selectCrank(
   ]);
   const crank = cranks.find((c) => c.name === answer.crank);
   if (!crank) throw new Error(`failed to find ${answer.crank} in ${choices}`);
-  const crankAccount = loadCrankAccount(program, crank);
-  return crankAccount;
+  return crank.toAccount();
 }

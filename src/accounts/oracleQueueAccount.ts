@@ -4,9 +4,8 @@ import {
   OracleQueueAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Type, Exclude } from "class-transformer";
+import { Expose, Type, Exclude, plainToClass } from "class-transformer";
 import { toAccountString } from "../utils";
-import { loadAggregatorAccount, loadCrankAccount } from "../utils/loadAccounts";
 import {
   CrankDefinition,
   CrankSchema,
@@ -15,13 +14,13 @@ import {
   AggregatorSchema,
   OracleSchema,
 } from "./";
-import { AnchorProgram } from "../program";
+import { AnchorProgram } from "../types/anchorProgram";
 import chalk from "chalk";
 import TransformAnchorBN from "../types/transformAnchorBN";
 
 export class OracleQueueDefinition {
   @Exclude()
-  private _program: anchor.Program = AnchorProgram.getInstance().program;
+  _program: anchor.Program = AnchorProgram.getInstance().program;
   @Expose()
   public name!: string;
   @Expose()
@@ -74,7 +73,7 @@ export class OracleQueueDefinition {
 
     if (feeds && cranks) await this.addFeedsToCranks(feeds, cranks);
 
-    return {
+    return plainToClass(OracleQueueSchema, {
       ...this,
       secretKey: `[${oracleQueueAccount.keypair.secretKey}]`,
       publicKey: oracleQueueAccount.keypair.publicKey.toString(),
@@ -82,7 +81,7 @@ export class OracleQueueDefinition {
       oracles,
       cranks,
       feeds,
-    };
+    });
   }
 
   private async createProgramStateAccount(): Promise<ProgramStateAccount> {
@@ -170,7 +169,7 @@ export class OracleQueueDefinition {
   ): Promise<void> {
     for await (const f of feeds) {
       if (!f.cranks) break;
-      const aggregatorAccount = loadAggregatorAccount(this._program, f);
+      const aggregatorAccount = f.toAccount();
       for await (const crankName of f.cranks) {
         // find crank by name
         const crankScehma = cranks.find((c) => c.name === crankName);
@@ -178,7 +177,7 @@ export class OracleQueueDefinition {
           console.log(`${chalk.red("crank not found", crankName)}`);
           return;
         }
-        const crankAccount = loadCrankAccount(this._program, crankScehma);
+        const crankAccount = crankScehma.toAccount();
         try {
           await crankAccount.push({ aggregatorAccount });
           console.log(`${f.name} added to crank ${crankName}`);
@@ -206,5 +205,26 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   @Expose()
   @Type(() => AggregatorSchema)
   public feeds!: AggregatorSchema[];
+
+  public toAccount(): OracleQueueAccount {
+    const publicKey = new PublicKey(this.publicKey);
+    if (!publicKey)
+      throw new Error(`failed to load Oracle Queue account ${this.publicKey}`);
+    const oracleQueueAccount = new OracleQueueAccount({
+      program: this._program,
+      publicKey,
+    });
+    return oracleQueueAccount;
+  }
+  public getProgramState(): ProgramStateAccount {
+    const publicKey = new PublicKey(this.programStateAccount);
+    if (!publicKey)
+      throw new Error(`failed to load Program State account ${this.publicKey}`);
+    const programStateAccount = new ProgramStateAccount({
+      program: this._program,
+      publicKey,
+    });
+    return programStateAccount;
+  }
 }
 export {};

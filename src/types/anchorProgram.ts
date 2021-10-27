@@ -1,8 +1,29 @@
 import * as anchor from "@project-serum/anchor";
-import { Connection } from "@solana/web3.js";
+import { Connection, Keypair } from "@solana/web3.js";
 import fs from "fs";
-import { RPC_URL } from "./main";
-import { getAuthorityKeypair } from "./authority";
+import { RPC_URL } from "../main";
+import yargs from "yargs/yargs";
+import resolve from "resolve-dir";
+import { readSecretKey } from "../utils";
+import { KEYPAIR_OUTPUT } from "../main";
+
+export class AnchorProgram {
+  private static _instance: AnchorProgram;
+  public program: anchor.Program = loadAnchorSync();
+  public authority: Keypair = getAuthorityKeypair();
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private constructor() {}
+
+  static getInstance(): AnchorProgram {
+    if (this._instance) {
+      return this._instance;
+    }
+
+    this._instance = new AnchorProgram();
+    return this._instance;
+  }
+}
 
 /**
  * Attempts to load Anchor IDL on-chain and falls back to local JSON if not found
@@ -71,3 +92,36 @@ export function loadAnchorSync(): anchor.Program {
 
   return program;
 }
+
+export const getAuthorityKeypair = (): Keypair => {
+  const fileName = "authority-keypair";
+  const argv = yargs(process.argv.slice(2))
+    .options({
+      updateAuthorityKeypair: {
+        type: "string",
+        describe: "Path to keypair file that will pay for transactions.",
+        demand: false, // should output console command to create keypair
+      },
+    })
+    .parseSync();
+
+  // read update authority from command line arguement
+  if (argv.updateAuthorityKeypair) {
+    const updateAuthorityBuffer = new Uint8Array(
+      JSON.parse(fs.readFileSync(resolve(argv.updateAuthorityKeypair), "utf-8"))
+    );
+    const updateAuthority = Keypair.fromSecretKey(updateAuthorityBuffer);
+    console.log("Loaded authority keypair from command line arguement");
+
+    return updateAuthority;
+  }
+
+  // read update authority from local directory
+  const updateAuthority = readSecretKey(fileName);
+  if (!updateAuthority)
+    throw new Error(
+      `failed to read update authority from keypair directory or command line arguement ${KEYPAIR_OUTPUT}/${fileName}.json`
+    );
+
+  return updateAuthority;
+};

@@ -7,27 +7,12 @@ import {
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Type, Exclude } from "class-transformer";
+import { Expose, Type, Exclude, plainToClass } from "class-transformer";
 import { toAccountString } from "../utils";
 import { JobDefinition, JobSchema } from "./";
-import { AnchorProgram } from "../program";
+import { AnchorProgram } from "../types/anchorProgram";
+import { unwrapSecretKey } from "../types";
 
-export interface IAggregatorDefinition {
-  name: string;
-  batchSize: number;
-  minRequiredOracleResults: number;
-  minRequiredJobResults: number;
-  minUpdateDelaySeconds: number;
-  cranks: string[];
-  jobs: JobDefinition[];
-}
-export interface IAggregatorSchema extends IAggregatorDefinition {
-  secretKey: Uint8Array;
-  publicKey: PublicKey;
-  queuePermissionAccount: PublicKey;
-  leaseContract: PublicKey;
-  jobs: JobSchema[];
-}
 export class AggregatorDefinition {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
@@ -78,14 +63,14 @@ export class AggregatorDefinition {
       1000
     );
 
-    return {
+    return plainToClass(AggregatorSchema, {
       ...this,
       secretKey: `[${aggregatorAccount.keypair.secretKey}]`,
       publicKey: aggregatorAccount.keypair.publicKey.toString(),
       queuePermissionAccount: permissionAccount.publicKey.toString(),
       leaseContract: leaseContract.publicKey.toString(),
       jobs: jobs,
-    };
+    });
   }
 
   private async createAccount(
@@ -169,15 +154,27 @@ export class AggregatorSchema extends AggregatorDefinition {
   @Type(() => JobSchema)
   public jobs!: JobSchema[];
 
-  // private toAccount(): AggregatorAccount {
-  //   // const keypair = getKeypair(aggregator.keypair);
-  //   const keypair = Keypair.fromSecretKey(this.secretKey);
-  //   const aggregatorAccount = new AggregatorAccount({
-  //     program: this._program,
-  //     keypair,
-  //   });
-  //   return aggregatorAccount;
-  // }
+  public toAccount(): AggregatorAccount {
+    // const keypair = getKeypair(aggregator.keypair);
+    const keypair = Keypair.fromSecretKey(unwrapSecretKey(this.secretKey));
+    const aggregatorAccount = new AggregatorAccount({
+      program: this._program,
+      keypair,
+    });
+    return aggregatorAccount;
+  }
+  public getPermissionAccount(): PermissionAccount {
+    const publicKey = new PublicKey(this.queuePermissionAccount);
+    if (!publicKey)
+      throw new Error(
+        `failed to load Aggregator permission account ${this.queuePermissionAccount}`
+      );
+    const permissionAccount = new PermissionAccount({
+      program: this._program,
+      publicKey,
+    });
+    return permissionAccount;
+  }
 }
 
 export {};

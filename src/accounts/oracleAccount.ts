@@ -1,18 +1,18 @@
 import * as anchor from "@project-serum/anchor";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import {
   OracleAccount,
   OracleQueueAccount,
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Exclude } from "class-transformer";
-import { AnchorProgram } from "../program";
+import { Expose, Exclude, plainToClass } from "class-transformer";
+import { AnchorProgram } from "../types/anchorProgram";
 import { toAccountString } from "../utils";
 
 export class OracleDefiniton {
   @Exclude()
-  private _program: anchor.Program = AnchorProgram.getInstance().program;
+  _program: anchor.Program = AnchorProgram.getInstance().program;
   @Expose()
   public name!: string;
 
@@ -36,11 +36,11 @@ export class OracleDefiniton {
       enable: true,
     });
     console.log(toAccountString(`${this.name}-permission`, oracleAccount));
-    return {
+    return plainToClass(OracleSchema, {
       ...this,
       publicKey: oracleAccount.publicKey.toString(),
       queuePermissionAccount: permissionAccount.publicKey.toString(),
-    };
+    });
   }
 }
 
@@ -49,5 +49,28 @@ export class OracleSchema extends OracleDefiniton {
   public publicKey!: string;
   @Expose()
   public queuePermissionAccount!: string;
+
+  public toAccount(): OracleAccount {
+    const publicKey = new PublicKey(this.publicKey);
+    if (!publicKey)
+      throw new Error(`failed to load Oracle account ${this.publicKey}`);
+    const oracleAccount = new OracleAccount({
+      program: this._program,
+      publicKey,
+    });
+    return oracleAccount;
+  }
+  public getPermissionAccount(): PermissionAccount {
+    const publicKey = new PublicKey(this.queuePermissionAccount);
+    if (!publicKey)
+      throw new Error(
+        `failed to load Oracle permission account ${this.queuePermissionAccount}`
+      );
+    const permissionAccount = new PermissionAccount({
+      program: this._program,
+      publicKey,
+    });
+    return permissionAccount;
+  }
 }
 export {};

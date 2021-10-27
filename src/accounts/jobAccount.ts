@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
-import { Expose, Exclude } from "class-transformer";
-import { AnchorProgram } from "../program";
+import { Expose, Exclude, plainToClass } from "class-transformer";
+import { AnchorProgram } from "../types/anchorProgram";
 import {
   buildBinanceComTask,
   buildBinanceUsTask,
@@ -19,6 +19,8 @@ import {
 } from "../dataDefinitions/jobs";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
+import { unwrapSecretKey } from "../types";
+import { Keypair } from "@solana/web3.js";
 
 export type EndpointEnum =
   | "binanceCom"
@@ -39,7 +41,7 @@ export type EndpointEnum =
 
 export class JobDefinition {
   @Exclude()
-  private _program: anchor.Program = AnchorProgram.getInstance().program;
+  _program: anchor.Program = AnchorProgram.getInstance().program;
   @Expose()
   public source!: EndpointEnum;
   @Expose()
@@ -63,11 +65,11 @@ export class JobDefinition {
     });
     await aggregatorAccount.addJob(jobAccount);
     // console.log(toAccountString(`${this.source}-job-account`, jobAccount));
-    return {
+    return plainToClass(JobSchema, {
       ...this,
       secretKey: `[${keypair.secretKey}]`,
       publicKey: keypair.publicKey.toString(),
-    };
+    });
   }
   private async mapJobTask(): Promise<OracleJob.Task[]> {
     switch (this.source) {
@@ -109,5 +111,14 @@ export class JobSchema extends JobDefinition {
   public secretKey!: string;
   @Expose()
   public publicKey!: string;
+
+  public toAccount(): JobAccount {
+    const keypair = Keypair.fromSecretKey(unwrapSecretKey(this.secretKey));
+    const aggregatorAccount = new JobAccount({
+      program: this._program,
+      keypair,
+    });
+    return aggregatorAccount;
+  }
 }
 export {};

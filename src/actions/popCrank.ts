@@ -10,16 +10,13 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 
-export async function popCrank(
-  program: anchor.Program,
-  schema: OracleQueueSchema
-): Promise<void> {
+export async function popCrank(schema: OracleQueueSchema): Promise<void> {
   if (!schema.cranks) throw new Error("no cranks defined in schema");
-  const crank: CrankAccount = await selectCrank(program, schema.cranks);
+  const crank: CrankAccount = await selectCrank(schema.cranks);
   const txn = await crank.pop({
-    payoutWallet: program.provider.wallet.publicKey,
+    payoutWallet: crank.program.provider.wallet.publicKey,
     queuePubkey: new PublicKey(schema.publicKey),
-    queueAuthority: program.provider.wallet.publicKey,
+    queueAuthority: crank.program.provider.wallet.publicKey,
   });
   console.log(txn);
   const connection = new Connection(RPC_URL, {
