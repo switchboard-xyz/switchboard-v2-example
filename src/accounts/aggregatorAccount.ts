@@ -24,19 +24,26 @@ export interface IAggregatorDefinition {
 export class AggregatorDefinition {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
+
   @Expose()
   public name!: string;
+
   @Expose()
   public batchSize!: number;
+
   @Expose()
   public minRequiredOracleResults!: number;
+
   @Expose()
   public minRequiredJobResults!: number;
+
   @Expose()
   public minUpdateDelaySeconds!: number;
+
   @Expose()
   @Type(() => String)
   public cranks!: string[];
+
   @Expose()
   @Type(() => JobDefinition)
   public jobs!: JobDefinition[];
@@ -157,12 +164,16 @@ export class AggregatorDefinition {
 export class AggregatorSchema extends AggregatorDefinition {
   @Expose()
   public secretKey!: string;
+
   @Expose()
   public publicKey!: string;
+
   @Expose()
   public queuePermissionAccount!: string;
+
   @Expose()
   public leaseContract!: string;
+
   @Expose()
   @Type(() => JobSchema)
   public jobs!: JobSchema[];
@@ -176,6 +187,7 @@ export class AggregatorSchema extends AggregatorDefinition {
     });
     return aggregatorAccount;
   }
+
   public getPermissionAccount(): PermissionAccount {
     const publicKey = new PublicKey(this.queuePermissionAccount);
     if (!publicKey)

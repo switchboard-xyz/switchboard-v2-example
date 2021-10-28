@@ -13,7 +13,6 @@ export async function popCrank(
   const crankAccount: CrankAccount = await selectCrank(schema.cranks);
 
   const payoutWallet = schema._program.provider.wallet.publicKey;
-  const crank = await crankAccount.loadData();
   const queueAccount = schema.toAccount();
   const queueAuthority = authority.publicKey;
   // const programStateAccount = schema.getProgramState();
@@ -22,14 +21,14 @@ export async function popCrank(
     const readyPubkeys = await crankAccount.peakNextReady(5);
     console.log(readyPubkeys);
     const txns: SendTxRequest[] = [];
-    for (let i = 0; i < readyPubkeys.length; ++i) {
+    for (let index = 0; index < readyPubkeys.length; ++index) {
       txns.push({
         tx: await crankAccount.popTxn({
           payoutWallet,
           queuePubkey: queueAccount.publicKey,
           queueAuthority,
           readyPubkeys,
-          nonce: i,
+          nonce: index,
         }),
         signers: [],
       });
@@ -37,8 +36,8 @@ export async function popCrank(
     const signatures = await schema._program.provider.sendAll(txns);
     console.log("Crank turned");
     await Promise.all(signatures.map(async (s) => watchTransaction(s)));
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
   }
 }
 

@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import { KEYPAIR_OUTPUT } from "../types";
 
 export const getFullSubdirectoryPath = (

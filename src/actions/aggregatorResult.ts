@@ -12,8 +12,8 @@ export async function aggregatorResult(
   try {
     const result = await aggregatorAccount.getLatestValue();
     console.log(chalk.green("result:"), result);
-  } catch (err) {
-    console.log(chalk.red("no result"), err);
+  } catch (error) {
+    console.log(chalk.red("no result"), error);
   }
   // console.log(await aggregatorAccount.loadData());
   // console.log(await aggregatorAccount.getLatestValue());

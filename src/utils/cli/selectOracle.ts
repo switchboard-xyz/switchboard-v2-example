@@ -17,7 +17,7 @@ export async function selectOracle(
       choices,
     },
   ]);
-  const oracle = oracles.find((oracle) => oracle.name === answer.oracle);
+  const oracle = oracles.find((o) => o.name === answer.oracle);
   if (!oracle) throw new Error(`failed to find ${answer.oracle} in ${choices}`);
   return oracle.toAccount();
 }

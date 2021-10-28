@@ -32,6 +32,6 @@
     "emitDecoratorMetadata": true,
     "rootDir": "src"
   },
-  "include": ["src/**/*", "anchorProgram.ts"],
+  "include": [".", "src/**/*"],
   "exclude": ["node_modules", "bin"]
 }

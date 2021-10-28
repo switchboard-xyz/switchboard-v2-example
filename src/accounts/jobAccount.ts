@@ -47,8 +47,10 @@ export interface IJobDefinition {
 export class JobDefinition {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
+
   @Expose()
   public source!: EndpointEnum;
+
   @Expose()
   public id!: string;
 
@@ -84,36 +86,37 @@ export class JobDefinition {
       publicKey: keypair.publicKey.toString(),
     });
   }
+
   private async mapJobTask(): Promise<OracleJob.Task[]> {
     switch (this.source) {
       case "binanceCom":
-        return await buildBinanceComTask(this.id);
+        return buildBinanceComTask(this.id);
       case "binanceUs":
-        return await buildBinanceUsTask(this.id);
+        return buildBinanceUsTask(this.id);
       case "bitfinex":
-        return await buildBitfinexTask(this.id);
+        return buildBitfinexTask(this.id);
       case "bitstamp":
-        return await buildBitstampTask(this.id);
+        return buildBitstampTask(this.id);
       case "bittrex":
-        return await buildBittrexTask(this.id);
+        return buildBittrexTask(this.id);
       case "coinbase":
-        return await buildCoinbaseTask(this.id);
+        return buildCoinbaseTask(this.id);
       case "ftxUs":
-        return await buildFtxUsTask(this.id);
+        return buildFtxUsTask(this.id);
       case "ftxCom":
-        return await buildFtxComTask(this.id);
+        return buildFtxComTask(this.id);
       case "huobi":
-        return await buildHuobiTask(this.id);
+        return buildHuobiTask(this.id);
       case "kraken":
-        return await buildKrakenTask(this.id);
+        return buildKrakenTask(this.id);
       case "kucoin":
-        return await buildKucoinTask(this.id);
+        return buildKucoinTask(this.id);
       case "mxc":
-        return await buildMxcTask(this.id);
+        return buildMxcTask(this.id);
       case "okex":
-        return await buildOkexTask(this.id);
+        return buildOkexTask(this.id);
       case "orca":
-        return await buildOrcaApiTask(this.id);
+        return buildOrcaApiTask(this.id);
     }
     return [] as OracleJob.Task[];
   }
@@ -122,6 +125,7 @@ export class JobDefinition {
 export class JobSchema extends JobDefinition {
   @Expose()
   public secretKey!: string;
+
   @Expose()
   public publicKey!: string;
 

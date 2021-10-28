@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Connection, Keypair } from "@solana/web3.js";
-import fs from "fs";
+import fs from "node:fs";
 import resolve from "resolve-dir";
 import yargs from "yargs/yargs";
 import { KEYPAIR_OUTPUT, PROGRAM_ID, RPC_URL } from ".";
@@ -8,7 +8,9 @@ import { readSecretKey } from "../utils";
 
 export class AnchorProgram {
   private static _instance: AnchorProgram;
+
   public program: anchor.Program = loadAnchorSync();
+
   public authority: Keypair = getAuthorityKeypair();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function

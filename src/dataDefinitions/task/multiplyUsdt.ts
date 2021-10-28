@@ -1,10 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 
-const USDT_PUBKEY = new PublicKey(
-  "5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD"
-);
-
 export async function multiplyUsdtTask(
   usdtAggregator: PublicKey
 ): Promise<OracleJob.Task> {

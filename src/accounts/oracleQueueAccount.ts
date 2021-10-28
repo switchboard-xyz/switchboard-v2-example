@@ -11,7 +11,7 @@ import {
   plainToClass,
   Type,
 } from "class-transformer";
-import fs from "fs";
+import fs from "node:fs";
 import { BTC_FEED, SOL_FEED, USDT_FEED } from "../dataDefinitions/feeds";
 import { AnchorProgram, TransformAnchorBN } from "../types";
 import { toAccountString } from "../utils";
@@ -27,24 +27,31 @@ import {
 export class OracleQueueDefinition {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
+
   @Exclude()
   _authority = AnchorProgram.getInstance().authority;
+
   @Expose()
   public name!: string;
+
   @Expose()
   @TransformAnchorBN()
   @Type(() => anchor.BN)
   public reward!: anchor.BN;
+
   @Expose()
   @TransformAnchorBN()
   @Type(() => anchor.BN)
   public minStake!: anchor.BN;
+
   @Expose()
   @Type(() => OracleDefiniton)
   public oracles!: OracleDefiniton[];
+
   @Expose()
   @Type(() => CrankDefinition)
   public cranks!: CrankDefinition[];
+
   @Expose()
   @Type(() => AggregatorDefinition)
   public feeds!: AggregatorDefinition[];
@@ -64,7 +71,12 @@ export class OracleQueueDefinition {
     console.log(toAccountString("program-state-account", programStateAccount));
 
     const publisher = await this.createTokenMint(programStateAccount);
-    await this.transferTokens(programStateAccount, authority, publisher, 10000);
+    await this.transferTokens(
+      programStateAccount,
+      authority,
+      publisher,
+      10_000
+    );
 
     const oracleQueueAccount = await this.createOracleQueueAccount();
     if (!oracleQueueAccount.keypair)
@@ -95,7 +107,7 @@ export class OracleQueueDefinition {
 
     try {
       programAccount = await ProgramStateAccount.create(this._program, {});
-    } catch (e) {
+    } catch {
       [programAccount] = ProgramStateAccount.fromSeed(this._program);
     }
     return programAccount;
@@ -110,6 +122,7 @@ export class OracleQueueDefinition {
     );
     return publisher;
   }
+
   private async transferTokens(
     programStateAccount: ProgramStateAccount,
     authority: Keypair,
@@ -131,6 +144,7 @@ export class OracleQueueDefinition {
       authority: this._program.provider.wallet.publicKey,
     });
   }
+
   private async createOracles(
     oracleQueueAccount: OracleQueueAccount,
     authority: Keypair
@@ -155,6 +169,7 @@ export class OracleQueueDefinition {
     }
     return crankAccounts;
   }
+
   private async createDefaultFeeds(
     oracleQueueAccount: OracleQueueAccount,
     publisher: PublicKey,
@@ -171,9 +186,7 @@ export class OracleQueueDefinition {
         authority,
         publisher,
         usdtAggregator
-      )
-    );
-    newAggregators.push(
+      ),
       await BTC_FEED.toSchema(
         oracleQueueAccount,
         authority,
@@ -188,16 +201,21 @@ export class OracleQueueDefinition {
 export class OracleQueueSchema extends OracleQueueDefinition {
   @Expose()
   public secretKey!: string;
+
   @Expose()
   public publicKey!: string;
+
   @Expose()
   public programStateAccount!: string;
+
   @Expose()
   @Type(() => OracleSchema)
   public oracles!: OracleSchema[];
+
   @Expose()
   @Type(() => CrankSchema)
   public cranks!: CrankSchema[];
+
   @Expose()
   @Type(() => AggregatorSchema)
   public feeds!: AggregatorSchema[];
@@ -235,22 +253,22 @@ export class OracleQueueSchema extends OracleQueueDefinition {
 
   public saveJson(fileName: string): void {
     const queueSchemaString = classToPlain(this);
-    fs.writeFileSync(fileName, JSON.stringify(queueSchemaString, null, 2));
+    fs.writeFileSync(fileName, JSON.stringify(queueSchemaString, undefined, 2));
   }
 
   public findAggregatorByName(search: string): PublicKey | undefined {
-    const feed = this.feeds.find((feed) => feed.name === search);
+    const feed = this.feeds.find((f) => f.name === search);
     if (feed) return new PublicKey(feed.publicKey);
   }
 
   public findCrankByName(search: string): CrankSchema | undefined {
-    const crank = this.cranks.find((crank) => crank.name === search);
+    const crank = this.cranks.find((c) => c.name === search);
     if (crank) return crank;
   }
 
   private async loadCranks(cranks: CrankDefinition[]): Promise<void> {
     for await (const crank of cranks) {
-      const existing = this.cranks.find((c) => crank.name === c.name);
+      const existing = this.cranks.find((c) => c.name === crank.name);
       if (existing) continue;
       this.cranks.push(await crank.toSchema(this.toAccount()));
       console.log(`crank ${crank.name} added to queue`);

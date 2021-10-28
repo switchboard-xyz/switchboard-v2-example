@@ -13,6 +13,7 @@ import { toAccountString } from "../utils";
 export class OracleDefiniton {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
+
   @Expose()
   public name!: string;
 
@@ -48,6 +49,7 @@ export class OracleDefiniton {
 export class OracleSchema extends OracleDefiniton {
   @Expose()
   public publicKey!: string;
+
   @Expose()
   public queuePermissionAccount!: string;
 
@@ -61,6 +63,7 @@ export class OracleSchema extends OracleDefiniton {
     });
     return oracleAccount;
   }
+
   public getPermissionAccount(): PermissionAccount {
     const publicKey = new PublicKey(this.queuePermissionAccount);
     if (!publicKey)

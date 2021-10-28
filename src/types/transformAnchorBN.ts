@@ -1,7 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import { Transform } from "class-transformer";
 
-export function TransformAnchorBN() {
+export function TransformAnchorBN(): any {
   const toPlain = Transform((value) => (value.value as anchor.BN).toString(), {
     toPlainOnly: true,
   });

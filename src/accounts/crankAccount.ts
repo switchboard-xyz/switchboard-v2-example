@@ -13,8 +13,10 @@ import { toAccountString } from "../utils";
 export class CrankDefinition {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
+
   @Expose()
   public name!: string;
+
   @Expose()
   public maxRows!: number;
 
@@ -41,6 +43,7 @@ export class CrankDefinition {
 export class CrankSchema extends CrankDefinition {
   @Expose()
   public secretKey!: string;
+
   @Expose()
   public publicKey!: string;
 
@@ -53,6 +56,7 @@ export class CrankSchema extends CrankDefinition {
     });
     return aggregatorAccount;
   }
+
   public async addFeed(
     aggregator: AggregatorSchema
   ): Promise<string | undefined> {
@@ -63,7 +67,7 @@ export class CrankSchema extends CrankDefinition {
       });
       console.log(`${aggregator.name} added to crank ${this.name}`);
       return this.name;
-    } catch (err) {
+    } catch {
       console.log(`${chalk.red(aggregator.name, "not added to", this.name)}`);
     }
   }

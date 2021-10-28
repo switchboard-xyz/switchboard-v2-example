@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { plainToClass } from "class-transformer";
 import dotenv from "dotenv";
-import fs from "fs";
+import fs from "node:fs";
 import prompts from "prompts";
 import "reflect-metadata"; // need global
 import { OracleQueueDefinition, OracleQueueSchema } from "./accounts";
@@ -27,9 +27,9 @@ async function main(): Promise<void> {
       excludePrefixes: ["_"],
       excludeExtraneousValues: true,
     });
-  } catch (err) {
-    console.error(err);
-    process.exit(-1);
+  } catch (error) {
+    console.error(error);
+    return;
   }
   if (!queueDefinition) {
     console.error("no queue");
@@ -114,11 +114,11 @@ async function main(): Promise<void> {
 
 main().then(
   () => {
-    process.exit();
+    return;
   },
-  (err) => {
-    console.error(err);
-    process.exit(-1);
+  (error) => {
+    console.error(error);
+    return;
   }
 );
 

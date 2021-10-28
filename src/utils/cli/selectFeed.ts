@@ -17,7 +17,7 @@ export async function selectFeed(
       choices,
     },
   ]);
-  const feed = feeds.find((feed) => feed.name === answer.feed);
+  const feed = feeds.find((f) => f.name === answer.feed);
   if (!feed) throw new Error(`failed to find ${answer.feed} in ${choices}`);
   return feed.toAccount();
 }
