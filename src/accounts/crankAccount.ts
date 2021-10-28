@@ -1,12 +1,14 @@
 import * as anchor from "@project-serum/anchor";
+import { Keypair } from "@solana/web3.js";
 import {
   CrankAccount,
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Exclude, plainToClass } from "class-transformer";
+import chalk from "chalk";
+import { Exclude, Expose, plainToClass } from "class-transformer";
+import { AggregatorSchema } from ".";
+import { AnchorProgram, unwrapSecretKey } from "../types";
 import { toAccountString } from "../utils";
-import { unwrapSecretKey, AnchorProgram } from "../types";
-import { Keypair } from "@solana/web3.js";
 
 export class CrankDefinition {
   @Exclude()
@@ -50,6 +52,20 @@ export class CrankSchema extends CrankDefinition {
       keypair,
     });
     return aggregatorAccount;
+  }
+  public async addFeed(
+    aggregator: AggregatorSchema
+  ): Promise<string | undefined> {
+    const aggregatorAccount = aggregator.toAccount();
+    try {
+      await this.toAccount().push({
+        aggregatorAccount,
+      });
+      console.log(`${aggregator.name} added to crank ${this.name}`);
+      return this.name;
+    } catch (err) {
+      console.log(`${chalk.red(aggregator.name, "not added to", this.name)}`);
+    }
   }
 }
 export {};

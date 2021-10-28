@@ -1,11 +1,10 @@
 import * as anchor from "@project-serum/anchor";
 import { Connection, Keypair } from "@solana/web3.js";
 import fs from "fs";
-import { RPC_URL } from "../main";
-import yargs from "yargs/yargs";
 import resolve from "resolve-dir";
+import yargs from "yargs/yargs";
+import { KEYPAIR_OUTPUT, PROGRAM_ID, RPC_URL } from ".";
 import { readSecretKey } from "../utils";
-import { KEYPAIR_OUTPUT } from "../main";
 
 export class AnchorProgram {
   private static _instance: AnchorProgram;
@@ -29,11 +28,11 @@ export class AnchorProgram {
  * Attempts to load Anchor IDL on-chain and falls back to local JSON if not found
  */
 export async function loadAnchor(): Promise<anchor.Program> {
-  if (!process.env.PID) {
+  if (!PROGRAM_ID) {
     throw new Error("failed to provide PID environment variable");
   }
   const connection = new Connection(RPC_URL, { commitment: "confirmed" });
-  const programId = new anchor.web3.PublicKey(process.env.PID);
+  const programId = new anchor.web3.PublicKey(PROGRAM_ID);
 
   // get update authority wallet
   const updateAuthority = getAuthorityKeypair();
@@ -67,11 +66,12 @@ export async function loadAnchor(): Promise<anchor.Program> {
  * Loads anchor IDL from local JSON
  */
 export function loadAnchorSync(): anchor.Program {
-  if (!process.env.PID) {
+  if (!PROGRAM_ID) {
+    console.log(PROGRAM_ID);
     throw new Error("failed to provide PID environment variable");
   }
   const connection = new Connection(RPC_URL, { commitment: "confirmed" });
-  const programId = new anchor.web3.PublicKey(process.env.PID);
+  const programId = new anchor.web3.PublicKey(PROGRAM_ID);
 
   // get update authority wallet
   const updateAuthority = getAuthorityKeypair();

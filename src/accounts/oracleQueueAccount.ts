@@ -1,25 +1,34 @@
 import * as anchor from "@project-serum/anchor";
-import { PublicKey, Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import {
   OracleQueueAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Type, Exclude, plainToClass } from "class-transformer";
+import {
+  classToPlain,
+  Exclude,
+  Expose,
+  plainToClass,
+  Type,
+} from "class-transformer";
+import fs from "fs";
+import { BTC_FEED, SOL_FEED, USDT_FEED } from "../dataDefinitions/feeds";
+import { AnchorProgram, TransformAnchorBN } from "../types";
 import { toAccountString } from "../utils";
 import {
+  AggregatorDefinition,
+  AggregatorSchema,
   CrankDefinition,
   CrankSchema,
   OracleDefiniton,
-  AggregatorDefinition,
-  AggregatorSchema,
   OracleSchema,
 } from "./";
-import { AnchorProgram, TransformAnchorBN } from "../types";
-import chalk from "chalk";
 
 export class OracleQueueDefinition {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
+  @Exclude()
+  _authority = AnchorProgram.getInstance().authority;
   @Expose()
   public name!: string;
   @Expose()
@@ -64,13 +73,11 @@ export class OracleQueueDefinition {
 
     const oracles = await this.createOracles(oracleQueueAccount, authority);
     const cranks = await this.createCranks(oracleQueueAccount);
-    const feeds = await this.createFeeds(
+    const feeds = await this.createDefaultFeeds(
       oracleQueueAccount,
-      authority,
-      publisher
+      publisher,
+      authority
     );
-
-    if (feeds && cranks) await this.addFeedsToCranks(feeds, cranks);
 
     return plainToClass(OracleQueueSchema, {
       ...this,
@@ -94,7 +101,7 @@ export class OracleQueueDefinition {
     return programAccount;
   }
 
-  private async createTokenMint(
+  public async createTokenMint(
     programStateAccount: ProgramStateAccount
   ): Promise<PublicKey> {
     const switchTokenMint = await programStateAccount.getTokenMint();
@@ -148,43 +155,33 @@ export class OracleQueueDefinition {
     }
     return crankAccounts;
   }
-
-  private async createFeeds(
+  private async createDefaultFeeds(
     oracleQueueAccount: OracleQueueAccount,
-    authority: Keypair,
-    publisher: PublicKey
+    publisher: PublicKey,
+    authority: Keypair
   ): Promise<AggregatorSchema[]> {
-    const aggregators: AggregatorSchema[] = [];
-    for await (const feed of this.feeds) {
-      aggregators.push(
-        await feed.toSchema(oracleQueueAccount, authority, publisher)
-      );
-    }
-    return aggregators;
-  }
-  private async addFeedsToCranks(
-    feeds: AggregatorSchema[],
-    cranks: CrankSchema[]
-  ): Promise<void> {
-    for await (const f of feeds) {
-      if (!f.cranks) break;
-      const aggregatorAccount = f.toAccount();
-      for await (const crankName of f.cranks) {
-        // find crank by name
-        const crankScehma = cranks.find((c) => c.name === crankName);
-        if (!crankScehma) {
-          console.log(`${chalk.red("crank not found", crankName)}`);
-          return;
-        }
-        const crankAccount = crankScehma.toAccount();
-        try {
-          await crankAccount.push({ aggregatorAccount });
-          console.log(`${f.name} added to crank ${crankName}`);
-        } catch (err) {
-          console.log(`${chalk.red(f.name, "not added to", crankName)}`);
-        }
-      }
-    }
+    const newAggregators: AggregatorSchema[] = [];
+    newAggregators.push(
+      await USDT_FEED.toSchema(oracleQueueAccount, authority, publisher)
+    );
+    const usdtAggregator = new PublicKey(newAggregators[0].publicKey);
+    newAggregators.push(
+      await SOL_FEED.toSchema(
+        oracleQueueAccount,
+        authority,
+        publisher,
+        usdtAggregator
+      )
+    );
+    newAggregators.push(
+      await BTC_FEED.toSchema(
+        oracleQueueAccount,
+        authority,
+        publisher,
+        usdtAggregator
+      )
+    );
+    return newAggregators;
   }
 }
 
@@ -215,7 +212,17 @@ export class OracleQueueSchema extends OracleQueueDefinition {
     });
     return oracleQueueAccount;
   }
-  public getProgramState(): ProgramStateAccount {
+
+  public async loadDefinition(
+    definition: OracleQueueDefinition
+  ): Promise<void> {
+    await this.loadCranks(definition.cranks);
+    await this.loadOracles(definition.oracles);
+    await this.loadFeeds(definition.feeds);
+    await this.assignCranks();
+  }
+
+  public getProgramStateAccount(): ProgramStateAccount {
     const publicKey = new PublicKey(this.programStateAccount);
     if (!publicKey)
       throw new Error(`failed to load Program State account ${this.publicKey}`);
@@ -224,6 +231,77 @@ export class OracleQueueSchema extends OracleQueueDefinition {
       publicKey,
     });
     return programStateAccount;
+  }
+
+  public saveJson(fileName: string): void {
+    const queueSchemaString = classToPlain(this);
+    fs.writeFileSync(fileName, JSON.stringify(queueSchemaString, null, 2));
+  }
+
+  public findAggregatorByName(search: string): PublicKey | undefined {
+    const feed = this.feeds.find((feed) => feed.name === search);
+    if (feed) return new PublicKey(feed.publicKey);
+  }
+
+  public findCrankByName(search: string): CrankSchema | undefined {
+    const crank = this.cranks.find((crank) => crank.name === search);
+    if (crank) return crank;
+  }
+
+  private async loadCranks(cranks: CrankDefinition[]): Promise<void> {
+    for await (const crank of cranks) {
+      const existing = this.cranks.find((c) => crank.name === c.name);
+      if (existing) continue;
+      this.cranks.push(await crank.toSchema(this.toAccount()));
+      console.log(`crank ${crank.name} added to queue`);
+    }
+  }
+
+  private async loadOracles(oracles: OracleDefiniton[]): Promise<void> {
+    const authority = AnchorProgram.getInstance().authority;
+    for await (const o of oracles) {
+      const existing = this.oracles.find((oracle) => o.name === oracle.name);
+      if (existing) continue;
+      this.oracles.push(await o.toSchema(this.toAccount(), authority));
+      console.log(`oracle ${o.name} added to queue`);
+    }
+  }
+
+  private async loadFeeds(feeds: AggregatorDefinition[]): Promise<void> {
+    for await (const feed of feeds) {
+      const existingFeed = this.feeds.find((f) => f.name === feed.name);
+      if (existingFeed) continue;
+      this.feeds.push(await this.addFeed(feed));
+      console.log(`${feed.name} added to queue`);
+    }
+  }
+
+  private async addFeed(feed: AggregatorDefinition): Promise<AggregatorSchema> {
+    const publisher = await this.createTokenMint(this.getProgramStateAccount());
+    const authority = AnchorProgram.getInstance().authority;
+    const usdtAggregator = this.findAggregatorByName(USDT_FEED.name);
+    const newAggregator = await feed.toSchema(
+      this.toAccount(),
+      authority,
+      publisher,
+      usdtAggregator
+    );
+    this.feeds.push(newAggregator);
+    return newAggregator;
+  }
+
+  public async assignCranks(): Promise<void> {
+    for await (const feed of this.feeds) {
+      const assignedCranks: string[] = [];
+      for await (const crank of feed.cranks) {
+        const c = this.findCrankByName(crank);
+        if (c) {
+          c.addFeed(feed);
+          assignedCranks.push(crank);
+        } else console.log(`failed to find crank ${crank}`);
+      }
+      feed.cranks = assignedCranks;
+    }
   }
 }
 export {};

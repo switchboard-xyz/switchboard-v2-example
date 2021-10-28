@@ -1,6 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
 export async function buildOrcaLpTask(
   key: string,
@@ -18,8 +17,5 @@ export async function buildOrcaLpTask(
       }),
     }),
   ];
-  // if (pair.toLowerCase().endsWith("usdt")) {
-  //   tasks.push(await multiplyUsdtTask());
-  // }
   return tasks;
 }

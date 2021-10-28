@@ -1,5 +1,4 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
 export async function buildKrakenTask(
   pair: string
@@ -32,8 +31,5 @@ export async function buildKrakenTask(
       }),
     }),
   ];
-  if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(await multiplyUsdtTask());
-  }
   return tasks;
 }

@@ -1,5 +1,4 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
 export async function buildFtxComTask(
   pair: string,
@@ -40,8 +39,5 @@ export async function buildFtxComTask(
       }),
     }),
   ];
-  if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(await multiplyUsdtTask());
-  }
   return tasks;
 }

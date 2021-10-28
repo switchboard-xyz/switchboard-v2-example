@@ -1,28 +1,20 @@
-import "reflect-metadata"; // need global
-import { OracleQueueDefinition, OracleQueueSchema } from "./accounts";
-import { AnchorProgram } from "./types";
-import {
-  popCrank,
-  readCrank,
-  aggregatorUpdate,
-  oracleHeartbeat,
-  aggregatorResult,
-} from "./actions";
+import chalk from "chalk";
+import { plainToClass } from "class-transformer";
+import dotenv from "dotenv";
 import fs from "fs";
 import prompts from "prompts";
-import chalk from "chalk";
-import dotenv from "dotenv";
-import { plainToClass, classToPlain } from "class-transformer";
-
+import "reflect-metadata"; // need global
+import { OracleQueueDefinition, OracleQueueSchema } from "./accounts";
+import {
+  aggregatorResult,
+  aggregatorUpdate,
+  oracleHeartbeat,
+  popCrank,
+  readCrank,
+} from "./actions";
+import { AnchorProgram } from "./types/anchorProgram";
+import { sleep } from "./utils";
 dotenv.config();
-
-export const RPC_URL = process.env.RPC_URL
-  ? process.env.RPC_URL
-  : "https://api.devnet.solana.com";
-
-export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
-  ? `keypairs-${process.env.KEYPAIR_OUTPUT}` // use prefix for gitignore glob pattern
-  : "."; // root
 
 async function main(): Promise<void> {
   const authority = AnchorProgram.getInstance().authority;
@@ -65,12 +57,9 @@ async function main(): Promise<void> {
     excludePrefixes: ["_"],
     excludeExtraneousValues: true,
   });
-  if (queueSchema) {
-    const queueSchemaString = classToPlain(queueSchemaClass);
-    fs.writeFileSync(fullOutFile, JSON.stringify(queueSchemaString, null, 2));
-  } else {
-    throw new Error("failed to write json schema output");
-  }
+  await queueSchemaClass.loadDefinition(queueDefinition);
+  queueSchemaClass.saveJson(fullOutFile);
+  await sleep(2000); // delayed txn errors might ruin prompt
 
   const answer = await prompts([
     {
@@ -116,7 +105,7 @@ async function main(): Promise<void> {
       await readCrank(queueSchemaClass);
       break;
     case "crankTurn":
-      await popCrank(queueSchemaClass);
+      await popCrank(queueSchemaClass, authority);
       break;
     default:
       console.log("Not implemented yet");

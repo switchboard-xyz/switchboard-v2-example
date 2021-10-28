@@ -1,5 +1,4 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
 export async function buildFtxUsTask(
   pair: string
@@ -14,8 +13,5 @@ export async function buildFtxUsTask(
       jsonParseTask: OracleJob.JsonParseTask.create({ path: "$.result.price" }),
     }),
   ];
-  if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(await multiplyUsdtTask());
-  }
   return tasks;
 }

@@ -1,5 +1,4 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
 export async function buildOkexTask(
   pair: string,
@@ -45,8 +44,5 @@ export async function buildOkexTask(
       }),
     }),
   ];
-  if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(await multiplyUsdtTask());
-  }
   return tasks;
 }

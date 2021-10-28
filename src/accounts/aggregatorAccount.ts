@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import { PublicKey, Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import {
   AggregatorAccount,
   LeaseAccount,
@@ -7,11 +7,20 @@ import {
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Type, Exclude, plainToClass } from "class-transformer";
+import { Exclude, Expose, plainToClass, Type } from "class-transformer";
+import { AnchorProgram, unwrapSecretKey } from "../types";
 import { toAccountString } from "../utils";
-import { JobDefinition, JobSchema } from "./";
-import { unwrapSecretKey, AnchorProgram } from "../types";
+import { IJobDefinition, JobDefinition, JobSchema } from "./";
 
+export interface IAggregatorDefinition {
+  name: string;
+  batchSize: number;
+  minRequiredOracleResults: number;
+  minRequiredJobResults: number;
+  minUpdateDelaySeconds: number;
+  cranks: string[];
+  jobs: IJobDefinition[];
+}
 export class AggregatorDefinition {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
@@ -42,13 +51,17 @@ export class AggregatorDefinition {
   public async toSchema(
     oracleQueueAccount: OracleQueueAccount,
     authority: Keypair,
-    publisher: PublicKey
+    publisher: PublicKey,
+    usdtAggregator?: PublicKey
   ): Promise<AggregatorSchema> {
     const aggregatorAccount = await this.createAccount(oracleQueueAccount);
     if (!aggregatorAccount.keypair)
       throw new Error(`failed to get keypair for ${this.name}`);
 
-    const jobs = await this.createJobAccounts(aggregatorAccount);
+    const jobs = await this.createJobAccounts(
+      aggregatorAccount,
+      usdtAggregator
+    );
     const permissionAccount = await this.permitToQueue(
       oracleQueueAccount,
       aggregatorAccount,
@@ -88,12 +101,13 @@ export class AggregatorDefinition {
   }
 
   private async createJobAccounts(
-    aggregatorAccount: AggregatorAccount
+    aggregatorAccount: AggregatorAccount,
+    usdtAggregator?: PublicKey
   ): Promise<JobSchema[]> {
     const jobs: JobSchema[] = [];
     if (!this.jobs || this.jobs.length === 0) return jobs;
     for await (const job of this.jobs) {
-      jobs.push(await job.toSchema(aggregatorAccount));
+      jobs.push(await job.toSchema(aggregatorAccount, usdtAggregator));
     }
     return jobs;
   }

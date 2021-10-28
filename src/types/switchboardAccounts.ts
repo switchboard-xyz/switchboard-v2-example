@@ -1,12 +1,12 @@
 import {
-  ProgramStateAccount,
-  OracleAccount,
-  PermissionAccount,
-  OracleQueueAccount,
-  CrankAccount,
   AggregatorAccount,
-  LeaseAccount,
+  CrankAccount,
   JobAccount,
+  LeaseAccount,
+  OracleAccount,
+  OracleQueueAccount,
+  PermissionAccount,
+  ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
 
 export type SwitchboardAccount =

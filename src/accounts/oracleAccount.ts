@@ -6,7 +6,7 @@ import {
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
-import { Expose, Exclude, plainToClass } from "class-transformer";
+import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AnchorProgram } from "../types";
 import { toAccountString } from "../utils";
 
@@ -36,6 +36,7 @@ export class OracleDefiniton {
       enable: true,
     });
     console.log(toAccountString(`${this.name}-permission`, oracleAccount));
+
     return plainToClass(OracleSchema, {
       ...this,
       publicKey: oracleAccount.publicKey.toString(),

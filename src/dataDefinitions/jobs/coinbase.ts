@@ -1,5 +1,4 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { multiplyUsdtTask } from "../task/multiplyUsdt";
 
 export async function buildCoinbaseTask(
   pair: string,
@@ -28,8 +27,5 @@ export async function buildCoinbaseTask(
       jsonParseTask: OracleJob.JsonParseTask.create({ path: "$.price" }),
     }),
   ];
-  if (pair.toLowerCase().endsWith("usdt")) {
-    tasks.push(await multiplyUsdtTask());
-  }
   return tasks;
 }

@@ -1,7 +1,7 @@
 import { AggregatorAccount } from "@switchboard-xyz/switchboard-v2";
+import chalk from "chalk";
 import { OracleQueueSchema } from "../accounts";
 import { selectFeed } from "../utils";
-import chalk from "chalk";
 
 // TO DO: Map crank public keys to aggregator names
 export async function aggregatorResult(

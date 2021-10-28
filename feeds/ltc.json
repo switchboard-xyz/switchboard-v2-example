@@ -1,0 +1,58 @@
+{
+  "name": "LTC_USD",
+  "batchSize": 1,
+  "minRequiredOracleResults": 1,
+  "minRequiredJobResults": 1,
+  "minUpdateDelaySeconds": 6,
+  "cranks": ["crank-1"],
+  "jobs": [
+    {
+      "source": "bittrex",
+      "id": "ltc-usd"
+    },
+    {
+      "source": "binanceCom",
+      "id": "LTCUSDT"
+    },
+    {
+      "source": "binanceUs",
+      "id": "LTCUSD"
+    },
+    {
+      "source": "bitfinex",
+      "id": "tLTCUSD"
+    },
+    {
+      "source": "bitstamp",
+      "id": "ltcusd"
+    },
+    {
+      "source": "coinbase",
+      "id": "LTC-USD"
+    },
+    {
+      "source": "ftxCom",
+      "id": "LTC/USD"
+    },
+    {
+      "source": "ftxUs",
+      "id": "ltc/usd"
+    },
+    {
+      "source": "huobi",
+      "id": "ltcusdt"
+    },
+    {
+      "source": "kraken",
+      "id": "XLTCZUSD"
+    },
+    {
+      "source": "mxc",
+      "id": "LTC_USDT"
+    },
+    {
+      "source": "okex",
+      "id": "LTC-USDT"
+    }
+  ]
+}

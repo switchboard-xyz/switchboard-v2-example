@@ -1,0 +1,58 @@
+{
+  "name": "ETH_USD",
+  "batchSize": 1,
+  "minRequiredOracleResults": 1,
+  "minRequiredJobResults": 1,
+  "minUpdateDelaySeconds": 6,
+  "cranks": ["crank-1"],
+  "jobs": [
+    {
+      "source": "bittrex",
+      "id": "eth-usd"
+    },
+    {
+      "source": "binanceCom",
+      "id": "ETHUSDT"
+    },
+    {
+      "source": "binanceUs",
+      "id": "ETHUSD"
+    },
+    {
+      "source": "bitfinex",
+      "id": "tETHUSD"
+    },
+    {
+      "source": "bitstamp",
+      "id": "ethusd"
+    },
+    {
+      "source": "coinbase",
+      "id": "ETH-USD"
+    },
+    {
+      "source": "ftxCom",
+      "id": "ETH/USD"
+    },
+    {
+      "source": "ftxUs",
+      "id": "eth/usd"
+    },
+    {
+      "source": "huobi",
+      "id": "ethusdt"
+    },
+    {
+      "source": "kraken",
+      "id": "XETHZUSD"
+    },
+    {
+      "source": "mxc",
+      "id": "ETH_USDT"
+    },
+    {
+      "source": "okex",
+      "id": "ETH-USDT"
+    }
+  ]
+}

@@ -1,17 +1,51 @@
+import { SendTxRequest } from "@project-serum/anchor/dist/cjs/provider";
+import { Keypair } from "@solana/web3.js";
 import { CrankAccount } from "@switchboard-xyz/switchboard-v2";
 import { OracleQueueSchema } from "../accounts";
-import { selectCrank } from "../utils/cli/selectCrank";
-import { PublicKey } from "@solana/web3.js";
 import { watchTransaction } from "../utils";
+import { selectCrank } from "../utils/cli/selectCrank";
 
-export async function popCrank(schema: OracleQueueSchema): Promise<void> {
+export async function popCrank(
+  schema: OracleQueueSchema,
+  authority: Keypair
+): Promise<void> {
   if (!schema.cranks) throw new Error("no cranks defined in schema");
-  const crank: CrankAccount = await selectCrank(schema.cranks);
-  const txn = await crank.pop({
-    payoutWallet: crank.program.provider.wallet.publicKey,
-    queuePubkey: new PublicKey(schema.publicKey),
-    queueAuthority: crank.program.provider.wallet.publicKey,
-  });
-  console.log(txn);
-  await watchTransaction(txn);
+  const crankAccount: CrankAccount = await selectCrank(schema.cranks);
+
+  const payoutWallet = schema._program.provider.wallet.publicKey;
+  const crank = await crankAccount.loadData();
+  const queueAccount = schema.toAccount();
+  const queueAuthority = authority.publicKey;
+  // const programStateAccount = schema.getProgramState();
+
+  try {
+    const readyPubkeys = await crankAccount.peakNextReady(5);
+    console.log(readyPubkeys);
+    const txns: SendTxRequest[] = [];
+    for (let i = 0; i < readyPubkeys.length; ++i) {
+      txns.push({
+        tx: await crankAccount.popTxn({
+          payoutWallet,
+          queuePubkey: queueAccount.publicKey,
+          queueAuthority,
+          readyPubkeys,
+          nonce: i,
+        }),
+        signers: [],
+      });
+    }
+    const signatures = await schema._program.provider.sendAll(txns);
+    console.log("Crank turned");
+    await Promise.all(signatures.map(async (s) => watchTransaction(s)));
+  } catch (err) {
+    console.error(err);
+  }
 }
+
+// const txn = await crank.pop({
+//   payoutWallet: crank.program.provider.wallet.publicKey,
+//   queuePubkey: new PublicKey(schema.publicKey),
+//   queueAuthority: crank.program.provider.wallet.publicKey,
+// });
+// console.log(txn);
+// await watchTransaction(txn);

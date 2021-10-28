@@ -5,22 +5,12 @@
   "oracles": [
     {
       "name": "oracle-1"
-    },
-    {
-      "name": "oracle-2"
-    },
-    {
-      "name": "oracle-3"
     }
   ],
   "cranks": [
     {
       "name": "crank-1",
       "maxRows": 5
-    },
-    {
-      "name": "crank-2",
-      "maxRows": 2
     }
   ],
   "feeds": [
@@ -30,7 +20,7 @@
       "minRequiredOracleResults": 1,
       "minRequiredJobResults": 1,
       "minUpdateDelaySeconds": 6,
-      "cranks": ["crank-2"],
+      "cranks": ["crank-1"],
       "jobs": [
         {
           "source": "kraken",

@@ -1,5 +1,5 @@
-import { RPC_URL } from "../main";
 import { Connection, Context, SignatureResult } from "@solana/web3.js";
+import { RPC_URL } from "../types";
 
 export async function watchTransaction(txn: string): Promise<void> {
   const connection = new Connection(RPC_URL, {

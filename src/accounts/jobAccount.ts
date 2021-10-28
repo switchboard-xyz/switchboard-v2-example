@@ -1,5 +1,8 @@
 import * as anchor from "@project-serum/anchor";
-import { Expose, Exclude, plainToClass } from "class-transformer";
+import { Keypair, PublicKey } from "@solana/web3.js";
+import { OracleJob } from "@switchboard-xyz/switchboard-api";
+import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
+import { Exclude, Expose, plainToClass } from "class-transformer";
 import {
   buildBinanceComTask,
   buildBinanceUsTask,
@@ -7,8 +10,8 @@ import {
   buildBitstampTask,
   buildBittrexTask,
   buildCoinbaseTask,
-  buildFtxUsTask,
   buildFtxComTask,
+  buildFtxUsTask,
   buildHuobiTask,
   buildKrakenTask,
   buildKucoinTask,
@@ -16,10 +19,8 @@ import {
   buildOkexTask,
   buildOrcaApiTask,
 } from "../dataDefinitions/jobs";
-import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
-import { unwrapSecretKey, AnchorProgram } from "../types";
-import { Keypair } from "@solana/web3.js";
+import { multiplyUsdtTask } from "../dataDefinitions/task/multiplyUsdt";
+import { AnchorProgram, unwrapSecretKey } from "../types";
 
 export type EndpointEnum =
   | "binanceCom"
@@ -38,6 +39,11 @@ export type EndpointEnum =
   | "orca"
   | "orcaLp";
 
+export interface IJobDefinition {
+  source: EndpointEnum;
+  id: string;
+}
+
 export class JobDefinition {
   @Exclude()
   _program: anchor.Program = AnchorProgram.getInstance().program;
@@ -47,9 +53,17 @@ export class JobDefinition {
   public id!: string;
 
   public async toSchema(
-    aggregatorAccount: AggregatorAccount
+    aggregatorAccount: AggregatorAccount,
+    usdtAggregator?: PublicKey
   ): Promise<JobSchema> {
     const tasks = await this.mapJobTask();
+    if (this.id.toLowerCase().endsWith("usdt")) {
+      if (usdtAggregator) tasks.push(await multiplyUsdtTask(usdtAggregator));
+      else
+        throw new Error(
+          `need to define USDT Aggregator pubkey before creating job ${this.source} with id ${this.id}`
+        );
+    }
     const data = Buffer.from(
       OracleJob.encodeDelimited(
         OracleJob.create({
