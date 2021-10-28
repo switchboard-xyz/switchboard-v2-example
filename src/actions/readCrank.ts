@@ -1,4 +1,3 @@
-import { CrankAccount } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import { OracleQueueSchema } from "../accounts";
 import { selectCrank } from "../utils/cli/selectCrank";
@@ -8,7 +7,9 @@ export async function readCrank(
   number_ = 10
 ): Promise<void> {
   if (!schema.cranks) throw new Error("no cranks defined in schema");
-  const crankAccount: CrankAccount = await selectCrank(schema.cranks);
+  const crankSchema = await selectCrank(schema.cranks);
+  await crankSchema.readFeeds();
+  const crankAccount = crankSchema.toAccount();
   const aggregatorKeys = (await crankAccount.peakNextReady(number_)).map((c) =>
     c.toString()
   );

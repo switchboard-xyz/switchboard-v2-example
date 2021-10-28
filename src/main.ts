@@ -8,6 +8,7 @@ import { OracleQueueDefinition, OracleQueueSchema } from "./accounts";
 import {
   aggregatorResult,
   aggregatorUpdate,
+  loadFeedsFromFs,
   oracleHeartbeat,
   popCrank,
   readCrank,
@@ -35,6 +36,7 @@ async function main(): Promise<void> {
     console.error("no queue");
     return;
   }
+  await loadFeedsFromFs();
 
   // check if output file exists
   const outFile = "oracleQueue.schema.json";

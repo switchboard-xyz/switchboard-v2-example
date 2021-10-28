@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import {
   CrankAccount,
   OracleQueueAccount,
@@ -9,6 +9,11 @@ import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AggregatorSchema } from ".";
 import { AnchorProgram, unwrapSecretKey } from "../types";
 import { toAccountString } from "../utils";
+
+export interface PqData {
+  pubkey: PublicKey;
+  nextTimestamp: anchor.BN;
+}
 
 export class CrankDefinition {
   @Exclude()
@@ -70,6 +75,14 @@ export class CrankSchema extends CrankDefinition {
     } catch {
       console.log(`${chalk.red(aggregator.name, "not added to", this.name)}`);
     }
+  }
+
+  public async readFeeds(): Promise<PqData[]> {
+    const zeroKey = new PublicKey("11111111111111111111111111111111");
+    const feeds: PqData[] = (await this.toAccount().loadData()).pqData.filter(
+      (f: PqData) => !f.pubkey.equals(zeroKey)
+    );
+    return feeds;
   }
 }
 export {};

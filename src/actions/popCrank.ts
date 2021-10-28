@@ -1,6 +1,5 @@
 import { SendTxRequest } from "@project-serum/anchor/dist/cjs/provider";
 import { Keypair } from "@solana/web3.js";
-import { CrankAccount } from "@switchboard-xyz/switchboard-v2";
 import { OracleQueueSchema } from "../accounts";
 import { watchTransaction } from "../utils";
 import { selectCrank } from "../utils/cli/selectCrank";
@@ -10,7 +9,8 @@ export async function popCrank(
   authority: Keypair
 ): Promise<void> {
   if (!schema.cranks) throw new Error("no cranks defined in schema");
-  const crankAccount: CrankAccount = await selectCrank(schema.cranks);
+  const crankSchema = await selectCrank(schema.cranks);
+  const crankAccount = crankSchema.toAccount();
 
   const payoutWallet = schema._program.provider.wallet.publicKey;
   const queueAccount = schema.toAccount();
@@ -19,7 +19,6 @@ export async function popCrank(
 
   try {
     const readyPubkeys = await crankAccount.peakNextReady(5);
-    console.log(readyPubkeys);
     const txns: SendTxRequest[] = [];
     for (let index = 0; index < readyPubkeys.length; ++index) {
       txns.push({
