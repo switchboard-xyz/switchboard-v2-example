@@ -54,7 +54,7 @@ export class OracleQueueDefinition {
 
   @Expose()
   @Type(() => AggregatorDefinition)
-  public feeds!: AggregatorDefinition[];
+  public feeds?: AggregatorDefinition[];
 
   /**
    * Creates the neccesary oracle queue accounts based on the input definition
@@ -236,7 +236,7 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   ): Promise<void> {
     await this.loadCranks(definition.cranks);
     await this.loadOracles(definition.oracles);
-    await this.loadFeeds(definition.feeds);
+    if (definition.feeds) await this.loadFeeds(definition.feeds);
     await this.assignCranks();
   }
 

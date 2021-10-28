@@ -8,7 +8,6 @@ import { OracleQueueDefinition, OracleQueueSchema } from "./accounts";
 import {
   aggregatorResult,
   aggregatorUpdate,
-  loadFeedsFromFs,
   oracleHeartbeat,
   popCrank,
   readCrank,
@@ -36,7 +35,6 @@ async function main(): Promise<void> {
     console.error("no queue");
     return;
   }
-  await loadFeedsFromFs();
 
   // check if output file exists
   const outFile = "oracleQueue.schema.json";
@@ -63,54 +61,58 @@ async function main(): Promise<void> {
   queueSchemaClass.saveJson(fullOutFile);
   await sleep(2000); // delayed txn errors might ruin prompt
 
-  const answer = await prompts([
-    {
-      type: "select",
-      name: "action",
-      message: "what do you want to do?",
-      choices: [
-        {
-          title: "1. Oracle Heartbeat",
-          value: "oracleHeartbeat",
-        },
-        {
-          title: "2. Request Aggregator Update",
-          value: "aggregatorUpdate",
-        },
-        {
-          title: "3. Read Aggregator Result",
-          value: "aggregatorResult",
-        },
-        {
-          title: "4. Turn the Crank",
-          value: "crankTurn",
-        },
-        {
-          title: "5. Read the Crank",
-          value: "readCrank",
-        },
-      ],
-    },
-  ]);
-  console.log("selected:", answer.action);
-  switch (answer.action) {
-    case "oracleHeartbeat":
-      await oracleHeartbeat(queueSchemaClass);
-      break;
-    case "aggregatorUpdate":
-      await aggregatorUpdate(queueSchemaClass);
-      break;
-    case "aggregatorResult":
-      await aggregatorResult(queueSchemaClass);
-      break;
-    case "readCrank":
-      await readCrank(queueSchemaClass);
-      break;
-    case "crankTurn":
-      await popCrank(queueSchemaClass, authority);
-      break;
-    default:
-      console.log("Not implemented yet");
+  let exit = false;
+  while (!exit) {
+    console.log("");
+    const answer = await prompts([
+      {
+        type: "select",
+        name: "action",
+        message: "what do you want to do?",
+        choices: [
+          {
+            title: "1. Oracle Heartbeat",
+            value: "oracleHeartbeat",
+          },
+          {
+            title: "2. Request Aggregator Update",
+            value: "aggregatorUpdate",
+          },
+          {
+            title: "3. Read Aggregator Result",
+            value: "aggregatorResult",
+          },
+          {
+            title: "4. Turn the Crank",
+            value: "crankTurn",
+          },
+          {
+            title: "5. Read the Crank",
+            value: "readCrank",
+          },
+        ],
+      },
+    ]);
+    switch (answer.action) {
+      case "oracleHeartbeat":
+        await oracleHeartbeat(queueSchemaClass);
+        break;
+      case "aggregatorUpdate":
+        await aggregatorUpdate(queueSchemaClass);
+        break;
+      case "aggregatorResult":
+        await aggregatorResult(queueSchemaClass);
+        break;
+      case "readCrank":
+        await readCrank(queueSchemaClass);
+        break;
+      case "crankTurn":
+        await popCrank(queueSchemaClass, authority);
+        break;
+      default:
+        console.log("Not implemented yet");
+        exit = true;
+    }
   }
 }
 
