@@ -109,6 +109,10 @@ async function main(): Promise<void> {
       case "crankTurn":
         await popCrank(queueSchemaClass, authority);
         break;
+      case undefined:
+        console.log("User exited");
+        exit = true;
+        break;
       default:
         console.log("Not implemented yet");
         exit = true;

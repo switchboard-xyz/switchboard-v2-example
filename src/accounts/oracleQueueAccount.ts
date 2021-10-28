@@ -311,12 +311,20 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   public async assignCranks(): Promise<void> {
     for await (const feed of this.feeds) {
       const assignedCranks: string[] = [];
+
       for await (const crank of feed.cranks) {
         const c = this.findCrankByName(crank);
-        if (c) {
+        if (!c) {
+          console.log(`failed to find crank ${crank}`);
+          continue;
+        }
+        const existingFeeds = (await c.readFeeds()).map((f) =>
+          f.pubkey.toString()
+        );
+        if (!existingFeeds.includes(feed.publicKey)) {
           c.addFeed(feed);
           assignedCranks.push(crank);
-        } else console.log(`failed to find crank ${crank}`);
+        }
       }
       feed.cranks = assignedCranks;
     }

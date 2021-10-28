@@ -10,14 +10,12 @@ export async function readCrank(
   const crankSchema = await selectCrank(schema.cranks);
   await crankSchema.readFeeds();
   const crankAccount = crankSchema.toAccount();
-  const aggregatorKeys = (await crankAccount.peakNextReady(number_)).map((c) =>
-    c.toString()
-  );
+  const aggregatorKeys = await crankAccount.peakNextReady(number_);
 
   // Find aggregator by public key
   for (const feed of schema.feeds) {
     for (const key of aggregatorKeys) {
-      if (feed.publicKey == key)
+      if (feed.publicKey == key.toString())
         console.log(
           chalk.green("Update Ready:"),
           `${chalk.blue(feed.name.padEnd(10, " "))} ${chalk.yellow(key)}`
