@@ -107,7 +107,7 @@ async function main(): Promise<void> {
         await readCrank(queueSchemaClass);
         break;
       case "crankTurn":
-        await popCrank(queueSchemaClass, authority);
+        await popCrank(queueSchemaClass);
         break;
       case undefined:
         console.log("User exited");

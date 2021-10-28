@@ -1,4 +1,5 @@
 import * as anchor from "@project-serum/anchor";
+import { SendTxRequest } from "@project-serum/anchor/dist/cjs/provider";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import {
   CrankAccount,
@@ -8,8 +9,7 @@ import chalk from "chalk";
 import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AggregatorSchema } from ".";
 import { AnchorProgram, unwrapSecretKey } from "../types";
-import { toAccountString } from "../utils";
-
+import { toAccountString, watchTransaction } from "../utils";
 export interface PqData {
   pubkey: PublicKey;
   nextTimestamp: anchor.BN;
@@ -83,6 +83,35 @@ export class CrankSchema extends CrankDefinition {
       (f: PqData) => !f.pubkey.equals(zeroKey)
     );
     return feeds;
+  }
+
+  public async turnCrank(
+    queueAccount: OracleQueueAccount,
+    payoutWallet: PublicKey
+  ): Promise<void> {
+    const queueAuthority = AnchorProgram.getInstance().authority.publicKey;
+    const crankAccount = this.toAccount();
+    try {
+      const readyPubkeys = await crankAccount.peakNextReady(5);
+      const txns: SendTxRequest[] = [];
+      for (let index = 0; index < readyPubkeys.length; ++index) {
+        txns.push({
+          tx: await crankAccount.popTxn({
+            payoutWallet,
+            queuePubkey: queueAccount.publicKey,
+            queueAuthority,
+            readyPubkeys,
+            nonce: index,
+          }),
+          signers: [],
+        });
+      }
+      const signatures = await this._program.provider.sendAll(txns);
+      console.log("Crank turned");
+      await Promise.all(signatures.map(async (s) => watchTransaction(s)));
+    } catch (error) {
+      console.log(chalk.red("Crank turn failed"), error);
+    }
   }
 }
 export {};
