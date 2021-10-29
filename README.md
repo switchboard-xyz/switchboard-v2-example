@@ -29,9 +29,15 @@ npm install
 ```bash
 npm run start
 ```
+or you can provide your own keypair file
+
+```bash
+ts-node src/main.ts --authorityKeypair=solana-keypair.json
+```
 
 ## Oracle
 After running, set the ORACLE_KEY in your .env file or hardcode into docker-compose.yml
+NOTE: Make sure the PAYER_SECRETS file in the docker-compose image matches the keypair used to create the accounts
 
 ```bash
 docker-compose up
