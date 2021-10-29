@@ -4,6 +4,9 @@ import fs from "node:fs";
 import { PROGRAM_ID, RPC_URL } from ".";
 import { loadAuthorityKeypair } from "../utils";
 
+/**
+ * Async singleton to load anchor IDL and authority keypair
+ */
 export class AnchorProgram {
   private static _instance: AnchorProgram;
 

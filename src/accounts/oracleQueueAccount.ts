@@ -4,6 +4,7 @@ import {
   OracleQueueAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
+import chalk from "chalk";
 import {
   classToPlain,
   Exclude,
@@ -13,7 +14,7 @@ import {
 } from "class-transformer";
 import fs from "node:fs";
 import { AnchorProgram, TransformAnchorBN } from "../types";
-import { toAccountString } from "../utils";
+import { createProgramStateAccount, toAccountString } from "../utils";
 import {
   AggregatorDefinition,
   AggregatorSchema,
@@ -67,9 +68,7 @@ export class OracleQueueDefinition {
    * 7. Adds aggregators to cranks
    */
   public async toSchema(): Promise<OracleQueueSchema> {
-    console.log(
-      toAccountString("authority", this._authority.publicKey.toString())
-    );
+    // need to init ProgramStateAccount from a seed with a random hash to prevent collisions
     let programStateAccount: ProgramStateAccount;
     try {
       programStateAccount = await ProgramStateAccount.create(
@@ -77,7 +76,10 @@ export class OracleQueueDefinition {
         {}
       );
     } catch {
-      [programStateAccount] = ProgramStateAccount.fromSeed(await this._program);
+      console.log(chalk.green("creating new ProgramStateAccount"));
+      programStateAccount = await createProgramStateAccount(
+        await this._program
+      );
     }
     console.log(toAccountString("program-state-account", programStateAccount));
 
@@ -91,8 +93,11 @@ export class OracleQueueDefinition {
     console.log(toAccountString("publisher-account", publisher.toString()));
 
     await programStateAccount.vaultTransfer(publisher, this._authority, {
-      amount: new anchor.BN(100_000),
+      amount: new anchor.BN(1000),
     });
+    console.log(
+      toAccountString("   publisher-account", "funded with 1000 Tokens")
+    );
 
     const oracleQueueAccount = await this.createOracleQueueAccount();
     if (!oracleQueueAccount.keypair)
@@ -119,7 +124,6 @@ export class OracleQueueDefinition {
   private async createOracleQueueAccount(): Promise<OracleQueueAccount> {
     return OracleQueueAccount.create(await this._program, {
       name: Buffer.from(this.name),
-      metadata: Buffer.from(""),
       slashingEnabled: false,
       reward: this.reward,
       minStake: this.minStake,

@@ -16,6 +16,7 @@ import { sleep } from "./utils";
 dotenv.config();
 
 async function main(): Promise<void> {
+  // load queue definition
   let queueDefinition: OracleQueueDefinition | undefined;
   const inFile = "oracleQueue.definition.json";
   try {
@@ -34,7 +35,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  // check if output file exists
+  // load queue schema from file if exist
   const outFile = "oracleQueue.schema.json";
   let queueSchema: OracleQueueSchema | undefined;
   if (fs.existsSync(outFile)) {
