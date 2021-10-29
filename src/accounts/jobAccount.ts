@@ -46,7 +46,10 @@ export interface IJobDefinition {
 
 export class JobDefinition {
   @Exclude()
-  _program: anchor.Program = AnchorProgram.getInstance().program;
+  _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
+
+  @Exclude()
+  _authority: Keypair = AnchorProgram.getInstance().authority;
 
   @Expose()
   public source!: EndpointEnum;
@@ -58,7 +61,7 @@ export class JobDefinition {
     aggregatorAccount: AggregatorAccount,
     usdtAggregator?: PublicKey
   ): Promise<JobSchema> {
-    const tasks = await this.mapJobTask();
+    const tasks: OracleJob.Task[] = await this.mapJobTask();
     if (this.id.toLowerCase().endsWith("usdt")) {
       if (usdtAggregator) tasks.push(await multiplyUsdtTask(usdtAggregator));
       else
@@ -74,7 +77,7 @@ export class JobDefinition {
       ).finish()
     );
     const keypair = anchor.web3.Keypair.generate();
-    const jobAccount = await JobAccount.create(this._program, {
+    const jobAccount = await JobAccount.create(await this._program, {
       data,
       keypair,
     });
@@ -129,10 +132,10 @@ export class JobSchema extends JobDefinition {
   @Expose()
   public publicKey!: string;
 
-  public toAccount(): JobAccount {
+  public async toAccount(): Promise<JobAccount> {
     const keypair = Keypair.fromSecretKey(unwrapSecretKey(this.secretKey));
     const aggregatorAccount = new JobAccount({
-      program: this._program,
+      program: await this._program,
       keypair,
     });
     return aggregatorAccount;

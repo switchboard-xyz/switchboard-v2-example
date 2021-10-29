@@ -6,6 +6,8 @@
   "private": true,
   "scripts": {
     "start": "ts-node src/main.ts",
+    "start:solana": "ts-node src/main.ts --updateAuthorityKeypair=solana-keypair-upgrade-authority.json",
+    "start:new": "ts-node src/main.ts --updateAuthorityKeypair=new-keypair.json",
     "build": "tsc && node bin/main.js",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix"
   },

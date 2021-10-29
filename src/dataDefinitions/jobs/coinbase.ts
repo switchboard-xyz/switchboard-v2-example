@@ -3,7 +3,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 export async function buildCoinbaseTask(
   pair: string,
   maxDataAgeSeconds = 15
-): Promise<Array<OracleJob.Task>> {
+): Promise<OracleJob.Task[]> {
   const tasks = [
     OracleJob.Task.create({
       websocketTask: OracleJob.WebsocketTask.create({

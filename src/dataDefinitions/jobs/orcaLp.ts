@@ -4,7 +4,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 export async function buildOrcaLpTask(
   key: string,
   solKey: PublicKey
-): Promise<Array<OracleJob.Task>> {
+): Promise<OracleJob.Task[]> {
   const tasks = [
     OracleJob.Task.create({
       lpExchangeRateTask: OracleJob.LpExchangeRateTask.create({

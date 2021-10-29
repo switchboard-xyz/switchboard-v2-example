@@ -1,8 +1,6 @@
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 
-export async function buildMxcTask(
-  pair: string
-): Promise<Array<OracleJob.Task>> {
+export async function buildMxcTask(pair: string): Promise<OracleJob.Task[]> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({

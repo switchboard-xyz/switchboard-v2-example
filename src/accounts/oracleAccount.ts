@@ -12,32 +12,35 @@ import { toAccountString } from "../utils";
 
 export class OracleDefiniton {
   @Exclude()
-  _program: anchor.Program = AnchorProgram.getInstance().program;
+  _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
+
+  @Exclude()
+  _authority: Keypair = AnchorProgram.getInstance().authority;
 
   @Expose()
   public name!: string;
 
   public async toSchema(
-    oracleQueueAccount: OracleQueueAccount,
-    authority: Keypair
+    oracleQueueAccount: OracleQueueAccount
   ): Promise<OracleSchema> {
-    const oracleAccount = await OracleAccount.create(this._program, {
+    const program = await this._program;
+    const oracleAccount = await OracleAccount.create(program, {
       name: Buffer.from(this.name),
       queueAccount: oracleQueueAccount,
     });
-    console.log(toAccountString(this.name, oracleQueueAccount));
-    const permissionAccount = await PermissionAccount.create(this._program, {
-      authority: authority.publicKey,
+    console.log(toAccountString(this.name, oracleAccount));
+    const permissionAccount = await PermissionAccount.create(program, {
+      authority: this._authority.publicKey,
       granter: oracleQueueAccount.publicKey,
       grantee: oracleAccount.publicKey,
     });
     await permissionAccount.set({
-      authority: authority,
+      authority: this._authority,
       permission: SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
       enable: true,
     });
-    console.log(toAccountString(`${this.name}-permission`, oracleAccount));
-
+    console.log(toAccountString(`     ${this.name}-permission`, oracleAccount));
+    await oracleAccount.heartbeat();
     return plainToClass(OracleSchema, {
       ...this,
       publicKey: oracleAccount.publicKey.toString(),
@@ -53,25 +56,25 @@ export class OracleSchema extends OracleDefiniton {
   @Expose()
   public queuePermissionAccount!: string;
 
-  public toAccount(): OracleAccount {
+  public async toAccount(): Promise<OracleAccount> {
     const publicKey = new PublicKey(this.publicKey);
     if (!publicKey)
       throw new Error(`failed to load Oracle account ${this.publicKey}`);
     const oracleAccount = new OracleAccount({
-      program: this._program,
+      program: await this._program,
       publicKey,
     });
     return oracleAccount;
   }
 
-  public getPermissionAccount(): PermissionAccount {
+  public async getPermissionAccount(): Promise<PermissionAccount> {
     const publicKey = new PublicKey(this.queuePermissionAccount);
     if (!publicKey)
       throw new Error(
         `failed to load Oracle permission account ${this.queuePermissionAccount}`
       );
     const permissionAccount = new PermissionAccount({
-      program: this._program,
+      program: await this._program,
       publicKey,
     });
     return permissionAccount;

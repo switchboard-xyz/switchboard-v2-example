@@ -26,10 +26,10 @@ import {
 
 export class OracleQueueDefinition {
   @Exclude()
-  _program: anchor.Program = AnchorProgram.getInstance().program;
+  _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
 
   @Exclude()
-  _authority = AnchorProgram.getInstance().authority;
+  _authority: Keypair = AnchorProgram.getInstance().authority;
 
   @Expose()
   public name!: string;
@@ -59,42 +59,56 @@ export class OracleQueueDefinition {
   /**
    * Creates the neccesary oracle queue accounts based on the input definition
    * 1. Loads programStateAccount
-   * 2. Funds publisher for adding new feeds
+   * 2. Funds publisher token account for adding new feeds
    * 3. Creates new OracleQueue account
    * 4. Creates new Oracles and adds them to the queue
    * 5. Creates new Cranks and adds them to the queue
    * 6. Creates new Aggregator accounts, with job definitions, and funds leaseContract
    * 7. Adds aggregators to cranks
    */
-  public async toSchema(authority: Keypair): Promise<OracleQueueSchema> {
-    const programStateAccount = await this.createProgramStateAccount();
+  public async toSchema(): Promise<OracleQueueSchema> {
+    console.log(
+      toAccountString("authority", this._authority.publicKey.toString())
+    );
+    let programStateAccount: ProgramStateAccount;
+    try {
+      programStateAccount = await ProgramStateAccount.create(
+        await this._program,
+        {}
+      );
+    } catch {
+      [programStateAccount] = ProgramStateAccount.fromSeed(await this._program);
+    }
     console.log(toAccountString("program-state-account", programStateAccount));
 
-    const publisher = await this.createTokenMint(programStateAccount);
-    await this.transferTokens(
-      programStateAccount,
-      authority,
-      publisher,
-      10_000
+    const switchTokenMint = await programStateAccount.getTokenMint();
+    console.log(
+      toAccountString("token-mint", switchTokenMint.publicKey.toString())
     );
+    const publisher = await switchTokenMint.createAccount(
+      this._authority.publicKey
+    );
+    console.log(toAccountString("publisher-account", publisher.toString()));
+
+    await programStateAccount.vaultTransfer(publisher, this._authority, {
+      amount: new anchor.BN(100_000),
+    });
 
     const oracleQueueAccount = await this.createOracleQueueAccount();
     if (!oracleQueueAccount.keypair)
       throw new Error(`oracle-queue-account missing keypair`);
     console.log(toAccountString("oracle-queue-account", oracleQueueAccount));
 
-    const oracles = await this.createOracles(oracleQueueAccount, authority);
+    const oracles = await this.createOracles(oracleQueueAccount);
     const cranks = await this.createCranks(oracleQueueAccount);
-    const feeds = await this.createDefaultFeeds(
-      oracleQueueAccount,
-      publisher,
-      authority
-    );
+
+    const feeds = await this.createDefaultFeeds(oracleQueueAccount, publisher);
 
     return plainToClass(OracleQueueSchema, {
       ...this,
       secretKey: `[${oracleQueueAccount.keypair.secretKey}]`,
       publicKey: oracleQueueAccount.keypair.publicKey.toString(),
+      publisher: publisher.toString(),
       programStateAccount: programStateAccount.publicKey.toString(),
       oracles,
       cranks,
@@ -102,58 +116,25 @@ export class OracleQueueDefinition {
     });
   }
 
-  private async createProgramStateAccount(): Promise<ProgramStateAccount> {
-    let programAccount: ProgramStateAccount;
-
-    try {
-      programAccount = await ProgramStateAccount.create(this._program, {});
-    } catch {
-      [programAccount] = ProgramStateAccount.fromSeed(this._program);
-    }
-    return programAccount;
-  }
-
-  public async createTokenMint(
-    programStateAccount: ProgramStateAccount
-  ): Promise<PublicKey> {
-    const switchTokenMint = await programStateAccount.getTokenMint();
-    const publisher = await switchTokenMint.createAccount(
-      this._program.provider.wallet.publicKey
-    );
-    return publisher;
-  }
-
-  private async transferTokens(
-    programStateAccount: ProgramStateAccount,
-    authority: Keypair,
-    publisher: PublicKey,
-    amount: number
-  ) {
-    await programStateAccount.vaultTransfer(publisher, authority, {
-      amount: new anchor.BN(amount),
-    });
-  }
-
   private async createOracleQueueAccount(): Promise<OracleQueueAccount> {
-    return OracleQueueAccount.create(this._program, {
+    return OracleQueueAccount.create(await this._program, {
       name: Buffer.from(this.name),
       metadata: Buffer.from(""),
       slashingEnabled: false,
       reward: this.reward,
       minStake: this.minStake,
-      authority: this._program.provider.wallet.publicKey,
+      authority: this._authority.publicKey,
     });
   }
 
   private async createOracles(
-    oracleQueueAccount: OracleQueueAccount,
-    authority: Keypair
+    oracleQueueAccount: OracleQueueAccount
   ): Promise<OracleSchema[]> {
     const oracleAccounts: OracleSchema[] = [];
     if (this.oracles.length === 0) return oracleAccounts;
 
     for await (const oracle of this.oracles) {
-      oracleAccounts.push(await oracle.toSchema(oracleQueueAccount, authority));
+      oracleAccounts.push(await oracle.toSchema(oracleQueueAccount));
     }
     return oracleAccounts;
   }
@@ -172,27 +153,16 @@ export class OracleQueueDefinition {
 
   private async createDefaultFeeds(
     oracleQueueAccount: OracleQueueAccount,
-    publisher: PublicKey,
-    authority: Keypair
+    publisher: PublicKey
   ): Promise<AggregatorSchema[]> {
     const newAggregators: AggregatorSchema[] = [];
     newAggregators.push(
-      await USDT_FEED.toSchema(oracleQueueAccount, authority, publisher)
+      await USDT_FEED.toSchema(oracleQueueAccount, publisher)
     );
     const usdtAggregator = new PublicKey(newAggregators[0].publicKey);
     newAggregators.push(
-      await SOL_FEED.toSchema(
-        oracleQueueAccount,
-        authority,
-        publisher,
-        usdtAggregator
-      ),
-      await BTC_FEED.toSchema(
-        oracleQueueAccount,
-        authority,
-        publisher,
-        usdtAggregator
-      )
+      await SOL_FEED.toSchema(oracleQueueAccount, publisher, usdtAggregator),
+      await BTC_FEED.toSchema(oracleQueueAccount, publisher, usdtAggregator)
     );
     return newAggregators;
   }
@@ -204,6 +174,9 @@ export class OracleQueueSchema extends OracleQueueDefinition {
 
   @Expose()
   public publicKey!: string;
+
+  @Expose()
+  public publisher!: string;
 
   @Expose()
   public programStateAccount!: string;
@@ -220,15 +193,26 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   @Type(() => AggregatorSchema)
   public feeds!: AggregatorSchema[];
 
-  public toAccount(): OracleQueueAccount {
+  public async toAccount(): Promise<OracleQueueAccount> {
     const publicKey = new PublicKey(this.publicKey);
     if (!publicKey)
       throw new Error(`failed to load Oracle Queue account ${this.publicKey}`);
     const oracleQueueAccount = new OracleQueueAccount({
-      program: this._program,
+      program: await this._program,
       publicKey,
     });
     return oracleQueueAccount;
+  }
+
+  public async fundTokens(): Promise<void> {
+    const programStateAccount = await this.getProgramStateAccount();
+    const publisher = await this.getAuthorityTokenAccount();
+    await programStateAccount.vaultTransfer(publisher, this._authority, {
+      amount: new anchor.BN(100_000),
+    });
+    console.log(
+      `Authority token account ${publisher} funded with 100,000 tokens`
+    );
   }
 
   public async loadDefinition(
@@ -240,15 +224,19 @@ export class OracleQueueSchema extends OracleQueueDefinition {
     await this.assignCranks();
   }
 
-  public getProgramStateAccount(): ProgramStateAccount {
+  public async getProgramStateAccount(): Promise<ProgramStateAccount> {
     const publicKey = new PublicKey(this.programStateAccount);
     if (!publicKey)
       throw new Error(`failed to load Program State account ${this.publicKey}`);
     const programStateAccount = new ProgramStateAccount({
-      program: this._program,
+      program: await this._program,
       publicKey,
     });
     return programStateAccount;
+  }
+
+  public async getAuthorityTokenAccount(): Promise<PublicKey> {
+    return new PublicKey(this.publisher);
   }
 
   public saveJson(fileName: string): void {
@@ -270,19 +258,27 @@ export class OracleQueueSchema extends OracleQueueDefinition {
     for await (const crank of cranks) {
       const existing = this.cranks.find((c) => c.name === crank.name);
       if (existing) continue;
-      this.cranks.push(await crank.toSchema(this.toAccount()));
+      this.cranks.push(await crank.toSchema(await this.toAccount()));
       console.log(`crank ${crank.name} added to queue`);
     }
   }
 
   private async loadOracles(oracles: OracleDefiniton[]): Promise<void> {
-    const authority = AnchorProgram.getInstance().authority;
     for await (const o of oracles) {
       const existing = this.oracles.find((oracle) => o.name === oracle.name);
       if (existing) continue;
-      this.oracles.push(await o.toSchema(this.toAccount(), authority));
+      this.oracles.push(await o.toSchema(await this.toAccount()));
       console.log(`oracle ${o.name} added to queue`);
     }
+  }
+
+  public async printOracles(): Promise<void> {
+    const queueAccount = await this.toAccount();
+    const zeroKey = new PublicKey("11111111111111111111111111111111");
+    let queues: PublicKey[] = (await queueAccount.loadData()).queue;
+
+    queues = queues.filter((f) => !f.equals(zeroKey));
+    console.log(queues);
   }
 
   private async loadFeeds(feeds: AggregatorDefinition[]): Promise<void> {
@@ -295,12 +291,10 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   }
 
   private async addFeed(feed: AggregatorDefinition): Promise<AggregatorSchema> {
-    const publisher = await this.createTokenMint(this.getProgramStateAccount());
-    const authority = AnchorProgram.getInstance().authority;
+    const publisher = await this.getAuthorityTokenAccount();
     const usdtAggregator = this.findAggregatorByName(USDT_FEED.name);
     const newAggregator = await feed.toSchema(
-      this.toAccount(),
-      authority,
+      await this.toAccount(),
       publisher,
       usdtAggregator
     );

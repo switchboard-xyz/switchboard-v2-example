@@ -2,6 +2,7 @@ export * from "./cli/selectCrank";
 export * from "./cli/selectFeed";
 export * from "./cli/selectOracle";
 export * from "./getFullSubdirectoryPath";
+export * from "./loadAuthorityKeypair";
 export * from "./readKeys";
 export * from "./sleep";
 export * from "./toAccountString";

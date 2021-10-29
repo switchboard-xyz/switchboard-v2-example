@@ -8,13 +8,11 @@ export async function aggregatorUpdate(
 ): Promise<void> {
   if (!schema.feeds) throw new Error("no feeds defined in schema");
   const aggregatorAccount: AggregatorAccount = await selectFeed(schema.feeds);
-  const oracleQueueAccount = schema.toAccount();
-  const payoutWallet = (await schema.oracles[0].toAccount().loadData())
-    .tokenAccount;
+  const oracleQueueAccount = await schema.toAccount();
+  const payoutWallet = await schema.getAuthorityTokenAccount();
   const txn = await aggregatorAccount.openRound({
     oracleQueueAccount,
     payoutWallet,
   });
-  console.log(txn);
   await watchTransaction(txn);
 }

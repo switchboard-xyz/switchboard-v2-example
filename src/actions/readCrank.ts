@@ -9,7 +9,7 @@ export async function readCrank(
   if (!schema.cranks) throw new Error("no cranks defined in schema");
   const crankSchema = await selectCrank(schema.cranks);
   await crankSchema.readFeeds();
-  const crankAccount = crankSchema.toAccount();
+  const crankAccount = await crankSchema.toAccount();
   const aggregatorKeys = await crankAccount.peakNextReady(number_);
 
   // Find aggregator by public key

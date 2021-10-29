@@ -9,6 +9,7 @@ async function signatureCallback(
 }
 
 export async function watchTransaction(txn: string): Promise<void> {
+  console.log(`https://explorer.solana.com/tx/${txn}?cluster=devnet`);
   const connection = new Connection(RPC_URL, {
     commitment: "confirmed",
   });

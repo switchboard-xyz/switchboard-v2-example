@@ -9,19 +9,17 @@ import {
   aggregatorResult,
   aggregatorUpdate,
   oracleHeartbeat,
-  popCrank,
   readCrank,
+  turnCrank,
 } from "./actions";
-import { AnchorProgram } from "./types/anchorProgram";
 import { sleep } from "./utils";
 dotenv.config();
 
 async function main(): Promise<void> {
-  const authority = AnchorProgram.getInstance().authority;
-
   let queueDefinition: OracleQueueDefinition | undefined;
+  const inFile = "oracleQueue.definition.json";
   try {
-    const fileBuffer = fs.readFileSync("oracleQueue.definition.json");
+    const fileBuffer = fs.readFileSync(inFile);
     const definition = JSON.parse(fileBuffer.toString());
     queueDefinition = plainToClass(OracleQueueDefinition, definition, {
       excludePrefixes: ["_"],
@@ -32,23 +30,19 @@ async function main(): Promise<void> {
     return;
   }
   if (!queueDefinition) {
-    console.error("no queue");
+    console.error("failed to read queue definition file", inFile);
     return;
   }
 
   // check if output file exists
   const outFile = "oracleQueue.schema.json";
-  const fullOutFile = `${outFile}`;
   let queueSchema: OracleQueueSchema | undefined;
-  if (fs.existsSync(fullOutFile)) {
-    console.log(
-      chalk.green("Oracle Queue built from local schema:"),
-      fullOutFile
-    );
-    const fileBuffer = fs.readFileSync(fullOutFile);
+  if (fs.existsSync(outFile)) {
+    console.log(chalk.green("Oracle Queue built from local schema:"), outFile);
+    const fileBuffer = fs.readFileSync(outFile);
     queueSchema = JSON.parse(fileBuffer.toString());
   } else {
-    queueSchema = await queueDefinition.toSchema(authority);
+    queueSchema = await queueDefinition.toSchema();
   }
   if (!queueSchema || !queueSchema.name)
     throw new Error(`failed to parse schema input`);
@@ -58,7 +52,8 @@ async function main(): Promise<void> {
     excludeExtraneousValues: true,
   });
   await queueSchemaClass.loadDefinition(queueDefinition);
-  queueSchemaClass.saveJson(fullOutFile);
+  queueSchemaClass.saveJson(outFile);
+
   await sleep(2000); // delayed txn errors might ruin prompt
 
   let exit = false;
@@ -71,29 +66,40 @@ async function main(): Promise<void> {
         message: "what do you want to do?",
         choices: [
           {
-            title: "1. Oracle Heartbeat",
+            title: "List Oracles",
+            value: "printOracles",
+          },
+          {
+            title: "Oracle Heartbeat",
             value: "oracleHeartbeat",
           },
           {
-            title: "2. Request Aggregator Update",
+            title: "Request Aggregator Update",
             value: "aggregatorUpdate",
           },
           {
-            title: "3. Read Aggregator Result",
+            title: "Read Aggregator Result",
             value: "aggregatorResult",
           },
           {
-            title: "4. Turn the Crank",
+            title: "Fund Authority Token Account",
+            value: "fundAuthorityTokens",
+          },
+          {
+            title: "Turn the Crank",
             value: "crankTurn",
           },
           {
-            title: "5. Read the Crank",
+            title: "Read the Crank",
             value: "readCrank",
           },
         ],
       },
     ]);
     switch (answer.action) {
+      case "printOracles":
+        await queueSchemaClass.printOracles();
+        break;
       case "oracleHeartbeat":
         await oracleHeartbeat(queueSchemaClass);
         break;
@@ -107,7 +113,10 @@ async function main(): Promise<void> {
         await readCrank(queueSchemaClass);
         break;
       case "crankTurn":
-        await popCrank(queueSchemaClass);
+        await turnCrank(queueSchemaClass);
+        break;
+      case "fundAuthorityTokens":
+        await queueSchemaClass.fundTokens();
         break;
       case undefined:
         console.log("User exited");

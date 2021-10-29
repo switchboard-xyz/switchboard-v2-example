@@ -10,6 +10,7 @@ import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AggregatorSchema } from ".";
 import { AnchorProgram, unwrapSecretKey } from "../types";
 import { toAccountString, watchTransaction } from "../utils";
+
 export interface PqData {
   pubkey: PublicKey;
   nextTimestamp: anchor.BN;
@@ -17,7 +18,10 @@ export interface PqData {
 
 export class CrankDefinition {
   @Exclude()
-  _program: anchor.Program = AnchorProgram.getInstance().program;
+  _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
+
+  @Exclude()
+  _authority: Keypair = AnchorProgram.getInstance().authority;
 
   @Expose()
   public name!: string;
@@ -28,9 +32,8 @@ export class CrankDefinition {
   public async toSchema(
     oracleQueueAccount: OracleQueueAccount
   ): Promise<CrankSchema> {
-    const crankAccount = await CrankAccount.create(this._program, {
+    const crankAccount = await CrankAccount.create(await this._program, {
       name: Buffer.from(this.name),
-      metadata: Buffer.from(""),
       queueAccount: oracleQueueAccount,
       maxRows: this.maxRows,
     });
@@ -52,11 +55,11 @@ export class CrankSchema extends CrankDefinition {
   @Expose()
   public publicKey!: string;
 
-  public toAccount(): CrankAccount {
+  public async toAccount(): Promise<CrankAccount> {
     // const keypair = getKeypair(aggregator.keypair);
     const keypair = Keypair.fromSecretKey(unwrapSecretKey(this.secretKey));
     const aggregatorAccount = new CrankAccount({
-      program: this._program,
+      program: await this._program,
       keypair,
     });
     return aggregatorAccount;
@@ -65,9 +68,9 @@ export class CrankSchema extends CrankDefinition {
   public async addFeed(
     aggregator: AggregatorSchema
   ): Promise<string | undefined> {
-    const aggregatorAccount = aggregator.toAccount();
+    const aggregatorAccount = await aggregator.toAccount();
     try {
-      await this.toAccount().push({
+      (await this.toAccount()).push({
         aggregatorAccount,
       });
       console.log(`${aggregator.name} added to crank ${this.name}`);
@@ -79,9 +82,9 @@ export class CrankSchema extends CrankDefinition {
 
   public async readFeeds(): Promise<PqData[]> {
     const zeroKey = new PublicKey("11111111111111111111111111111111");
-    const feeds: PqData[] = (await this.toAccount().loadData()).pqData.filter(
-      (f: PqData) => !f.pubkey.equals(zeroKey)
-    );
+    const feeds: PqData[] = (
+      await (await this.toAccount()).loadData()
+    ).pqData.filter((f: PqData) => !f.pubkey.equals(zeroKey));
     return feeds;
   }
 
@@ -90,7 +93,7 @@ export class CrankSchema extends CrankDefinition {
     payoutWallet: PublicKey
   ): Promise<void> {
     const queueAuthority = AnchorProgram.getInstance().authority.publicKey;
-    const crankAccount = this.toAccount();
+    const crankAccount = await this.toAccount();
     try {
       const readyPubkeys = await crankAccount.peakNextReady(5);
       const txns: SendTxRequest[] = [];
@@ -101,14 +104,19 @@ export class CrankSchema extends CrankDefinition {
             queuePubkey: queueAccount.publicKey,
             queueAuthority,
             readyPubkeys,
-            nonce: index,
           }),
           signers: [],
         });
       }
-      const signatures = await this._program.provider.sendAll(txns);
-      console.log("Crank turned");
+      // const connection = new Connection(RPC_URL, {
+      //   commitment: "confirmed",
+      // });
+      // const sent = await Promise.all(
+      //   txns.map((t) => connection.sendTransaction(t.tx, []))
+      // );
+      const signatures = await (await this._program).provider.sendAll(txns);
       await Promise.all(signatures.map(async (s) => watchTransaction(s)));
+      console.log("Crank turned");
     } catch (error) {
       console.log(chalk.red("Crank turn failed"), error);
     }

@@ -2,7 +2,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 
 export async function buildBitstampTask(
   pair: string
-): Promise<Array<OracleJob.Task>> {
+): Promise<OracleJob.Task[]> {
   const tasks = [
     OracleJob.Task.create({
       httpTask: OracleJob.HttpTask.create({

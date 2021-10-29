@@ -23,7 +23,10 @@ export interface IAggregatorDefinition {
 }
 export class AggregatorDefinition {
   @Exclude()
-  _program: anchor.Program = AnchorProgram.getInstance().program;
+  _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
+
+  @Exclude()
+  _authority: Keypair = AnchorProgram.getInstance().authority;
 
   @Expose()
   public name!: string;
@@ -57,7 +60,6 @@ export class AggregatorDefinition {
    */
   public async toSchema(
     oracleQueueAccount: OracleQueueAccount,
-    authority: Keypair,
     publisher: PublicKey,
     usdtAggregator?: PublicKey
   ): Promise<AggregatorSchema> {
@@ -71,13 +73,11 @@ export class AggregatorDefinition {
     );
     const permissionAccount = await this.permitToQueue(
       oracleQueueAccount,
-      aggregatorAccount,
-      authority
+      aggregatorAccount
     );
     const leaseContract = await this.fundLease(
       oracleQueueAccount,
       aggregatorAccount,
-      authority,
       publisher,
       1000
     );
@@ -95,14 +95,17 @@ export class AggregatorDefinition {
   private async createAccount(
     oracleQueueAccount: OracleQueueAccount
   ): Promise<AggregatorAccount> {
-    const aggregatorAccount = await AggregatorAccount.create(this._program, {
-      name: Buffer.from(this.name),
-      batchSize: this.batchSize,
-      minRequiredOracleResults: this.minRequiredOracleResults,
-      minRequiredJobResults: this.minRequiredJobResults,
-      minUpdateDelaySeconds: this.minUpdateDelaySeconds,
-      queueAccount: oracleQueueAccount,
-    });
+    const aggregatorAccount = await AggregatorAccount.create(
+      await this._program,
+      {
+        name: Buffer.from(this.name),
+        batchSize: this.batchSize,
+        minRequiredOracleResults: this.minRequiredOracleResults,
+        minRequiredJobResults: this.minRequiredJobResults,
+        minUpdateDelaySeconds: this.minUpdateDelaySeconds,
+        queueAccount: oracleQueueAccount,
+      }
+    );
     console.log(toAccountString(`${this.name}-aggregator`, aggregatorAccount));
     return aggregatorAccount;
   }
@@ -121,42 +124,45 @@ export class AggregatorDefinition {
 
   private async permitToQueue(
     oracleQueueAccount: OracleQueueAccount,
-    aggregatorAccount: AggregatorAccount,
-    authority: Keypair
+    aggregatorAccount: AggregatorAccount
   ): Promise<PermissionAccount> {
     if (!aggregatorAccount.publicKey)
       throw new Error(
         `failed to read public key for ${this.name} - ${aggregatorAccount.publicKey}`
       );
-    const permissionAccount = await PermissionAccount.create(this._program, {
-      authority: this._program.provider.wallet.publicKey,
-      granter: oracleQueueAccount.publicKey,
-      grantee: aggregatorAccount.publicKey,
-    });
+    const permissionAccount = await PermissionAccount.create(
+      await this._program,
+      {
+        authority: this._authority.publicKey,
+        granter: oracleQueueAccount.publicKey,
+        grantee: aggregatorAccount.publicKey,
+      }
+    );
     await permissionAccount.set({
-      authority: authority,
+      authority: this._authority,
       permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
       enable: true,
     });
-    console.log(toAccountString(`${this.name}-permission`, permissionAccount));
+    console.log(
+      toAccountString(`     ${this.name}-permission`, permissionAccount)
+    );
     return permissionAccount;
   }
 
   private async fundLease(
     oracleQueueAccount: OracleQueueAccount,
     aggregatorAccount: AggregatorAccount,
-    authority: Keypair,
     publisher: PublicKey,
     loadAmount: number
   ): Promise<LeaseAccount> {
-    const leaseContract = await LeaseAccount.create(this._program, {
+    const leaseContract = await LeaseAccount.create(await this._program, {
       loadAmount: new anchor.BN(loadAmount),
       funder: publisher,
-      funderAuthority: authority,
+      funderAuthority: this._authority,
       oracleQueueAccount: oracleQueueAccount,
       aggregatorAccount,
     });
-    console.log(toAccountString(`${this.name}-lease`, leaseContract));
+    console.log(toAccountString(`     ${this.name}-lease`, leaseContract));
     return leaseContract;
   }
 }
@@ -178,24 +184,24 @@ export class AggregatorSchema extends AggregatorDefinition {
   @Type(() => JobSchema)
   public jobs!: JobSchema[];
 
-  public toAccount(): AggregatorAccount {
+  public async toAccount(): Promise<AggregatorAccount> {
     // const keypair = getKeypair(aggregator.keypair);
     const keypair = Keypair.fromSecretKey(unwrapSecretKey(this.secretKey));
     const aggregatorAccount = new AggregatorAccount({
-      program: this._program,
+      program: await this._program,
       keypair,
     });
     return aggregatorAccount;
   }
 
-  public getPermissionAccount(): PermissionAccount {
+  public async getPermissionAccount(): Promise<PermissionAccount> {
     const publicKey = new PublicKey(this.queuePermissionAccount);
     if (!publicKey)
       throw new Error(
         `failed to load Aggregator permission account ${this.queuePermissionAccount}`
       );
     const permissionAccount = new PermissionAccount({
-      program: this._program,
+      program: await this._program,
       publicKey,
     });
     return permissionAccount;
