@@ -10,10 +10,12 @@ RPC_URL="https://api.devnet.solana.com"
 ORACLE_KEY=""       ## Oracle Pubkey used for docker image
 ```
 
-You will also need the following files in the root directory
+You will also need a Solana keypair with an active balance to fund new accounts
 
-- authority-keypair.json (on-chain authority)
-- switchboard_v2.json (anchor IDL)
+```bash
+solana-keygen new --outfile authority-keypair.json
+solana airdrop 5 authority-keypair.json
+```
 
 
 ## Install
