@@ -66,7 +66,7 @@ async function main(): Promise<void> {
         message: "what do you want to do?",
         choices: [
           {
-            title: "List Oracles",
+            title: "Read Oracles",
             value: "printOracles",
           },
           {
@@ -74,24 +74,24 @@ async function main(): Promise<void> {
             value: "oracleHeartbeat",
           },
           {
-            title: "Request Aggregator Update",
-            value: "aggregatorUpdate",
-          },
-          {
             title: "Read Aggregator Result",
             value: "aggregatorResult",
+          },
+          {
+            title: "Request Aggregator Update",
+            value: "aggregatorUpdate",
           },
           {
             title: "Fund Authority Token Account",
             value: "fundAuthorityTokens",
           },
           {
-            title: "Turn the Crank",
-            value: "crankTurn",
-          },
-          {
             title: "Read the Crank",
             value: "readCrank",
+          },
+          {
+            title: "Turn the Crank",
+            value: "crankTurn",
           },
         ],
       },

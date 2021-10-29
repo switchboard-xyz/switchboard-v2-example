@@ -6,7 +6,6 @@ import { readSecretKey } from ".";
 import { KEYPAIR_OUTPUT } from "../types";
 
 export const loadAuthorityKeypair = (): Keypair => {
-  const fileName = "authority-keypair";
   const argv = Yargs(process.argv.slice(2))
     .options({
       authorityKeypair: {
@@ -29,6 +28,7 @@ export const loadAuthorityKeypair = (): Keypair => {
   }
 
   // read update authority from local directory
+  const fileName = "authority-keypair";
   const authority = readSecretKey(fileName);
   if (!authority)
     throw new Error(
