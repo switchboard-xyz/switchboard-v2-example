@@ -1,5 +1,5 @@
 import { plainToClass } from "class-transformer";
-import { AggregatorDefinition, IAggregatorDefinition } from "../accounts";
+import { AggregatorDefinition, IAggregatorDefinition } from "..";
 
 export const USDT: IAggregatorDefinition = {
   name: "USDT_USD",

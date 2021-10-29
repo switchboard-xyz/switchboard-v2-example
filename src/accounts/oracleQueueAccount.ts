@@ -12,7 +12,6 @@ import {
   Type,
 } from "class-transformer";
 import fs from "node:fs";
-import { BTC_FEED, SOL_FEED, USDT_FEED } from "../dataDefinitions/feeds";
 import { AnchorProgram, TransformAnchorBN } from "../types";
 import { toAccountString } from "../utils";
 import {
@@ -23,6 +22,7 @@ import {
   OracleDefiniton,
   OracleSchema,
 } from "./";
+import { BTC_FEED, SOL_FEED, USDT_FEED } from "./task/feeds";
 
 export class OracleQueueDefinition {
   @Exclude()

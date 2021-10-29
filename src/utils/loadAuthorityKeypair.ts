@@ -2,7 +2,7 @@ import { Keypair } from "@solana/web3.js";
 import fs from "node:fs";
 import resolve from "resolve-dir";
 import Yargs from "yargs/yargs";
-import { readSecretKey } from ".";
+import { readSecretKey, toAccountString } from ".";
 import { KEYPAIR_OUTPUT } from "../types";
 
 export const loadAuthorityKeypair = (): Keypair => {
@@ -22,8 +22,12 @@ export const loadAuthorityKeypair = (): Keypair => {
       JSON.parse(fs.readFileSync(resolve(argv.authorityKeypair), "utf-8"))
     );
     const authority = Keypair.fromSecretKey(authorityBuffer);
-    console.log("Loaded authority keypair from command line arguement");
-
+    console.log(
+      toAccountString(
+        `authority-${argv.authorityKeypair.replace(".json", "")}`,
+        authority.publicKey.toString()
+      )
+    );
     return authority;
   }
 
@@ -34,6 +38,6 @@ export const loadAuthorityKeypair = (): Keypair => {
     throw new Error(
       `failed to read update authority from keypair directory or command line arguement ${KEYPAIR_OUTPUT}/${fileName}.json`
     );
-
+  console.log(toAccountString(fileName, authority.publicKey.toString()));
   return authority;
 };

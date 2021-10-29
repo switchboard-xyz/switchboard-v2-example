@@ -3,6 +3,8 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
 import { Exclude, Expose, plainToClass } from "class-transformer";
+import { AnchorProgram, unwrapSecretKey } from "../types";
+import { multiplyUsdtTask } from "./task/multiplyUsdt";
 import {
   buildBinanceComTask,
   buildBinanceUsTask,
@@ -18,9 +20,7 @@ import {
   buildMxcTask,
   buildOkexTask,
   buildOrcaApiTask,
-} from "../dataDefinitions/jobs";
-import { multiplyUsdtTask } from "../dataDefinitions/task/multiplyUsdt";
-import { AnchorProgram, unwrapSecretKey } from "../types";
+} from "./task/sources";
 
 export type EndpointEnum =
   | "binanceCom"
