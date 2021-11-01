@@ -7,6 +7,12 @@ yarn-error.log*
 lerna-debug.log*
 **/.DS_Store
 
+*-lock.json
+
+**/.anchor
+**/target
+**/*.rs.bk
+
 bin
 keys.txt
 on-chain-program/target

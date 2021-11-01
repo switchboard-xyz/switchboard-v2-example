@@ -8,8 +8,8 @@
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
       "resolveJsonModule": true,
-      "allowSyntheticDefaultImports": true,
-      "rootDir": "src"
+      "allowSyntheticDefaultImports": true
+      // "rootDir": "src"
     }
   },
   "compilerOptions": {
@@ -26,12 +26,17 @@
     "resolveJsonModule": true,
     "noEmitOnError": true,
     "isolatedModules": true,
-    "typeRoots": ["./src/types"],
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     "noImplicitAny": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "rootDir": "src"
+    "types": ["mocha", "chai"]
+    // "rootDir": "src"
   },
-  "include": [".", "src/**/*"],
+  "include": [
+    "src/**/*",
+    "on-chain-program/migrations/*",
+    "on-chain-program/tests/*"
+  ],
   "exclude": ["node_modules", "bin"]
 }

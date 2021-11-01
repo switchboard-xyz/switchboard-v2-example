@@ -21,11 +21,6 @@
     "prettier/prettier": "error",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-use-before-define": "off",
-    "unicorn/filename-case": [
-      "error",
-      {
-        "case": "camelCase"
-      }
-    ]
+    "unicorn/filename-case": "off"
   }
 }
