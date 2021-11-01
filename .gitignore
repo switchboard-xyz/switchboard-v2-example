@@ -15,8 +15,8 @@ lerna-debug.log*
 
 bin
 keys.txt
-on-chain-parser/target
-on-chain-parser/*.lock
+rust/anchor-feed-parser/target
+rust/anchor-feed-parser/*.lock
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

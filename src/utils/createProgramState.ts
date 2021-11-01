@@ -11,19 +11,23 @@ export const createProgramStateAccount = async (
   const authority = AnchorProgram.getInstance().authority;
   //   const payerKeypair = (program.provider.wallet as any).payer;
   const rand =
-    Math.random().toString(36).slice(2, 15) +
+    Math.random().toString(36).slice(2, 13) +
     Math.random().toString(36).slice(2, 15);
-  console.log("SEEDS:", rand);
+
+  const payerKeypair = authority;
   const [statePubkey, stateBump] =
     anchor.utils.publicKey.findProgramAddressSync(
-      [Buffer.from(rand)],
+      [Buffer.from("STATE" + rand)],
       program.programId
     );
   const stateAccount = new ProgramStateAccount({
     program,
     publicKey: statePubkey,
   });
-  console.log(toAccountString("program-state-account", stateAccount));
+  console.log("SEEDS:", rand);
+  console.log(
+    toAccountString("program-state-account", stateAccount.publicKey.toString())
+  );
   console.log(toAccountString("state-bump", stateBump.toString()));
   const mintAuthority = anchor.web3.Keypair.generate();
   console.log(
@@ -32,7 +36,7 @@ export const createProgramStateAccount = async (
   const decimals = 9;
   const mint = await spl.Token.createMint(
     program.provider.connection,
-    authority,
+    payerKeypair,
     mintAuthority.publicKey,
     // eslint-disable-next-line unicorn/no-null
     null,
@@ -40,17 +44,19 @@ export const createProgramStateAccount = async (
     spl.TOKEN_PROGRAM_ID
   );
   console.log(toAccountString("token", mint.publicKey.toString()));
-  const tokenVault = await mint.createAccount(authority.publicKey);
+  const tokenVault = await mint.createAccount(
+    program.provider.wallet.publicKey
+  );
+  console.log(toAccountString("token-vault", tokenVault.toString()));
   await mint.mintTo(
     tokenVault,
     mintAuthority.publicKey,
     [mintAuthority],
     100_000_000
   );
-  console.log(toAccountString("token-vault", tokenVault.toString()));
   await program.rpc.programInit(
     {
-      stateBump: stateBump,
+      stateBump,
       decimals: new anchor.BN(decimals),
     },
     {
@@ -66,5 +72,8 @@ export const createProgramStateAccount = async (
       },
     }
   );
-  return stateAccount;
+  return new ProgramStateAccount({
+    program,
+    publicKey: stateAccount.publicKey,
+  });
 };
