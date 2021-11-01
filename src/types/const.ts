@@ -8,7 +8,7 @@ else console.log("RPC Server:", RPC_URL);
 
 export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
   ? `keypairs-${process.env.KEYPAIR_OUTPUT}` // use prefix for gitignore glob pattern
-  : "."; // root
+  : "keypairs"; // root
 
 export const PROGRAM_ID = process.env.PID;
 if (!PROGRAM_ID) throw new Error("PID environment variable not set");

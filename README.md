@@ -13,8 +13,8 @@ ORACLE_KEY=""       ## Oracle Pubkey needed after initial account creation
 You will also need a Solana keypair with an active balance to fund new accounts
 
 ```bash
-solana-keygen new --outfile authority-keypair.json
-solana airdrop 5 authority-keypair.json
+solana-keygen new --outfile keypairs/authority-keypair.json
+solana airdrop 5 keypairs/authority-keypair.json
 ```
 
 ## Install
@@ -32,7 +32,7 @@ npm run start
 or you can provide your own keypair file
 
 ```bash
-ts-node src/main.ts --authorityKeypair=solana-keypair.json
+ts-node src/main.ts --authorityKeypair=keypairs/solana-keypair.json
 ```
 
 ## Oracle

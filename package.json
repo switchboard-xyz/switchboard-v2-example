@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "ts-node src/main.ts --authorityKeypair=keypairs/authority-keypair.json",
+    "start": "ts-node src/main.ts",
     "start:solana": "ts-node src/main.ts --authorityKeypair=keypairs/solana-keypair.json",
     "start:new": "ts-node src/main.ts --authorityKeypair=keypairs/new-keypair.json",
     "build": "tsc && node bin/main.js",
