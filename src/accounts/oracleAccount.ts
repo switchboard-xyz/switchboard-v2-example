@@ -14,6 +14,11 @@ export interface IOracleDefinition {
   name: string;
 }
 
+export interface IOracleSchema {
+  publicKey: string;
+  queuePermissionAccount: string;
+}
+
 export class OracleDefiniton implements IOracleDefinition {
   @Exclude()
   _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
@@ -45,15 +50,17 @@ export class OracleDefiniton implements IOracleDefinition {
     });
     console.log(toAccountString(`     ${this.name}-permission`, oracleAccount));
     await oracleAccount.heartbeat();
-    return plainToClass(OracleSchema, {
+
+    const oracleSchema: IOracleSchema = {
       ...this,
       publicKey: oracleAccount.publicKey.toString(),
       queuePermissionAccount: permissionAccount.publicKey.toString(),
-    });
+    };
+    return plainToClass(OracleSchema, oracleSchema);
   }
 }
 
-export class OracleSchema extends OracleDefiniton {
+export class OracleSchema extends OracleDefiniton implements IOracleSchema {
   @Expose()
   public publicKey!: string;
 
@@ -82,6 +89,10 @@ export class OracleSchema extends OracleDefiniton {
       publicKey,
     });
     return permissionAccount;
+  }
+
+  public print(): void {
+    console.log(toAccountString(this.name, this.publicKey.toString()));
   }
 }
 export {};

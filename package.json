@@ -14,7 +14,8 @@
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix",
     "test": "run-p test:*",
     "test:anchor": "ts-mocha ./rust/anchor-feed-parser/tests/**/*.ts",
-    "test:anchor1": "cd ./rust/anchor-feed-parser && anchor test"
+    "test:anchor1": "cd ./rust/anchor-feed-parser && anchor test",
+    "test:onchain": "ts-node ./rust/on-chain-feed-parser/tests/on-chain-feed-parser.ts --dataFeedPubkey=111111"
   },
   "scriptsInprogress": {
     "install:anchor": "cd rust/anchor-feed-parser && npm install",

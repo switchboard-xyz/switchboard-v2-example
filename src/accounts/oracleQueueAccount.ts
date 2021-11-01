@@ -12,7 +12,7 @@ import {
   Type,
 } from "class-transformer";
 import fs from "node:fs";
-import { AnchorProgram, TransformAnchorBN } from "../types";
+import { AnchorProgram } from "../types";
 import { toAccountString } from "../utils";
 import {
   AggregatorDefinition,
@@ -30,11 +30,18 @@ import { BTC_FEED, SOL_FEED, USDT_FEED } from "./task/feeds";
 export interface IOracleQueueDefinition {
   name: string;
   programStateAccount?: string;
-  reward: anchor.BN;
-  minStake: anchor.BN;
   oracles?: IOracleDefinition[];
   crank?: ICrankDefinition;
   feeds?: IAggregatorDefinition[];
+}
+export interface IOracleQueueSchema extends IOracleQueueDefinition {
+  secretKey: string;
+  publicKey: string;
+  programStateAccount: string;
+  publisher: string;
+  oracles: OracleSchema[];
+  crank: CrankSchema;
+  feeds: AggregatorSchema[];
 }
 
 export class OracleQueueDefinition implements IOracleQueueDefinition {
@@ -49,16 +56,6 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
 
   @Expose()
   public programStateAccount?: string;
-
-  @Expose()
-  @TransformAnchorBN()
-  @Type(() => anchor.BN)
-  public reward!: anchor.BN;
-
-  @Expose()
-  @TransformAnchorBN()
-  @Type(() => anchor.BN)
-  public minStake!: anchor.BN;
 
   @Expose()
   @Type(() => OracleDefiniton)
@@ -100,19 +97,21 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
     console.log(toAccountString("oracle-queue-account", oracleQueueAccount));
 
     const oracles = await this.createOracles(oracleQueueAccount);
-    const cranks = await this.createCrank(oracleQueueAccount);
-
+    const crank = await this.createCrank(oracleQueueAccount);
     const feeds = await this.createDefaultFeeds(oracleQueueAccount, publisher);
 
-    return plainToClass(OracleQueueSchema, {
+    const queueSchema: IOracleQueueSchema = {
       ...this,
       secretKey: `[${oracleQueueAccount.keypair.secretKey}]`,
       publicKey: oracleQueueAccount.keypair.publicKey.toString(),
+      programStateAccount: programStateAccount.publicKey.toString(),
       publisher: publisher.toString(),
       oracles,
-      cranks,
+      crank,
       feeds,
-    });
+    };
+
+    return plainToClass(OracleQueueSchema, queueSchema);
   }
 
   private async loadProgramStateAccount(): Promise<ProgramStateAccount> {
@@ -130,10 +129,7 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
         {}
       );
     } catch {
-      let stateBump: any;
-      [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
-        await this._program
-      );
+      [programStateAccount] = ProgramStateAccount.fromSeed(await this._program);
     }
     return programStateAccount;
   }
@@ -142,8 +138,8 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
     return OracleQueueAccount.create(await this._program, {
       name: Buffer.from(this.name),
       slashingEnabled: false,
-      reward: this.reward,
-      minStake: this.minStake,
+      reward: new anchor.BN(0), // no token account needed
+      minStake: new anchor.BN(0),
       authority: this._authority.publicKey,
     });
   }
@@ -196,7 +192,10 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
   }
 }
 
-export class OracleQueueSchema extends OracleQueueDefinition {
+export class OracleQueueSchema
+  extends OracleQueueDefinition
+  implements IOracleQueueSchema
+{
   @Expose()
   public secretKey!: string;
 
@@ -230,17 +229,6 @@ export class OracleQueueSchema extends OracleQueueDefinition {
       publicKey,
     });
     return oracleQueueAccount;
-  }
-
-  public async fundTokens(): Promise<void> {
-    const programStateAccount = await this.getProgramStateAccount();
-    const publisher = await this.getAuthorityTokenAccount();
-    await programStateAccount.vaultTransfer(publisher, this._authority, {
-      amount: new anchor.BN(100_000),
-    });
-    console.log(
-      `Authority token account ${publisher} funded with 100,000 tokens`
-    );
   }
 
   /**
@@ -290,12 +278,11 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   }
 
   public async printOracles(): Promise<void> {
-    const queueAccount = await this.toAccount();
-    const zeroKey = new PublicKey("11111111111111111111111111111111");
-    let queues: PublicKey[] = (await queueAccount.loadData()).queue;
+    for (const o of this.oracles) o.print();
+  }
 
-    queues = queues.filter((f) => !f.equals(zeroKey));
-    console.log(queues);
+  public async printFeeds(): Promise<void> {
+    for (const f of this.feeds) f.print();
   }
 
   private async loadFeeds(feeds: AggregatorDefinition[]): Promise<void> {

@@ -1,7 +1,6 @@
 {
   "name": "oracle-queue-1",
-  "reward": 0,
-  "minStake": 0,
+  "programStateAccount": "AzHyGZtTJF1pJhEqAVL1Hdyr3VGH8tN28KBbsoguLwyV",
   "oracles": [
     {
       "name": "oracle-1"

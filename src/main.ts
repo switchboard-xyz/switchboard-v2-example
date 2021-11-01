@@ -58,7 +58,7 @@ async function main(): Promise<void> {
     excludePrefixes: ["_"],
     excludeExtraneousValues: true,
   });
-  await queueSchemaClass.loadDefinition(queueDefinition);
+  await queueSchemaClass.loadDefinition(queueDefinition); // check for any changes to the definitions
   queueSchemaClass.saveJson(outFile);
 
   await sleep(2000); // delayed txn errors might ruin prompt
@@ -73,12 +73,16 @@ async function main(): Promise<void> {
         message: "what do you want to do?",
         choices: [
           {
-            title: "Read Oracles",
+            title: "List Oracles",
             value: "printOracles",
           },
           {
             title: "Oracle Heartbeat",
             value: "oracleHeartbeat",
+          },
+          {
+            title: "List Aggregators",
+            value: "printAggregators",
           },
           {
             title: "Read Aggregator Result",
@@ -87,10 +91,6 @@ async function main(): Promise<void> {
           {
             title: "Request Aggregator Update",
             value: "aggregatorUpdate",
-          },
-          {
-            title: "Fund Authority Token Account",
-            value: "fundAuthorityTokens",
           },
           {
             title: "Read the Crank",
@@ -107,6 +107,9 @@ async function main(): Promise<void> {
       case "printOracles":
         await queueSchemaClass.printOracles();
         break;
+      case "printAggregators":
+        await queueSchemaClass.printFeeds();
+        break;
       case "oracleHeartbeat":
         await oracleHeartbeat(queueSchemaClass);
         break;
@@ -121,9 +124,6 @@ async function main(): Promise<void> {
         break;
       case "crankTurn":
         await turnCrank(queueSchemaClass);
-        break;
-      case "fundAuthorityTokens":
-        await queueSchemaClass.fundTokens();
         break;
       case undefined:
         console.log("User exited");

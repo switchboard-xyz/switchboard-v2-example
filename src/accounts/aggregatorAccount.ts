@@ -8,8 +8,8 @@ import {
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import { Exclude, Expose, plainToClass, Type } from "class-transformer";
-import { AnchorProgram, unwrapSecretKey } from "../types";
-import { toAccountString } from "../utils";
+import { AnchorProgram } from "../types";
+import { toAccountString, unwrapSecretKey } from "../utils";
 import { IJobDefinition, JobDefinition, JobSchema } from "./";
 
 export interface IAggregatorDefinition {
@@ -19,6 +19,14 @@ export interface IAggregatorDefinition {
   minRequiredJobResults: number;
   minUpdateDelaySeconds: number;
   jobs: IJobDefinition[];
+}
+export interface IAggregatorSchema extends IAggregatorDefinition {
+  secretKey: string;
+  publicKey: string;
+  queuePermissionAccount: string;
+  leaseContract: string;
+  crank?: string;
+  jobs: JobSchema[];
 }
 export class AggregatorDefinition implements IAggregatorDefinition {
   @Exclude()
@@ -74,17 +82,19 @@ export class AggregatorDefinition implements IAggregatorDefinition {
       oracleQueueAccount,
       aggregatorAccount,
       publisher,
-      1000
+      0
     );
 
-    return plainToClass(AggregatorSchema, {
+    const aggregatorSchema: IAggregatorSchema = {
       ...this,
       secretKey: `[${aggregatorAccount.keypair.secretKey}]`,
       publicKey: aggregatorAccount.keypair.publicKey.toString(),
       queuePermissionAccount: permissionAccount.publicKey.toString(),
       leaseContract: leaseContract.publicKey.toString(),
       jobs: jobs,
-    });
+    };
+
+    return plainToClass(AggregatorSchema, aggregatorSchema);
   }
 
   private async createAccount(
@@ -162,7 +172,10 @@ export class AggregatorDefinition implements IAggregatorDefinition {
   }
 }
 
-export class AggregatorSchema extends AggregatorDefinition {
+export class AggregatorSchema
+  extends AggregatorDefinition
+  implements IAggregatorSchema
+{
   @Expose()
   public secretKey!: string;
 
@@ -190,6 +203,10 @@ export class AggregatorSchema extends AggregatorDefinition {
       keypair,
     });
     return aggregatorAccount;
+  }
+
+  public print(): void {
+    console.log(toAccountString(this.name, this.publicKey.toString()));
   }
 
   public async getPermissionAccount(): Promise<PermissionAccount> {

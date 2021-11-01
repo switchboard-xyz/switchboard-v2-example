@@ -3,7 +3,8 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
 import { Exclude, Expose, plainToClass } from "class-transformer";
-import { AnchorProgram, unwrapSecretKey } from "../types";
+import { AnchorProgram } from "../types";
+import { unwrapSecretKey } from "../utils";
 import { multiplyUsdtTask } from "./task/multiplyUsdt";
 import {
   buildBinanceComTask,
@@ -44,7 +45,12 @@ export interface IJobDefinition {
   id: string;
 }
 
-export class JobDefinition {
+export interface IJobSchema extends IJobDefinition {
+  secretKey: string;
+  publicKey: string;
+}
+
+export class JobDefinition implements IJobDefinition {
   @Exclude()
   _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
 
@@ -82,12 +88,14 @@ export class JobDefinition {
       keypair,
     });
     await aggregatorAccount.addJob(jobAccount);
-    // console.log(toAccountString(`${this.source}-job-account`, jobAccount));
-    return plainToClass(JobSchema, {
+
+    const jobSchema: IJobSchema = {
       ...this,
       secretKey: `[${keypair.secretKey}]`,
       publicKey: keypair.publicKey.toString(),
-    });
+    };
+
+    return plainToClass(JobSchema, jobSchema);
   }
 
   private async mapJobTask(): Promise<OracleJob.Task[]> {
@@ -125,7 +133,7 @@ export class JobDefinition {
   }
 }
 
-export class JobSchema extends JobDefinition {
+export class JobSchema extends JobDefinition implements IJobSchema {
   @Expose()
   public secretKey!: string;
 

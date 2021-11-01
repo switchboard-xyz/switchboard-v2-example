@@ -8,8 +8,8 @@ import {
 import chalk from "chalk";
 import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AggregatorSchema } from ".";
-import { AnchorProgram, unwrapSecretKey } from "../types";
-import { toAccountString, watchTransaction } from "../utils";
+import { AnchorProgram } from "../types";
+import { toAccountString, unwrapSecretKey, watchTransaction } from "../utils";
 
 export interface PqData {
   pubkey: PublicKey;
@@ -19,6 +19,11 @@ export interface PqData {
 export interface ICrankDefinition {
   name: string;
   maxRows: number;
+}
+
+export interface ICrankSchema extends ICrankDefinition {
+  secretKey: string;
+  publicKey: string;
 }
 
 export class CrankDefinition implements ICrankDefinition {
@@ -45,15 +50,16 @@ export class CrankDefinition implements ICrankDefinition {
     if (!crankAccount.keypair) throw new Error(`${this.name} missing keypair`);
     console.log(toAccountString(`${this.name}`, crankAccount));
 
-    return plainToClass(CrankSchema, {
+    const crankSchema: ICrankSchema = {
       ...this,
       secretKey: `[${crankAccount.keypair.secretKey}]`,
       publicKey: crankAccount.keypair.publicKey.toString(),
-    });
+    };
+    return plainToClass(CrankSchema, crankSchema);
   }
 }
 
-export class CrankSchema extends CrankDefinition {
+export class CrankSchema extends CrankDefinition implements ICrankSchema {
   @Expose()
   public secretKey!: string;
 

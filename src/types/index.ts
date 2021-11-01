@@ -4,5 +4,4 @@ export * from "./switchboardAccounts";
 export * from "./transformAnchorBn";
 export * from "./transformPublicKey";
 export * from "./transformSecretKey";
-export * from "./unwrapSecretKey";
 export {};
