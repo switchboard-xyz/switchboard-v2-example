@@ -19,7 +19,7 @@ pub mod anchor_feed_parser {
     use super::*;
 
     pub fn read_result(ctx: Context<ReadResult>, _params: ReadResultParams) -> ProgramResult {
-        let aggregator = ctx.accounts.aggregator.as_ref();
+        let aggregator = &ctx.accounts.aggregator;
         let aggregator_result = &get_aggregator_result(aggregator)?.result;
         let final_result: u64 = aggregator_result.try_into()?;
 

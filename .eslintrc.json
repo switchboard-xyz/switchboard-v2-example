@@ -16,6 +16,7 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
+  "ignorePatterns": ["rust/anchor-feed-parser/types/*"],
   "plugins": ["@typescript-eslint", "prettier", "unicorn", "import"],
   "rules": {
     "prettier/prettier": "error",

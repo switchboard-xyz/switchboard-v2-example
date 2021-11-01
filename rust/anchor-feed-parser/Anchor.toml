@@ -8,7 +8,7 @@ url = "https://anchor.projectserum.com"
 # cluster = "localnet"
 # wallet = "~/.config/solana/id.json"
 cluster = "devnet"
-wallet = "../../keypairs/solana-keypair.json"
+wallet = "../../keypairs/authority-keypair.json"
 
 
 [scripts]

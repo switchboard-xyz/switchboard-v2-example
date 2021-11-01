@@ -12,7 +12,7 @@
     "test": "run-p test:*",
     "test:anchor": "ts-mocha ./rust/anchor-feed-parser/tests/**/*.ts",
     "test:anchor1": "cd ./rust/anchor-feed-parser && anchor test",
-    "test:onchain": "ts-node ./rust/on-chain-feed-parser/tests/on-chain-feed-parser.ts --dataFeedPubkey=111111"
+    "test:onchain": "ts-node ./rust/on-chain-feed-parser/tests/on-chain-feed-parser.ts"
   },
   "scriptsInprogress": {
     "install:anchor": "cd rust/anchor-feed-parser && npm install",
@@ -47,6 +47,7 @@
     "@types/big.js": "^6.1.2",
     "@types/chai": "^4.2.22",
     "@types/expect": "^24.3.0",
+    "@types/readline-sync": "^1.4.4",
     "@types/mocha": "^9.0.0",
     "@types/node-fetch": "^2.0.3",
     "@types/prompts": "^2.0.14",

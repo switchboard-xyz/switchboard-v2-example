@@ -6,7 +6,9 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import chalk from "chalk";
 import dotenv from "dotenv";
+import readlineSync from "readline-sync";
 import Yargs from "yargs/yargs";
 import { RPC_URL } from "../../../src/types";
 import { loadAuthorityKeypair } from "../../../src/utils";
@@ -17,7 +19,7 @@ const argv = Yargs(process.argv.slice(2))
     dataFeedPubkey: {
       type: "string",
       describe: "Public key of the data feed to use.",
-      demand: true,
+      demand: false,
     },
     programId: {
       type: "string",
@@ -34,14 +36,23 @@ async function main() {
       `failed to get program ID of on-chain-feed-parser. Provide it as an argument programId="PROGRAM_ID" or set ONCHAIN_PID in an env file `
     );
   console.log("On-Chain Feed Parser PID:", PROGRAM_ID);
+  let dataFeed: PublicKey;
+  if (!argv.dataFeedPubkey) {
+    const pubkey = readlineSync.question(
+      chalk.blue("Enter the public key of the data feed to read:\r\n")
+    );
+    dataFeed = new PublicKey(pubkey);
+  } else {
+    dataFeed = new PublicKey(argv.dataFeedPubkey);
+  }
+  console.log("Data Feed:", dataFeed.toString());
   const authority = loadAuthorityKeypair();
   const connection = new Connection(RPC_URL, "processed");
-  console.log("Data Feed:", argv.dataFeedPubkey);
 
   const transactionInstruction = new TransactionInstruction({
     keys: [
       {
-        pubkey: new PublicKey(argv.dataFeedPubkey),
+        pubkey: dataFeed,
         isSigner: false,
         isWritable: false,
       },
