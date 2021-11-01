@@ -4,7 +4,11 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import prompts from "prompts";
 import "reflect-metadata"; // need global
-import { OracleQueueDefinition, OracleQueueSchema } from "./accounts";
+import {
+  IOracleQueueDefinition,
+  OracleQueueDefinition,
+  OracleQueueSchema,
+} from "./accounts";
 import {
   aggregatorResult,
   aggregatorUpdate,
@@ -21,7 +25,9 @@ async function main(): Promise<void> {
   const inFile = "oracleQueue.definition.json";
   try {
     const fileBuffer = fs.readFileSync(inFile);
-    const definition = JSON.parse(fileBuffer.toString());
+    const definition: IOracleQueueDefinition = JSON.parse(
+      fileBuffer.toString()
+    );
     queueDefinition = plainToClass(OracleQueueDefinition, definition, {
       excludePrefixes: ["_"],
       excludeExtraneousValues: true,

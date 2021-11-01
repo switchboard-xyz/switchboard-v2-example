@@ -20,7 +20,7 @@ export interface IAggregatorDefinition {
   minUpdateDelaySeconds: number;
   jobs: IJobDefinition[];
 }
-export class AggregatorDefinition {
+export class AggregatorDefinition implements IAggregatorDefinition {
   @Exclude()
   _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
 

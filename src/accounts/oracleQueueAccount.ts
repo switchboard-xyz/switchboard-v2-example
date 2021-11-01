@@ -23,9 +23,21 @@ import {
   OracleDefiniton,
   OracleSchema,
 } from "./";
+import { IAggregatorDefinition } from "./aggregatorAccount";
+import { ICrankDefinition } from "./crankAccount";
+import { IOracleDefinition } from "./oracleAccount";
 import { BTC_FEED, SOL_FEED, USDT_FEED } from "./task/feeds";
 
-export class OracleQueueDefinition {
+export interface IOracleQueueDefinition {
+  name: string;
+  reward: anchor.BN;
+  minStake: anchor.BN;
+  oracles: IOracleDefinition[];
+  crank?: ICrankDefinition;
+  feeds?: IAggregatorDefinition[];
+}
+
+export class OracleQueueDefinition implements IOracleQueueDefinition {
   @Exclude()
   _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
 
@@ -63,7 +75,7 @@ export class OracleQueueDefinition {
    * 2. Funds publisher token account for adding new feeds
    * 3. Creates new OracleQueue account
    * 4. Creates new Oracles and adds them to the queue
-   * 5. Creates new Cranks and adds them to the queue
+   * 5. Creates new Crank and adds them to the queue
    * 6. Creates new Aggregator accounts, with job definitions, and funds leaseContract
    */
   public async toSchema(): Promise<OracleQueueSchema> {

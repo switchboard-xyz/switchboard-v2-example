@@ -10,7 +10,11 @@ import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AnchorProgram } from "../types";
 import { toAccountString } from "../utils";
 
-export class OracleDefiniton {
+export interface IOracleDefinition {
+  name: string;
+}
+
+export class OracleDefiniton implements IOracleDefinition {
   @Exclude()
   _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
 

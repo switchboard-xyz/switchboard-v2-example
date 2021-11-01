@@ -16,7 +16,12 @@ export interface PqData {
   nextTimestamp: anchor.BN;
 }
 
-export class CrankDefinition {
+export interface ICrankDefinition {
+  name: string;
+  maxRows: number;
+}
+
+export class CrankDefinition implements ICrankDefinition {
   @Exclude()
   _program: Promise<anchor.Program> = AnchorProgram.getInstance().program;
 
