@@ -33,10 +33,6 @@
     "types": ["mocha", "chai"]
     // "rootDir": "src"
   },
-  "include": [
-    "src/**/*",
-    "on-chain-program/migrations/*",
-    "on-chain-program/tests/*"
-  ],
+  "include": [".", "src/**/*", "on-chain-parser/**/*"],
   "exclude": ["node_modules", "bin"]
 }

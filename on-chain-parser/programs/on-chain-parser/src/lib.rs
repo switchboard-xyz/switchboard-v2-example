@@ -13,7 +13,7 @@ pub struct ReadResult<'info> {
 }
 
 #[program]
-pub mod on_chain_program {
+pub mod on_chain_parser {
     use super::*;
     pub fn read_result(ctx: Context<ReadResult>) -> ProgramResult {
         let mut result_state = ctx.accounts.result.load_mut()?;

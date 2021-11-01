@@ -1,5 +1,5 @@
 [programs.localnet]
-on_chain_program = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+on_chain_parser = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
 [registry]
 url = "https://anchor.projectserum.com"
@@ -9,4 +9,4 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+test = "ts-mocha -p ../tsconfig.json -t 1000000 tests/**/*.ts"

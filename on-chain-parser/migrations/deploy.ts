@@ -4,7 +4,7 @@
 
 import * as anchor from "@project-serum/anchor";
 
-export default async function (provider): Promise<void> {
+export default async function (provider: anchor.Provider): Promise<void> {
   // Configure client to use the provider.
   anchor.setProvider(provider);
 
