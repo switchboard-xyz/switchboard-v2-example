@@ -21,9 +21,9 @@ rust/anchor-feed-parser/*.lock
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-keypairs*/**/*.json
-keypairs*/**/*.txt
-keypairs*
+keypairs/**/*.json
+keypairs/**/*.txt
+keypairs/**/*
 
 *oracleQueue.schema.json
 
