@@ -35,10 +35,11 @@ export interface IOracleQueueDefinition {
   feeds?: IAggregatorDefinition[];
 }
 export interface IOracleQueueSchema extends IOracleQueueDefinition {
+  authority: string;
   secretKey: string;
   publicKey: string;
   programStateAccount: string;
-  publisher: string;
+  tokenAccount: string;
   oracles: OracleSchema[];
   crank: CrankSchema;
   feeds: AggregatorSchema[];
@@ -86,10 +87,10 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
     console.log(
       toAccountString("token-mint", switchTokenMint.publicKey.toString())
     );
-    const publisher = await switchTokenMint.createAccount(
+    const tokenAccount = await switchTokenMint.createAccount(
       this._authority.publicKey
     );
-    console.log(toAccountString("publisher-account", publisher.toString()));
+    console.log(toAccountString("token-account", tokenAccount.toString()));
 
     const oracleQueueAccount = await this.createOracleQueueAccount();
     if (!oracleQueueAccount.keypair)
@@ -98,14 +99,18 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
 
     const oracles = await this.createOracles(oracleQueueAccount);
     const crank = await this.createCrank(oracleQueueAccount);
-    const feeds = await this.createDefaultFeeds(oracleQueueAccount, publisher);
+    const feeds = await this.createDefaultFeeds(
+      oracleQueueAccount,
+      tokenAccount
+    );
 
     const queueSchema: IOracleQueueSchema = {
       ...this,
+      authority: this._authority.publicKey.toString(),
       secretKey: `[${oracleQueueAccount.keypair.secretKey}]`,
       publicKey: oracleQueueAccount.keypair.publicKey.toString(),
       programStateAccount: programStateAccount.publicKey.toString(),
-      publisher: publisher.toString(),
+      tokenAccount: tokenAccount.toString(),
       oracles,
       crank,
       feeds,
@@ -197,6 +202,9 @@ export class OracleQueueSchema
   implements IOracleQueueSchema
 {
   @Expose()
+  public authority!: string;
+
+  @Expose()
   public secretKey!: string;
 
   @Expose()
@@ -206,7 +214,7 @@ export class OracleQueueSchema
   public programStateAccount!: string;
 
   @Expose()
-  public publisher!: string;
+  public tokenAccount!: string;
 
   @Expose()
   @Type(() => OracleSchema)
@@ -255,7 +263,7 @@ export class OracleQueueSchema
   }
 
   public async getAuthorityTokenAccount(): Promise<PublicKey> {
-    return new PublicKey(this.publisher);
+    return new PublicKey(this.tokenAccount);
   }
 
   public saveJson(fileName: string): void {
@@ -266,6 +274,12 @@ export class OracleQueueSchema
   public findAggregatorByName(search: string): PublicKey | undefined {
     const feed = this.feeds.find((f) => f.name === search);
     if (feed) return new PublicKey(feed.publicKey);
+  }
+
+  public findAggregatorByPublicKey(
+    search: PublicKey
+  ): AggregatorSchema | undefined {
+    return this.feeds.find((f) => f.publicKey === search.toString());
   }
 
   private async loadOracles(oracles: OracleDefiniton[]): Promise<void> {

@@ -10,7 +10,9 @@ RPC_URL=""          ## RPC Server to process your request
 ORACLE_KEY=""       ## Oracle Pubkey needed after initial account creation
 ```
 
-You will also need a Solana keypair with an active balance to fund new accounts
+## Solana Keypairs
+
+You will need a Solana keypair with an active balance to fund new accounts
 
 ```bash
 solana-keygen new --outfile keypairs/authority-keypair.json

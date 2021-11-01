@@ -1,5 +1,4 @@
 import * as anchor from "@project-serum/anchor";
-import { SendTxRequest } from "@project-serum/anchor/dist/cjs/provider";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import {
   CrankAccount,
@@ -9,7 +8,7 @@ import chalk from "chalk";
 import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AggregatorSchema } from ".";
 import { AnchorProgram } from "../types";
-import { toAccountString, unwrapSecretKey, watchTransaction } from "../utils";
+import { toAccountString, unwrapSecretKey } from "../utils";
 
 export interface PqData {
   pubkey: PublicKey;
@@ -97,40 +96,6 @@ export class CrankSchema extends CrankDefinition implements ICrankSchema {
       await (await this.toAccount()).loadData()
     ).pqData.filter((f: PqData) => !f.pubkey.equals(zeroKey));
     return feeds;
-  }
-
-  public async turnCrank(
-    queueAccount: OracleQueueAccount,
-    payoutWallet: PublicKey
-  ): Promise<void> {
-    const queueAuthority = AnchorProgram.getInstance().authority.publicKey;
-    const crankAccount = await this.toAccount();
-    try {
-      const readyPubkeys = await crankAccount.peakNextReady(5);
-      const txns: SendTxRequest[] = [];
-      for (let index = 0; index < readyPubkeys.length; ++index) {
-        txns.push({
-          tx: await crankAccount.popTxn({
-            payoutWallet,
-            queuePubkey: queueAccount.publicKey,
-            queueAuthority,
-            readyPubkeys,
-          }),
-          signers: [],
-        });
-      }
-      // const connection = new Connection(RPC_URL, {
-      //   commitment: "confirmed",
-      // });
-      // const sent = await Promise.all(
-      //   txns.map((t) => connection.sendTransaction(t.tx, []))
-      // );
-      const signatures = await (await this._program).provider.sendAll(txns);
-      await Promise.all(signatures.map(async (s) => watchTransaction(s)));
-      console.log("Crank turned");
-    } catch (error) {
-      console.log(chalk.red("Crank turn failed"), error);
-    }
   }
 }
 export {};

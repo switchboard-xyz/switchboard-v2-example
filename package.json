@@ -7,9 +7,6 @@
   "scripts": {
     "purge": "shx rm -rf {.,rust/*/*}/{node_modules,yarn.lock}",
     "start": "ts-node src/main.ts",
-    "start:solana": "ts-node src/main.ts --authorityKeypair=keypairs/solana-keypair.json",
-    "start:new": "ts-node src/main.ts --authorityKeypair=keypairs/new-keypair.json",
-    "start:dough": "ts-node src/main.ts --authorityKeypair=keypairs/dough.json",
     "build": "tsc && node bin/main.js",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix",
     "test": "run-p test:*",

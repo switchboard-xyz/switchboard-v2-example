@@ -1,4 +1,3 @@
-import { AggregatorAccount } from "@switchboard-xyz/switchboard-v2";
 import { OracleQueueSchema } from "../accounts";
 import { selectFeed, watchTransaction } from "../utils";
 
@@ -7,7 +6,8 @@ export async function aggregatorUpdate(
   schema: OracleQueueSchema
 ): Promise<void> {
   if (!schema.feeds) throw new Error("no feeds defined in schema");
-  const aggregatorAccount: AggregatorAccount = await selectFeed(schema.feeds);
+  const aggregator = await selectFeed(schema.feeds);
+  const aggregatorAccount = await aggregator.toAccount();
   const oracleQueueAccount = await schema.toAccount();
   const payoutWallet = await schema.getAuthorityTokenAccount();
   const txn = await aggregatorAccount.openRound({

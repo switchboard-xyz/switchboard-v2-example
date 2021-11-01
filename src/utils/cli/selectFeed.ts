@@ -1,10 +1,9 @@
-import { AggregatorAccount } from "@switchboard-xyz/switchboard-v2";
 import prompts, { Choice } from "prompts";
 import { AggregatorSchema } from "../../accounts";
 
 export async function selectFeed(
   feeds: AggregatorSchema[]
-): Promise<AggregatorAccount> {
+): Promise<AggregatorSchema> {
   const choices: Choice[] = feeds.map((feed) => ({
     title: feed.name,
     value: feed.name,
@@ -19,5 +18,5 @@ export async function selectFeed(
   ]);
   const feed = feeds.find((f) => f.name === answer.feed);
   if (!feed) throw new Error(`failed to find ${answer.feed} in ${choices}`);
-  return feed.toAccount();
+  return feed;
 }

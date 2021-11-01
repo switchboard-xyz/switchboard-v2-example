@@ -7,11 +7,11 @@ import {
   PermissionAccount,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
+import chalk from "chalk";
 import { Exclude, Expose, plainToClass, Type } from "class-transformer";
 import { AnchorProgram } from "../types";
 import { toAccountString, unwrapSecretKey } from "../utils";
 import { IJobDefinition, JobDefinition, JobSchema } from "./";
-
 export interface IAggregatorDefinition {
   name: string;
   batchSize: number;
@@ -207,6 +207,14 @@ export class AggregatorSchema
 
   public print(): void {
     console.log(toAccountString(this.name, this.publicKey.toString()));
+  }
+
+  public async printLatestResult(): Promise<void> {
+    const aggregatorAccount = await this.toAccount();
+    const result = await aggregatorAccount.getLatestValue();
+    const lastUpdate = await aggregatorAccount.getLatestFeedTimestamp();
+    const ts = new Date(lastUpdate.toNumber() * 1000);
+    console.log(ts.toISOString(), chalk.green(this.name), result.toNumber());
   }
 
   public async getPermissionAccount(): Promise<PermissionAccount> {
