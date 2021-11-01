@@ -11,5 +11,3 @@ export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
   : "keypairs"; // root
 
 export const PROGRAM_ID = process.env.PID;
-if (!PROGRAM_ID) throw new Error("PID environment variable not set");
-else console.log("PID:", PROGRAM_ID);

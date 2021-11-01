@@ -62,7 +62,7 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
 
   @Expose()
   @Type(() => OracleDefiniton)
-  public oracles!: OracleDefiniton[];
+  public oracles?: OracleDefiniton[];
 
   @Expose()
   @Type(() => CrankDefinition)
@@ -243,10 +243,14 @@ export class OracleQueueSchema extends OracleQueueDefinition {
     );
   }
 
+  /**
+   * We create the feeds from the definition file here, after OracleQueueAccount creation,
+   * because some feeds may need the default feeds (USDT/SOL/BTC) for their job definitions
+   */
   public async loadDefinition(
     definition: OracleQueueDefinition
   ): Promise<void> {
-    await this.loadOracles(definition.oracles);
+    if (definition.oracles) await this.loadOracles(definition.oracles);
     if (definition.feeds) await this.loadFeeds(definition.feeds);
     await this.assignFeedsToCrank();
   }

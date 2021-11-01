@@ -1,0 +1,22 @@
+{
+  "scripts": {
+    "build": "cargo build-bpf --manifest-path=Cargo.toml",
+    "deploy": "solana program deploy target/deploy/on_chain_feed_parser.so",
+    "test": "ts-node tests/on-chain-feed-parser.ts"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.30.2",
+    "dotenv": "^10.0.0",
+    "fs": "^0.0.1-security",
+    "prompts": "^2.4.2",
+    "readline-sync": "^1.4.10",
+    "resolve-dir": "^1.0.1",
+    "ts-node": "^10.4.0",
+    "yargs": "^17.2.1"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.0.14",
+    "@types/yargs": "^17.0.3",
+    "typescript": "^4.4.4"
+  }
+}

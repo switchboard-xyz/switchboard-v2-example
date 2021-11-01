@@ -1,5 +1,5 @@
 [package]
-name = "switchboard-on-chain-example"
+name = "on-chain-feed-parser"
 version = "0.1.0"
 edition = "2018"
 
