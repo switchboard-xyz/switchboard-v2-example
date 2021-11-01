@@ -7,7 +7,6 @@ export const USDT: IAggregatorDefinition = {
   minRequiredOracleResults: 1,
   minRequiredJobResults: 1,
   minUpdateDelaySeconds: 6,
-  cranks: ["crank-1"],
   jobs: [
     {
       source: "kraken",
@@ -35,7 +34,6 @@ export const SOL: IAggregatorDefinition = {
   minRequiredOracleResults: 1,
   minRequiredJobResults: 1,
   minUpdateDelaySeconds: 6,
-  cranks: ["crank-1"],
   jobs: [
     {
       source: "binanceCom",
@@ -79,7 +77,6 @@ export const BTC: IAggregatorDefinition = {
   minRequiredOracleResults: 1,
   minRequiredJobResults: 1,
   minUpdateDelaySeconds: 6,
-  cranks: ["crank-1"],
   jobs: [
     {
       source: "bittrex",

@@ -18,7 +18,6 @@ export interface IAggregatorDefinition {
   minRequiredOracleResults: number;
   minRequiredJobResults: number;
   minUpdateDelaySeconds: number;
-  cranks: string[];
   jobs: IJobDefinition[];
 }
 export class AggregatorDefinition {
@@ -42,10 +41,6 @@ export class AggregatorDefinition {
 
   @Expose()
   public minUpdateDelaySeconds!: number;
-
-  @Expose()
-  @Type(() => String)
-  public cranks!: string[];
 
   @Expose()
   @Type(() => JobDefinition)
@@ -179,6 +174,9 @@ export class AggregatorSchema extends AggregatorDefinition {
 
   @Expose()
   public leaseContract!: string;
+
+  @Expose()
+  public crank?: string;
 
   @Expose()
   @Type(() => JobSchema)

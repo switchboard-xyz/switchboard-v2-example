@@ -1,15 +1,14 @@
 import chalk from "chalk";
 import { OracleQueueSchema } from "../accounts";
-import { selectCrank } from "../utils/cli/selectCrank";
 
 export async function readCrank(
   schema: OracleQueueSchema,
   number_ = 10
 ): Promise<void> {
-  if (!schema.cranks) throw new Error("no cranks defined in schema");
-  const crankSchema = await selectCrank(schema.cranks);
-  await crankSchema.readFeeds();
-  const crankAccount = await crankSchema.toAccount();
+  if (!schema.crank) throw new Error("no crank defined in schema");
+  // const crankSchema = await selectCrank(schema.cranks);
+  await schema.crank.readFeeds();
+  const crankAccount = await schema.crank.toAccount();
   const aggregatorKeys = await crankAccount.peakNextReady(number_);
 
   // Find aggregator by public key

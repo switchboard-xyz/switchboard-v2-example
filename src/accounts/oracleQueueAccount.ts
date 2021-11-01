@@ -51,7 +51,7 @@ export class OracleQueueDefinition {
 
   @Expose()
   @Type(() => CrankDefinition)
-  public cranks!: CrankDefinition[];
+  public crank?: CrankDefinition;
 
   @Expose()
   @Type(() => AggregatorDefinition)
@@ -65,7 +65,6 @@ export class OracleQueueDefinition {
    * 4. Creates new Oracles and adds them to the queue
    * 5. Creates new Cranks and adds them to the queue
    * 6. Creates new Aggregator accounts, with job definitions, and funds leaseContract
-   * 7. Adds aggregators to cranks
    */
   public async toSchema(): Promise<OracleQueueSchema> {
     // need to init ProgramStateAccount from a seed with a random hash to prevent collisions
@@ -105,7 +104,7 @@ export class OracleQueueDefinition {
     console.log(toAccountString("oracle-queue-account", oracleQueueAccount));
 
     const oracles = await this.createOracles(oracleQueueAccount);
-    const cranks = await this.createCranks(oracleQueueAccount);
+    const cranks = await this.createCrank(oracleQueueAccount);
 
     const feeds = await this.createDefaultFeeds(oracleQueueAccount, publisher);
 
@@ -135,7 +134,13 @@ export class OracleQueueDefinition {
     oracleQueueAccount: OracleQueueAccount
   ): Promise<OracleSchema[]> {
     const oracleAccounts: OracleSchema[] = [];
-    if (this.oracles.length === 0) return oracleAccounts;
+    if (this.oracles.length === 0) {
+      const DEFAULT_ORACLE: OracleDefiniton = plainToClass(OracleDefiniton, {
+        name: "oracle-1",
+      });
+      oracleAccounts.push(await DEFAULT_ORACLE.toSchema(oracleQueueAccount));
+      return oracleAccounts;
+    }
 
     for await (const oracle of this.oracles) {
       oracleAccounts.push(await oracle.toSchema(oracleQueueAccount));
@@ -143,16 +148,17 @@ export class OracleQueueDefinition {
     return oracleAccounts;
   }
 
-  private async createCranks(
+  private async createCrank(
     oracleQueueAccount: OracleQueueAccount
-  ): Promise<CrankSchema[]> {
-    const crankAccounts: CrankSchema[] = [];
-    if (!this.cranks || this.cranks.length === 0) return crankAccounts;
-
-    for await (const crank of this.cranks) {
-      crankAccounts.push(await crank.toSchema(oracleQueueAccount));
+  ): Promise<CrankSchema> {
+    if (!this.crank) {
+      const DEFAULT_CRANK: CrankDefinition = plainToClass(CrankDefinition, {
+        name: "crank-1",
+        maxRows: 10,
+      });
+      return DEFAULT_CRANK.toSchema(oracleQueueAccount);
     }
-    return crankAccounts;
+    return this.crank.toSchema(oracleQueueAccount);
   }
 
   private async createDefaultFeeds(
@@ -191,7 +197,7 @@ export class OracleQueueSchema extends OracleQueueDefinition {
 
   @Expose()
   @Type(() => CrankSchema)
-  public cranks!: CrankSchema[];
+  public crank!: CrankSchema;
 
   @Expose()
   @Type(() => AggregatorSchema)
@@ -222,10 +228,9 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   public async loadDefinition(
     definition: OracleQueueDefinition
   ): Promise<void> {
-    await this.loadCranks(definition.cranks);
     await this.loadOracles(definition.oracles);
     if (definition.feeds) await this.loadFeeds(definition.feeds);
-    await this.assignCranks();
+    await this.assignFeedsToCrank();
   }
 
   public async getProgramStateAccount(): Promise<ProgramStateAccount> {
@@ -251,20 +256,6 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   public findAggregatorByName(search: string): PublicKey | undefined {
     const feed = this.feeds.find((f) => f.name === search);
     if (feed) return new PublicKey(feed.publicKey);
-  }
-
-  public findCrankByName(search: string): CrankSchema | undefined {
-    const crank = this.cranks.find((c) => c.name === search);
-    if (crank) return crank;
-  }
-
-  private async loadCranks(cranks: CrankDefinition[]): Promise<void> {
-    for await (const crank of cranks) {
-      const existing = this.cranks.find((c) => c.name === crank.name);
-      if (existing) continue;
-      this.cranks.push(await crank.toSchema(await this.toAccount()));
-      console.log(`crank ${crank.name} added to queue`);
-    }
   }
 
   private async loadOracles(oracles: OracleDefiniton[]): Promise<void> {
@@ -306,25 +297,15 @@ export class OracleQueueSchema extends OracleQueueDefinition {
     return newAggregator;
   }
 
-  public async assignCranks(): Promise<void> {
+  public async assignFeedsToCrank(): Promise<void> {
     for await (const feed of this.feeds) {
-      const assignedCranks: string[] = [];
-
-      for await (const crank of feed.cranks) {
-        const c = this.findCrankByName(crank);
-        if (!c) {
-          console.log(`failed to find crank ${crank}`);
-          continue;
-        }
-        const existingFeeds = (await c.readFeeds()).map((f) =>
-          f.pubkey.toString()
-        );
-        if (!existingFeeds.includes(feed.publicKey)) {
-          c.addFeed(feed);
-          assignedCranks.push(crank);
-        }
+      const existingFeeds = (await this.crank.readFeeds()).map((f) =>
+        f.pubkey.toString()
+      );
+      if (!existingFeeds.includes(feed.publicKey)) {
+        this.crank.addFeed(feed);
       }
-      feed.cranks = assignedCranks;
+      feed.crank = this.crank.name;
     }
   }
 }

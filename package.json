@@ -11,7 +11,8 @@
     "build": "tsc && node bin/main.js",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix",
     "test": "run-p test:*",
-    "test:anchor": "ts-mocha ./rust/anchor-feed-parser/tests/**/*.ts"
+    "test:anchor": "ts-mocha ./rust/anchor-feed-parser/tests/**/*.ts",
+    "test:anchor1": "cd ./rust/anchor-feed-parser && anchor test"
   },
   "keywords": [
     "switchboard"
