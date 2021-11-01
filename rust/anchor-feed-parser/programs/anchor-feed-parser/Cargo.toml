@@ -1,5 +1,5 @@
 [package]
-name = "on-chain-parser"
+name = "anchor-feed-parser"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2018"
@@ -7,7 +7,7 @@ edition = "2018"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "on_chain_parser"
+name = "anchor_feed_parser"
 
 [features]
 no-entrypoint = []

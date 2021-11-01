@@ -3,7 +3,7 @@ import { Program } from "@project-serum/anchor";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { AnchorFeedParser } from "../target/types/anchor_feed_parser";
 
-describe("on-chain-parser", () => {
+describe("anchor-feed-parser", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.Provider.env());
 

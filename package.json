@@ -5,13 +5,13 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "ts-node src/main.ts",
-    "start:solana": "ts-node src/main.ts --authorityKeypair=solana-keypair.json",
-    "start:new": "ts-node src/main.ts --authorityKeypair=new-keypair.json",
+    "start": "ts-node src/main.ts --authorityKeypair=keypairs/authority-keypair.json",
+    "start:solana": "ts-node src/main.ts --authorityKeypair=keypairs/solana-keypair.json",
+    "start:new": "ts-node src/main.ts --authorityKeypair=keypairs/new-keypair.json",
     "build": "tsc && node bin/main.js",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix",
     "test": "run-p test:*",
-    "test:program": "ts-mocha ./on-chain-parser/tests/**/*.ts"
+    "test:anchor": "ts-mocha ./rust/anchor-feed-parser/tests/**/*.ts"
   },
   "keywords": [
     "switchboard"
