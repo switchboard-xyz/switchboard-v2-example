@@ -1,6 +1,5 @@
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
-import { SystemProgram } from "@solana/web3.js";
 import { ProgramStateAccount } from "@switchboard-xyz/switchboard-v2";
 import { toAccountString } from ".";
 import { AnchorProgram } from "../types";
@@ -54,24 +53,7 @@ export const createProgramStateAccount = async (
     [mintAuthority],
     100_000_000
   );
-  await program.rpc.programInit(
-    {
-      stateBump,
-      decimals: new anchor.BN(decimals),
-    },
-    {
-      accounts: {
-        state: stateAccount.publicKey,
-        authority: authority.publicKey,
-        mintAuthority: mintAuthority.publicKey,
-        tokenMint: mint.publicKey,
-        vault: tokenVault,
-        payer: authority.publicKey,
-        systemProgram: SystemProgram.programId,
-        tokenProgram: spl.TOKEN_PROGRAM_ID,
-      },
-    }
-  );
+
   return new ProgramStateAccount({
     program,
     publicKey: stateAccount.publicKey,

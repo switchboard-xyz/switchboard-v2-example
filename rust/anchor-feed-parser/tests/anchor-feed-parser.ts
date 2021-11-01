@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { AnchorFeedParser } from "../target/types/anchor_feed_parser";
 
 describe("anchor-feed-parser", () => {
@@ -11,7 +11,7 @@ describe("anchor-feed-parser", () => {
     .AnchorFeedParser as Program<AnchorFeedParser>;
   it("Is initialized!", async () => {
     // Add your test here.
-    const result = Keypair.generate();
+    // const result = Keypair.generate();
 
     // const tx1 = await program.rpc.initialize({
     //   accounts: {
@@ -21,12 +21,16 @@ describe("anchor-feed-parser", () => {
     //   },
     // });
     // console.log("Initialization signature", tx1);
+    const aggKey = new PublicKey(
+      "9AjnCrWtLmVgJQ12pktyHQHUKE96GYMXKeYN7CxbemzA"
+    );
+    console.log(typeof aggKey, aggKey);
+
+    // const accounts = anchor.Context
 
     const tx2 = await program.rpc.readResult({
       accounts: {
-        aggregator: new PublicKey(
-          "SqYFgjF5FpHgyX2sRQxL96T7j1RQPFNGtpctnNdGZmx"
-        ),
+        aggregator: aggKey,
       },
     });
     console.log("Read result signature", tx2);

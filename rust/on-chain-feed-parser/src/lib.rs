@@ -3,9 +3,9 @@ use solana_program::{
     entrypoint,
     entrypoint::ProgramResult,
     msg,
-    program_error::ProgramError,
     pubkey::Pubkey,
 };
+use std::convert::TryInto;
 use switchboard_aggregator::get_aggregator_result;
 
 entrypoint!(process_instruction);
@@ -16,8 +16,10 @@ fn process_instruction<'a>(
     _instruction_data: &'a [u8],
 ) -> ProgramResult {
     let accounts_iter = &mut accounts.iter();
-    let switchboard_feed_account = next_account_info(accounts_iter)?;
+    let aggregator = next_account_info(accounts_iter)?;
+    let aggregator_result = &get_aggregator_result(&aggregator)?.result;
+    let final_result: u64 = aggregator_result.try_into()?;
 
-    msg!("Current feed result is !");
+    msg!("Current feed result is {}!", final_result);
     Ok(())
 }

@@ -5,9 +5,9 @@ anchor_feed_parser = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+# cluster = "localnet"
 # wallet = "~/.config/solana/id.json"
-# cluster = "devnet"
+cluster = "devnet"
 wallet = "../../keypairs/solana-keypair.json"
 
 

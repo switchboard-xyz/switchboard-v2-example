@@ -4,7 +4,6 @@ import {
   OracleQueueAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
-import chalk from "chalk";
 import {
   classToPlain,
   Exclude,
@@ -14,7 +13,7 @@ import {
 } from "class-transformer";
 import fs from "node:fs";
 import { AnchorProgram, TransformAnchorBN } from "../types";
-import { createProgramStateAccount, toAccountString } from "../utils";
+import { toAccountString } from "../utils";
 import {
   AggregatorDefinition,
   AggregatorSchema,
@@ -30,9 +29,10 @@ import { BTC_FEED, SOL_FEED, USDT_FEED } from "./task/feeds";
 
 export interface IOracleQueueDefinition {
   name: string;
+  programStateAccount?: string;
   reward: anchor.BN;
   minStake: anchor.BN;
-  oracles: IOracleDefinition[];
+  oracles?: IOracleDefinition[];
   crank?: ICrankDefinition;
   feeds?: IAggregatorDefinition[];
 }
@@ -46,6 +46,9 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
 
   @Expose()
   public name!: string;
+
+  @Expose()
+  public programStateAccount?: string;
 
   @Expose()
   @TransformAnchorBN()
@@ -79,19 +82,7 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
    * 6. Creates new Aggregator accounts, with job definitions, and funds leaseContract
    */
   public async toSchema(): Promise<OracleQueueSchema> {
-    // need to init ProgramStateAccount from a seed with a random hash to prevent collisions
-    let programStateAccount: ProgramStateAccount;
-    try {
-      programStateAccount = await ProgramStateAccount.create(
-        await this._program,
-        {}
-      );
-    } catch {
-      console.log(chalk.green("creating new ProgramStateAccount"));
-      programStateAccount = await createProgramStateAccount(
-        await this._program
-      );
-    }
+    const programStateAccount = await this.loadProgramStateAccount();
     console.log(toAccountString("program-state-account", programStateAccount));
 
     const switchTokenMint = await programStateAccount.getTokenMint();
@@ -102,13 +93,6 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
       this._authority.publicKey
     );
     console.log(toAccountString("publisher-account", publisher.toString()));
-
-    await programStateAccount.vaultTransfer(publisher, this._authority, {
-      amount: new anchor.BN(1000),
-    });
-    console.log(
-      toAccountString("   publisher-account", "funded with 1000 Tokens")
-    );
 
     const oracleQueueAccount = await this.createOracleQueueAccount();
     if (!oracleQueueAccount.keypair)
@@ -125,11 +109,33 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
       secretKey: `[${oracleQueueAccount.keypair.secretKey}]`,
       publicKey: oracleQueueAccount.keypair.publicKey.toString(),
       publisher: publisher.toString(),
-      programStateAccount: programStateAccount.publicKey.toString(),
       oracles,
       cranks,
       feeds,
     });
+  }
+
+  private async loadProgramStateAccount(): Promise<ProgramStateAccount> {
+    if (this.programStateAccount) {
+      const publicKey = new PublicKey(this.programStateAccount);
+      return new ProgramStateAccount({
+        program: await this._program,
+        publicKey,
+      });
+    }
+    let programStateAccount: ProgramStateAccount;
+    try {
+      programStateAccount = await ProgramStateAccount.create(
+        await this._program,
+        {}
+      );
+    } catch {
+      let stateBump: any;
+      [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
+        await this._program
+      );
+    }
+    return programStateAccount;
   }
 
   private async createOracleQueueAccount(): Promise<OracleQueueAccount> {
@@ -146,7 +152,7 @@ export class OracleQueueDefinition implements IOracleQueueDefinition {
     oracleQueueAccount: OracleQueueAccount
   ): Promise<OracleSchema[]> {
     const oracleAccounts: OracleSchema[] = [];
-    if (this.oracles.length === 0) {
+    if (!this.oracles || this.oracles.length === 0) {
       const DEFAULT_ORACLE: OracleDefiniton = plainToClass(OracleDefiniton, {
         name: "oracle-1",
       });
@@ -198,10 +204,10 @@ export class OracleQueueSchema extends OracleQueueDefinition {
   public publicKey!: string;
 
   @Expose()
-  public publisher!: string;
+  public programStateAccount!: string;
 
   @Expose()
-  public programStateAccount!: string;
+  public publisher!: string;
 
   @Expose()
   @Type(() => OracleSchema)
