@@ -26,7 +26,7 @@ pub mod anchor_feed_parser {
         .unwrap();
         let aggregator_account_loader =
             Loader::<AggregatorAccountData>::try_from(&pid, &ctx.accounts.aggregator)?;
-        let aggregator: AggregatorAccountData = *aggregator_account_loader.load()?;
+        let aggregator = aggregator_account_loader.load()?;
         let round = aggregator.get_result()?;
         let result = &round.result;
         let final_result: f64 = result.try_into().unwrap();
