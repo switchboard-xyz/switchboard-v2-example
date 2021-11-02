@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import prompts from "prompts";
 import "reflect-metadata"; // need global
+import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
 import { OracleQueueSchema } from "./accounts";
 import {
@@ -17,9 +18,9 @@ import { loadDefinition, sleep } from "./utils";
 dotenv.config();
 
 async function main(): Promise<void> {
-  const argv = Yargs(process.argv.slice(2))
+  const argv = Yargs(hideBin(process.argv))
     .options({
-      silent: {
+      buildSchema: {
         type: "boolean",
         describe: "Exit after creating switchboard accounts",
         demand: false,
@@ -59,11 +60,10 @@ async function main(): Promise<void> {
   });
   await queueSchemaClass.loadDefinition(queueDefinition); // check for any changes to the definitions
 
-  await sleep(2000); // delayed txn errors might ruin prompt
-
   let exit = false;
-  if (argv.silent) exit = true;
+  if (argv.buildSchema) exit = true;
   while (!exit) {
+    await sleep(2000); // delayed txn errors might ruin prompt
     console.log("");
     const answer = await prompts([
       {
