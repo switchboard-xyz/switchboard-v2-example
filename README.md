@@ -29,11 +29,13 @@ This script completes the following:
 
 ## Oracle
 
-After running, set the ORACLE_KEY in your .env file or hardcode into docker-compose.yml
+Start the oracle with
 
 ```bash
-docker-compose up
+npm run start:oracle
 ```
+
+This will start the docker container using the .env.oracle that was created with the schema
 
 ## Crank
 

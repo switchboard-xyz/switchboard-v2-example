@@ -271,6 +271,12 @@ export class OracleQueueSchema
     const outFile = fileName ? fileName : "oracleQueue.schema.json";
 
     fs.writeFileSync(outFile, JSON.stringify(queueSchemaString, undefined, 2));
+    this.saveOracleKey();
+  }
+
+  public saveOracleKey(): void {
+    const oracleEnvironmentVariable = `ORACLE_KEY=${this.oracles[0].publicKey.toString()}`;
+    fs.writeFileSync(".env.oracle", oracleEnvironmentVariable);
   }
 
   public findAggregatorByName(search: string): PublicKey | undefined {
