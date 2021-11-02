@@ -22,6 +22,7 @@ const argv = Yargs(process.argv.slice(2))
       type: "string",
       describe: "Public key of the data feed to use.",
       demand: false,
+      default: "AMv5CbJzfREbrGaUgywVJ9Xe2FMJa2ToCXoz5fC8C3Y2",
     },
     programId: {
       type: "string",
