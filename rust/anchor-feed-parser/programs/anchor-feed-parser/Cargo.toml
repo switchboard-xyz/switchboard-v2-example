@@ -19,3 +19,4 @@ default = []
 anchor-lang = "0.18.0"
 switchboard-aggregator = { git = "https://github.com/gallynaut/switchboard-aggregator" }
 solana-program = "1.8.2"
+bytemuck = "1.7.2"
