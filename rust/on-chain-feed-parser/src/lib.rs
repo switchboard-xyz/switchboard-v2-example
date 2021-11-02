@@ -1,4 +1,5 @@
-use solana_program::{
+pub use anchor_lang::prelude::*;
+pub use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint,
     entrypoint::ProgramResult,
@@ -6,7 +7,7 @@ use solana_program::{
     pubkey::Pubkey,
 };
 use std::convert::TryInto;
-use switchboard_aggregator::get_aggregator_result;
+pub use switchboard_aggregator;
 
 entrypoint!(process_instruction);
 
@@ -17,7 +18,7 @@ fn process_instruction<'a>(
 ) -> ProgramResult {
     let accounts_iter = &mut accounts.iter();
     let aggregator = next_account_info(accounts_iter)?;
-    let aggregator_result = &get_aggregator_result(&aggregator)?.result;
+    let aggregator_result = &switchboard_aggregator::get_aggregator_result(&aggregator)?.result;
     let final_result: f64 = aggregator_result.try_into()?;
 
     msg!("Current feed result is {}!", final_result);

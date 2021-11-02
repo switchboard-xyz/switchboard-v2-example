@@ -17,7 +17,5 @@ default = []
 
 [dependencies]
 anchor-lang = "0.18.0"
-switchboard-aggregator = { git = "https://github.com/gallynaut/switchboard-aggregator" }
+switchboard-aggregator = { version = "0.1.1" }
 solana-program = "1.8.2"
-bytemuck = "1.7.2"
-rust_decimal = { version = "1.15.0" }

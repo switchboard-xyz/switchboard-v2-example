@@ -1,6 +1,7 @@
 /* eslint-disable unicorn/no-process-exit */
 import {
   Connection,
+  Keypair,
   PublicKey,
   sendAndConfirmTransaction,
   Transaction,
@@ -8,6 +9,7 @@ import {
 } from "@solana/web3.js";
 import chalk from "chalk";
 import dotenv from "dotenv";
+import fs from "node:fs";
 import readlineSync from "readline-sync";
 import Yargs from "yargs/yargs";
 import { RPC_URL } from "../../../src/types";
@@ -29,8 +31,22 @@ const argv = Yargs(process.argv.slice(2))
   })
   .parseSync();
 
+const loadProgramKeypair = (): string => {
+  const keypairFile =
+    "rust/on-chain-feed-parser/target/deploy/on_chain_feed_parser-keypair.json";
+  if (!fs.existsSync(keypairFile)) throw new Error(`Could not find keypair`);
+  const keypairString = fs.readFileSync(keypairFile, "utf8");
+  const keypairBuffer = new Uint8Array(JSON.parse(keypairString));
+  const walletKeypair = Keypair.fromSecretKey(keypairBuffer);
+  return walletKeypair.publicKey.toString();
+};
+
 async function main() {
-  const PROGRAM_ID = argv.programId ? argv.programId : process.env.ONCHAIN_PID;
+  const PROGRAM_ID = argv.programId
+    ? argv.programId
+    : process.env.ONCHAIN_PID
+    ? process.env.ONCHAIN_PID
+    : loadProgramKeypair();
   if (!PROGRAM_ID)
     throw new Error(
       `failed to get program ID of on-chain-feed-parser. Provide it as an argument programId="PROGRAM_ID" or set ONCHAIN_PID in an env file `
