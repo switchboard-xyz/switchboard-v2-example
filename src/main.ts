@@ -5,11 +5,7 @@ import fs from "node:fs";
 import prompts from "prompts";
 import "reflect-metadata"; // need global
 import Yargs from "yargs/yargs";
-import {
-  IOracleQueueDefinition,
-  OracleQueueDefinition,
-  OracleQueueSchema,
-} from "./accounts";
+import { OracleQueueSchema } from "./accounts";
 import {
   aggregatorResult,
   aggregatorUpdate,
@@ -17,7 +13,7 @@ import {
   readCrank,
   turnCrank,
 } from "./actions";
-import { sleep } from "./utils";
+import { loadDefinition, sleep } from "./utils";
 dotenv.config();
 
 async function main(): Promise<void> {
@@ -38,25 +34,11 @@ async function main(): Promise<void> {
     })
     .parseSync();
   // load queue definition
-  let queueDefinition: OracleQueueDefinition | undefined;
-  const inFile = "oracleQueue.definition.json";
-  try {
-    const fileBuffer = fs.readFileSync(inFile);
-    const definition: IOracleQueueDefinition = JSON.parse(
-      fileBuffer.toString()
+  const queueDefinition = loadDefinition();
+  if (!queueDefinition)
+    throw new Error(
+      `failed to provide definition file oracleQueue.definition.json`
     );
-    queueDefinition = plainToClass(OracleQueueDefinition, definition, {
-      excludePrefixes: ["_"],
-      excludeExtraneousValues: true,
-    });
-  } catch (error) {
-    console.error(error);
-    return;
-  }
-  if (!queueDefinition) {
-    console.error("failed to read queue definition file", inFile);
-    return;
-  }
 
   // load queue schema from file if exist
   const outFile = "oracleQueue.schema.json";

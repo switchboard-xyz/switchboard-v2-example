@@ -1,24 +1,18 @@
 import { plainToClass } from "class-transformer";
 import fs from "node:fs";
-import { OracleQueueDefinition } from "../accounts";
+import { IOracleQueueDefinition, OracleQueueDefinition } from "../accounts";
 
 // load queue schema from file if exist
-export const loadDefinition = (): OracleQueueDefinition => {
+export const loadDefinition = (): OracleQueueDefinition | undefined => {
   const definitionFile = "oracleQueue.definition.json";
   if (fs.existsSync(definitionFile)) {
     const fileBuffer = fs.readFileSync(definitionFile);
-    const queueDefinition: OracleQueueDefinition = JSON.parse(
+    const definition: IOracleQueueDefinition = JSON.parse(
       fileBuffer.toString()
     );
-    const queueDefinitionClass = plainToClass(
-      OracleQueueDefinition,
-      queueDefinition,
-      {
-        excludePrefixes: ["_"],
-        excludeExtraneousValues: true,
-      }
-    );
-    return queueDefinitionClass;
+    return plainToClass(OracleQueueDefinition, definition, {
+      excludePrefixes: ["_"],
+      excludeExtraneousValues: true,
+    });
   }
-  throw new Error(`no definition file provided ${definitionFile}`);
 };
