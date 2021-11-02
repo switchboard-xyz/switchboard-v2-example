@@ -14,6 +14,7 @@ import {
   readCrank,
   turnCrank,
 } from "./actions";
+import { AnchorProgram } from "./types";
 import { loadDefinition, sleep } from "./utils";
 dotenv.config();
 
@@ -49,6 +50,15 @@ export async function getSchema(): Promise<OracleQueueSchema> {
 
   if (!queueSchemaClass || !queueSchemaClass.name)
     throw new Error(`failed to build schema`);
+
+  const authority = AnchorProgram.getInstance().authority;
+  if (queueSchemaClass.authority !== authority.publicKey.toString())
+    throw new Error(
+      `provided authority wallet does not match the schema, authority-keypair ${authority.publicKey.toString()} expected ${
+        queueSchemaClass.authority
+      }`
+    );
+
   if (queueDefinition) await queueSchemaClass.loadDefinition(queueDefinition); // check for any changes to the definitions
   queueSchemaClass.saveJson();
 

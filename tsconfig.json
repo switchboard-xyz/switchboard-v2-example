@@ -33,6 +33,6 @@
     "types": ["mocha", "chai"]
     // "rootDir": "src"
   },
-  "include": [".", "src/**/*", "rust/anchor-feed-parser/**/*"],
+  "include": [".", "src/**/*", "rust/anchor-feed-parser/tests/*.ts"],
   "exclude": ["node_modules", "bin"]
 }
