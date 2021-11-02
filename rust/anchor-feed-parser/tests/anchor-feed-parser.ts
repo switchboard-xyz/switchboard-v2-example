@@ -11,7 +11,7 @@ describe("anchor-feed-parser", () => {
     .AnchorFeedParser as Program<AnchorFeedParser.AnchorFeedParser>;
   it("Is initialized!", async () => {
     const aggKey = new PublicKey(
-      "H1HGzJCeVimybCMGeKgFzEPr5dNqUPnUdhTmGuwsysDB"
+      "AMv5CbJzfREbrGaUgywVJ9Xe2FMJa2ToCXoz5fC8C3Y2"
     );
     console.log(typeof aggKey, aggKey.toString());
 

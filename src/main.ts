@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import prompts from "prompts";
 import "reflect-metadata"; // need global
+import Yargs from "yargs/yargs";
 import {
   IOracleQueueDefinition,
   OracleQueueDefinition,
@@ -20,6 +21,22 @@ import { sleep } from "./utils";
 dotenv.config();
 
 async function main(): Promise<void> {
+  const argv = Yargs(process.argv.slice(2))
+    .options({
+      silent: {
+        type: "boolean",
+        describe: "Exit after creating switchboard accounts",
+        demand: false,
+        default: false,
+      },
+      overwrite: {
+        type: "boolean",
+        describe: "Completely rebuild schema file with brand new accounts",
+        demand: false,
+        default: false,
+      },
+    })
+    .parseSync();
   // load queue definition
   let queueDefinition: OracleQueueDefinition | undefined;
   const inFile = "oracleQueue.definition.json";
@@ -64,6 +81,7 @@ async function main(): Promise<void> {
   await sleep(2000); // delayed txn errors might ruin prompt
 
   let exit = false;
+  if (argv.silent) exit = true;
   while (!exit) {
     console.log("");
     const answer = await prompts([

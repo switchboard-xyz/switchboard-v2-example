@@ -18,7 +18,7 @@ fn process_instruction<'a>(
     let accounts_iter = &mut accounts.iter();
     let aggregator = next_account_info(accounts_iter)?;
     let aggregator_result = &get_aggregator_result(&aggregator)?.result;
-    let final_result: u64 = aggregator_result.try_into()?;
+    let final_result: f64 = aggregator_result.try_into()?;
 
     msg!("Current feed result is {}!", final_result);
     Ok(())

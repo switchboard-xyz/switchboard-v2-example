@@ -5,21 +5,17 @@ Example repo for working with Switchboard V2. This script will digest **oracleQu
 ## Install
 
 ```bash
-npm install
+npm ci
 ```
 
-## Setup
+This script completes the following:
 
-```bash
-npm run setup
-```
-
-This script does the following:
-
-- Creates necessary keypairs and airdrops devnet Solana
-- Builds and Deploys an on-chain program that we'll use later
-- Creates an Oracle queue, a Crank, and Oracles as defined in the definition json file
-- Outputs the Switchboard accounts to a schema json to load quicker next run
+- Creates Solana keypair and funds account with devnet tokens
+- Builds and Deploys two on-chain program
+  - Anchor
+  - Solana Library
+- Creates an Oracle Queue based on the definition file
+- Saves the Switchboard accounts to a schema json for quicker subsequent runs
 
 ## Oracle
 
