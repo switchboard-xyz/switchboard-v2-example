@@ -1,3 +1,4 @@
+export * from "./action";
 export * from "./anchorProgram";
 export * from "./const";
 export * from "./switchboardAccounts";
