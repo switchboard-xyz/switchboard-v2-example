@@ -13,6 +13,7 @@
     "airdrop": "run-s airdrop:*",
     "airdrop:authority": "solana airdrop 5 keypairs/authority-keypair.json",
     "airdrop:onchain": "solana airdrop 5 keypairs/on_chain_feed_parser-keypair.json",
+    "airdrop:anchor": "solana airdrop 5 keypairs/anchor_feed_parser-keypair.json",
     "start": "ts-node src/main.ts",
     "build": "npm-run-all build:*",
     "build:anchor": "cargo build-bpf --manifest-path=rust/anchor-feed-parser/programs/anchor-feed-parser/Cargo.toml && $HOME/.cargo/bin/anchor idl parse -f rust/anchor-feed-parser/programs/anchor-feed-parser/src/lib.rs -o rust/anchor-feed-parser/target/idl/anchor_feed_parser.json",
