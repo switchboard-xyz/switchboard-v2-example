@@ -1,6 +1,8 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { PublicKey } from "@solana/web3.js";
+import "mocha";
+import { OracleQueueSchema } from "../../../src/accounts";
+import { loadSchema } from "../../../src/schema";
 import * as AnchorFeedParser from "../target/types/anchor_feed_parser";
 
 describe("anchor-feed-parser", () => {
@@ -9,11 +11,16 @@ describe("anchor-feed-parser", () => {
 
   const program = anchor.workspace
     .AnchorFeedParser as Program<AnchorFeedParser.AnchorFeedParser>;
+  let schema: OracleQueueSchema;
+
+  before(async () => {
+    schema = await loadSchema();
+  });
+
   it("Is initialized!", async () => {
-    const aggKey = new PublicKey(
-      "AMv5CbJzfREbrGaUgywVJ9Xe2FMJa2ToCXoz5fC8C3Y2"
-    );
-    console.log(typeof aggKey, aggKey.toString());
+    const sol = schema.findAggregatorByName("SOL_USD");
+    if (!sol) throw new Error("Did not find any valid feeds to load");
+    console.log(typeof sol, sol.toString());
 
     // const parameter: AnchorFeedParser.ReadResultParams = {};
 
@@ -21,7 +28,7 @@ describe("anchor-feed-parser", () => {
       {},
       {
         accounts: {
-          aggregator: aggKey,
+          aggregator: sol,
         },
       }
     );

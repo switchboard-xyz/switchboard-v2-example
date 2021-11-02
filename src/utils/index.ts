@@ -1,7 +1,6 @@
 export * from "./cli/selectCrank";
 export * from "./cli/selectFeed";
 export * from "./cli/selectOracle";
-export * from "./definition";
 export * from "./getFullSubdirectoryPath";
 export * from "./loadAuthorityKeypair";
 export * from "./readKeys";

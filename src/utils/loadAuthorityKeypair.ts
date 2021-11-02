@@ -1,8 +1,9 @@
 import { Keypair } from "@solana/web3.js";
+import findGitRoot from "find-git-root";
 import fs from "node:fs";
 import resolve from "resolve-dir";
 import Yargs from "yargs/yargs";
-import { readSecretKey, toAccountString } from ".";
+import { toAccountString } from ".";
 import { KEYPAIR_OUTPUT } from "../types";
 
 export const loadAuthorityKeypair = (): Keypair => {
@@ -15,6 +16,11 @@ export const loadAuthorityKeypair = (): Keypair => {
       },
     })
     .parseSync();
+
+  const authorityPath: string = findGitRoot(process.cwd()).replace(
+    ".git",
+    "keypairs/authority-keypair.json"
+  );
 
   // read update authority from command line arguement
   if (argv.authorityKeypair) {
@@ -33,11 +39,14 @@ export const loadAuthorityKeypair = (): Keypair => {
 
   // read update authority from local directory
   const fileName = "authority-keypair";
-  const authority = readSecretKey(fileName);
-  if (!authority)
+  try {
+    const keypairString = fs.readFileSync(authorityPath, "utf8");
+    const keypairBuffer = new Uint8Array(JSON.parse(keypairString));
+    const walletKeypair = Keypair.fromSecretKey(keypairBuffer);
+    return walletKeypair;
+  } catch {
     throw new Error(
       `failed to read update authority from keypair directory or command line arguement ${KEYPAIR_OUTPUT}/${fileName}.json`
     );
-  console.log(toAccountString(fileName, authority.publicKey.toString()));
-  return authority;
+  }
 };

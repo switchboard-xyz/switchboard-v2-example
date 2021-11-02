@@ -1,12 +1,8 @@
-import chalk from "chalk";
-import { plainToClass } from "class-transformer";
 import dotenv from "dotenv";
-import fs from "node:fs";
 import prompts from "prompts";
 import "reflect-metadata"; // need global
 import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
-import { OracleQueueSchema } from "./accounts";
 import {
   aggregatorResult,
   aggregatorUpdate,
@@ -14,56 +10,9 @@ import {
   readCrank,
   turnCrank,
 } from "./actions";
-import { AnchorProgram } from "./types";
-import { loadDefinition, sleep } from "./utils";
+import { loadSchema } from "./schema";
+import { sleep } from "./utils";
 dotenv.config();
-
-export async function getSchema(): Promise<OracleQueueSchema> {
-  // load queue schema from file if exist
-  let queueSchemaClass: OracleQueueSchema | undefined;
-  const schemaFile = "oracleQueue.schema.json";
-
-  if (fs.existsSync(schemaFile)) {
-    console.log(
-      chalk.green("Oracle Queue built from local schema:"),
-      schemaFile
-    );
-    const fileBuffer = fs.readFileSync(schemaFile);
-    queueSchemaClass = plainToClass(
-      OracleQueueSchema,
-      JSON.parse(fileBuffer.toString()),
-      {
-        excludePrefixes: ["_"],
-        excludeExtraneousValues: true,
-      }
-    );
-  }
-
-  const queueDefinition = loadDefinition();
-  if (!queueSchemaClass) {
-    if (!queueDefinition)
-      throw new Error(
-        `failed to provide definition file oracleQueue.definition.json`
-      );
-    queueSchemaClass = await queueDefinition.toSchema();
-  }
-
-  if (!queueSchemaClass || !queueSchemaClass.name)
-    throw new Error(`failed to build schema`);
-
-  const authority = AnchorProgram.getInstance().authority;
-  if (queueSchemaClass.authority !== authority.publicKey.toString())
-    throw new Error(
-      `provided authority wallet does not match the schema, authority-keypair ${authority.publicKey.toString()} expected ${
-        queueSchemaClass.authority
-      }`
-    );
-
-  if (queueDefinition) await queueSchemaClass.loadDefinition(queueDefinition); // check for any changes to the definitions
-  queueSchemaClass.saveJson();
-
-  return queueSchemaClass;
-}
 
 async function main(): Promise<void> {
   const argv = Yargs(hideBin(process.argv))
@@ -83,7 +32,7 @@ async function main(): Promise<void> {
     })
     .parseSync();
 
-  const queueSchemaClass = await getSchema();
+  const queueSchemaClass = await loadSchema();
 
   let exit = false;
   if (argv.buildSchema) exit = true;
