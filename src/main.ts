@@ -76,7 +76,6 @@ async function main(): Promise<void> {
     excludeExtraneousValues: true,
   });
   await queueSchemaClass.loadDefinition(queueDefinition); // check for any changes to the definitions
-  queueSchemaClass.saveJson(outFile);
 
   await sleep(2000); // delayed txn errors might ruin prompt
 

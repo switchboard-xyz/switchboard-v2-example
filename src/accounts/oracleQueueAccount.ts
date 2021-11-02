@@ -266,9 +266,11 @@ export class OracleQueueSchema
     return new PublicKey(this.tokenAccount);
   }
 
-  public saveJson(fileName: string): void {
+  public saveJson(fileName?: string): void {
     const queueSchemaString = classToPlain(this);
-    fs.writeFileSync(fileName, JSON.stringify(queueSchemaString, undefined, 2));
+    const outFile = fileName ? fileName : "oracleQueue.schema.json";
+
+    fs.writeFileSync(outFile, JSON.stringify(queueSchemaString, undefined, 2));
   }
 
   public findAggregatorByName(search: string): PublicKey | undefined {
