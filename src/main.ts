@@ -17,6 +17,44 @@ import {
 import { loadDefinition, sleep } from "./utils";
 dotenv.config();
 
+export async function getSchema(): Promise<OracleQueueSchema> {
+  // load queue schema from file if exist
+  let queueSchemaClass: OracleQueueSchema | undefined;
+  const schemaFile = "oracleQueue.schema.json";
+
+  if (fs.existsSync(schemaFile)) {
+    console.log(
+      chalk.green("Oracle Queue built from local schema:"),
+      schemaFile
+    );
+    const fileBuffer = fs.readFileSync(schemaFile);
+    queueSchemaClass = plainToClass(
+      OracleQueueSchema,
+      JSON.parse(fileBuffer.toString()),
+      {
+        excludePrefixes: ["_"],
+        excludeExtraneousValues: true,
+      }
+    );
+  }
+
+  const queueDefinition = loadDefinition();
+  if (!queueSchemaClass) {
+    if (!queueDefinition)
+      throw new Error(
+        `failed to provide definition file oracleQueue.definition.json`
+      );
+    queueSchemaClass = await queueDefinition.toSchema();
+  }
+
+  if (!queueSchemaClass || !queueSchemaClass.name)
+    throw new Error(`failed to build schema`);
+  if (queueDefinition) await queueSchemaClass.loadDefinition(queueDefinition); // check for any changes to the definitions
+  queueSchemaClass.saveJson();
+
+  return queueSchemaClass;
+}
+
 async function main(): Promise<void> {
   const argv = Yargs(hideBin(process.argv))
     .options({
@@ -34,31 +72,8 @@ async function main(): Promise<void> {
       },
     })
     .parseSync();
-  // load queue definition
-  const queueDefinition = loadDefinition();
-  if (!queueDefinition)
-    throw new Error(
-      `failed to provide definition file oracleQueue.definition.json`
-    );
 
-  // load queue schema from file if exist
-  const outFile = "oracleQueue.schema.json";
-  let queueSchema: OracleQueueSchema | undefined;
-  if (fs.existsSync(outFile)) {
-    console.log(chalk.green("Oracle Queue built from local schema:"), outFile);
-    const fileBuffer = fs.readFileSync(outFile);
-    queueSchema = JSON.parse(fileBuffer.toString());
-  } else {
-    queueSchema = await queueDefinition.toSchema();
-  }
-  if (!queueSchema || !queueSchema.name)
-    throw new Error(`failed to parse schema input`);
-
-  const queueSchemaClass = plainToClass(OracleQueueSchema, queueSchema, {
-    excludePrefixes: ["_"],
-    excludeExtraneousValues: true,
-  });
-  await queueSchemaClass.loadDefinition(queueDefinition); // check for any changes to the definitions
+  const queueSchemaClass = await getSchema();
 
   let exit = false;
   if (argv.buildSchema) exit = true;

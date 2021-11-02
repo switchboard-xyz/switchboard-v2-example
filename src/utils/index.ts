@@ -5,7 +5,6 @@ export * from "./definition";
 export * from "./getFullSubdirectoryPath";
 export * from "./loadAuthorityKeypair";
 export * from "./readKeys";
-export * from "./schema";
 export * from "./sleep";
 export * from "./toAccountString";
 export * from "./toDateString";
