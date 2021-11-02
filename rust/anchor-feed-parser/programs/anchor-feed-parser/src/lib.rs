@@ -20,9 +20,6 @@ pub mod anchor_feed_parser {
     use super::*;
 
     pub fn read_result(ctx: Context<ReadResult>, _params: ReadResultParams) -> ProgramResult {
-        // let buf = ctx.accounts.aggregator.try_borrow_data()?;
-        // let aggregator = AggregatorAccountData::new(&ctx.accounts.aggregator)?;
-        // let aggregator: &AggregatorAccountData = bytemuck::from_bytes(&buf[8..]);
         let pid = solana_program::pubkey::Pubkey::from_str(
             "5n43jDh58UzjqGE2sFuZPrkgx52BT6PWgcdL1CvBU9Ww",
         )
