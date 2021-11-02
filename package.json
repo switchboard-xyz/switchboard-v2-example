@@ -18,7 +18,7 @@
     "build:anchor": "cargo build-bpf --manifest-path=rust/anchor-feed-parser/programs/anchor-feed-parser/Cargo.toml && $HOME/.cargo/bin/anchor idl parse -f rust/anchor-feed-parser/programs/anchor-feed-parser/src/lib.rs -o rust/anchor-feed-parser/target/idl/anchor_feed_parser.json",
     "build:onchain": "cargo build-bpf --manifest-path=rust/on-chain-feed-parser/Cargo.toml",
     "deploy": "run-s deploy:*",
-    "deploy:anchor": "solana program deploy rust/anchor-feed-parser/target/deploy/on_chain_feed_parser.so --program-id=keypairs/anchor_feed_parser-keypair.json",
+    "deploy:anchor": "solana program deploy rust/anchor-feed-parser/target/deploy/anchor_feed_parser.so --program-id=keypairs/anchor_feed_parser-keypair.json",
     "deploy:onchain": "solana program deploy rust/on-chain-feed-parser/target/deploy/on_chain_feed_parser.so --program-id=keypairs/on_chain_feed_parser-keypair.json",
     "test:anchor": "ts-mocha ./rust/anchor-feed-parser/tests/**/*.ts",
     "test:anchor1": "cd ./rust/anchor-feed-parser && anchor test",
