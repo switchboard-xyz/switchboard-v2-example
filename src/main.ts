@@ -1,17 +1,12 @@
 import dotenv from "dotenv";
-import prompts from "prompts";
 import "reflect-metadata"; // need global
 import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
-import {
-  aggregatorResult,
-  aggregatorUpdate,
-  oracleHeartbeat,
-  readCrank,
-  turnCrank,
-} from "./actions";
+import { deployAction } from "./actions";
 import { loadSchema } from "./schema";
+import { QueueAction } from "./types";
 import { sleep } from "./utils";
+import { selectAction } from "./utils/cli/selectAction";
 dotenv.config();
 
 async function main(): Promise<void> {
@@ -23,89 +18,34 @@ async function main(): Promise<void> {
         demand: false,
         default: false,
       },
-      overwrite: {
-        type: "boolean",
-        describe: "Completely rebuild schema file with brand new accounts",
+      action: {
+        type: "string",
+        describe:
+          "Action to perform after building schema (ListOracles, TurnCrank, UpdateAggregator)",
         demand: false,
-        default: false,
+        default: "",
       },
     })
     .parseSync();
 
   const queueSchemaClass = await loadSchema();
 
+  if (argv.buildSchema) return;
+  if (argv.action) {
+    const maybeAction: QueueAction | undefined = QueueAction[argv.action];
+    if (!maybeAction)
+      throw new Error(`failed to find an action for ${argv.action}`);
+    await deployAction(queueSchemaClass, maybeAction);
+    return;
+  }
+
   let exit = false;
-  if (argv.buildSchema) exit = true;
   while (!exit) {
     await sleep(2000); // delayed txn errors might ruin prompt
     console.log("");
-    const answer = await prompts([
-      {
-        type: "select",
-        name: "action",
-        message: "what do you want to do?",
-        choices: [
-          {
-            title: "List Oracles",
-            value: "printOracles",
-          },
-          {
-            title: "Oracle Heartbeat",
-            value: "oracleHeartbeat",
-          },
-          {
-            title: "List Aggregators",
-            value: "printAggregators",
-          },
-          {
-            title: "Read Aggregator Result",
-            value: "aggregatorResult",
-          },
-          {
-            title: "Request Aggregator Update",
-            value: "aggregatorUpdate",
-          },
-          {
-            title: "Read the Crank",
-            value: "readCrank",
-          },
-          {
-            title: "Turn the Crank",
-            value: "crankTurn",
-          },
-        ],
-      },
-    ]);
-    switch (answer.action) {
-      case "printOracles":
-        await queueSchemaClass.printOracles();
-        break;
-      case "printAggregators":
-        await queueSchemaClass.printFeeds();
-        break;
-      case "oracleHeartbeat":
-        await oracleHeartbeat(queueSchemaClass);
-        break;
-      case "aggregatorUpdate":
-        await aggregatorUpdate(queueSchemaClass);
-        break;
-      case "aggregatorResult":
-        await aggregatorResult(queueSchemaClass);
-        break;
-      case "readCrank":
-        await readCrank(queueSchemaClass);
-        break;
-      case "crankTurn":
-        await turnCrank(queueSchemaClass);
-        break;
-      case undefined:
-        console.log("User exited");
-        exit = true;
-        break;
-      default:
-        console.log("Not implemented yet");
-        exit = true;
-    }
+    const action = await selectAction();
+    const actionResult = await deployAction(queueSchemaClass, action);
+    if (actionResult === -1) exit = true;
   }
 }
 

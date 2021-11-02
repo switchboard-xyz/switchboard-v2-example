@@ -1,5 +1,6 @@
 export * from "./aggregatorResult";
 export * from "./aggregatorUpdate";
+export * from "./deployAction";
 export * from "./loadFeeds";
 export * from "./oracleHeartbeat";
 export * from "./readCrank";

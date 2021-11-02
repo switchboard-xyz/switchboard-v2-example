@@ -5,7 +5,9 @@ pub use solana_program::{
     entrypoint::ProgramResult,
     msg,
 };
+use std::convert::TryInto;
 pub use switchboard_aggregator::get_aggregator_result_devnet;
+pub use switchboard_aggregator::structs::SwitchboardDecimal;
 
 entrypoint!(process_instruction);
 
@@ -17,8 +19,9 @@ fn process_instruction<'a>(
     let accounts_iter = &mut accounts.iter();
     let aggregator = next_account_info(accounts_iter)?;
 
-    let final_result = get_aggregator_result_devnet(aggregator)?;
+    let result: SwitchboardDecimal = get_aggregator_result_devnet(aggregator)?;
+    let decimal: f64 = (&result).try_into().unwrap();
 
-    msg!("Current feed result is {}!", final_result);
+    msg!("Current feed result is {}!", decimal);
     Ok(())
 }

@@ -7,30 +7,12 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import chalk from "chalk";
 import dotenv from "dotenv";
 import fs from "node:fs";
-import readlineSync from "readline-sync";
-import Yargs from "yargs/yargs";
+import { loadSchema } from "../../../src/schema";
 import { RPC_URL } from "../../../src/types";
 import { loadAuthorityKeypair } from "../../../src/utils";
 dotenv.config();
-
-const argv = Yargs(process.argv.slice(2))
-  .options({
-    dataFeedPubkey: {
-      type: "string",
-      describe: "Public key of the data feed to use.",
-      demand: false,
-      default: "AMv5CbJzfREbrGaUgywVJ9Xe2FMJa2ToCXoz5fC8C3Y2",
-    },
-    programId: {
-      type: "string",
-      describe: "Public key of the deployed program",
-      demand: false,
-    },
-  })
-  .parseSync();
 
 const loadProgramKeypair = (): string => {
   const keypairFile =
@@ -43,33 +25,26 @@ const loadProgramKeypair = (): string => {
 };
 
 async function main() {
-  const PROGRAM_ID = argv.programId
-    ? argv.programId
-    : process.env.ONCHAIN_PID
-    ? process.env.ONCHAIN_PID
-    : loadProgramKeypair();
+  const authority = loadAuthorityKeypair();
+  const PROGRAM_ID = loadProgramKeypair();
   if (!PROGRAM_ID)
     throw new Error(
       `failed to get program ID of on-chain-feed-parser. Provide it as an argument programId="PROGRAM_ID" or set ONCHAIN_PID in an env file `
     );
   console.log("On-Chain Feed Parser PID:", PROGRAM_ID);
-  let dataFeed: PublicKey;
-  if (!argv.dataFeedPubkey) {
-    const pubkey = readlineSync.question(
-      chalk.blue("Enter the public key of the data feed to read:\r\n")
-    );
-    dataFeed = new PublicKey(pubkey);
-  } else {
-    dataFeed = new PublicKey(argv.dataFeedPubkey);
-  }
-  console.log("Data Feed:", dataFeed.toString());
-  const authority = loadAuthorityKeypair();
+  const schema = await loadSchema();
+  const solPubkey = schema.findAggregatorByName("SOL_USD");
+  if (!solPubkey)
+    throw new Error(`failed to find SOL_USD aggregator in schema`);
+
+  console.log("Data Feed:", solPubkey.toString());
+
   const connection = new Connection(RPC_URL, "processed");
 
   const transactionInstruction = new TransactionInstruction({
     keys: [
       {
-        pubkey: dataFeed,
+        pubkey: solPubkey,
         isSigner: false,
         isWritable: false,
       },

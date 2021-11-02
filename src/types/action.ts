@@ -1,16 +1,16 @@
 export enum QueueAction {
   // List available oracles belonging to an Oracle Queue
-  List_Oracles = "listOracles",
+  ListOracles = "List_Oracles",
   // List aggregators ready for update attached to the Crank
-  List_Crank = "listCrank",
+  ListCrank = "List_Crank",
   // List available aggregators
-  List_Aggregators = "listAggregators",
+  ListAggregators = "List_Aggregators",
   // Perform Oracle heartbeat
-  Oracle_Heartbeat = "oracleHeartbeat",
+  OracleHeartbeat = "Oracle_Heartbeat",
   // Read an aggregators last result
-  Read_Aggregator = "readAggregator",
+  ReadAggregator = "Read_Aggregator",
   // Request an update for a specific aggregator
-  Update_Aggregator = "updateAggregator",
+  UpdateAggregator = "Update_Aggregator",
   // Turn the crank and update any available aggregators
-  Turn_Crank = "turnCrank",
+  TurnCrank = "Turn_Crank",
 }
