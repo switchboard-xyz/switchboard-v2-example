@@ -17,5 +17,5 @@ default = []
 
 [dependencies]
 anchor-lang = "0.18.0"
-switchboard-aggregator = { version = "0.1.1" }
+switchboard-aggregator = "0.1.2"
 solana-program = "1.8.2"

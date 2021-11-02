@@ -4,10 +4,8 @@ pub use solana_program::{
     entrypoint,
     entrypoint::ProgramResult,
     msg,
-    pubkey::Pubkey,
 };
-use std::convert::TryInto;
-pub use switchboard_aggregator;
+pub use switchboard_aggregator::get_aggregator_result_devnet;
 
 entrypoint!(process_instruction);
 
@@ -18,8 +16,8 @@ fn process_instruction<'a>(
 ) -> ProgramResult {
     let accounts_iter = &mut accounts.iter();
     let aggregator = next_account_info(accounts_iter)?;
-    let aggregator_result = &switchboard_aggregator::get_aggregator_result(&aggregator)?.result;
-    let final_result: f64 = aggregator_result.try_into()?;
+
+    let final_result = get_aggregator_result_devnet(aggregator)?;
 
     msg!("Current feed result is {}!", final_result);
     Ok(())

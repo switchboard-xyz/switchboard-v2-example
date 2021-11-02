@@ -25,10 +25,10 @@
     "test:anchor": "ANCHOR_PROVIDER_URL='https://api.devnet.solana.com' npx mocha --extension ts --require ts-node/register -t 1000000 rust/anchor-feed-parser/tests/",
     "test:onchain": "ts-node ./rust/on-chain-feed-parser/tests/on-chain-feed-parser.ts",
     "lint": "eslint --ext .js,.json,.ts 'src/**' --fix",
-    "purge": "run-s purge:*",
-    "purge:npm": "shx rm -rf node_modules",
+    "purge": "run-s purge:anchor purge:onchain purge:npm",
     "purge:anchor": "shx rm -rf ./rust/anchor-feed-parser/{target,Cargo.lock,programs/*/target}",
-    "purge:onchain": "shx rm -rf ./rust/on-chain-feed-parser/{target,Cargo.lock}"
+    "purge:onchain": "shx rm -rf ./rust/on-chain-feed-parser/{target,Cargo.lock}",
+    "purge:npm": "shx rm -rf node_modules"
   },
   "keywords": [
     "switchboard"

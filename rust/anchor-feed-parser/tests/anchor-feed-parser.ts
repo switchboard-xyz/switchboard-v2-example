@@ -3,6 +3,7 @@ import { Program } from "@project-serum/anchor";
 import "mocha";
 import { OracleQueueSchema } from "../../../src/accounts";
 import { loadSchema } from "../../../src/schema";
+import { watchTransaction } from "../../../src/utils";
 import * as AnchorFeedParser from "../target/types/anchor_feed_parser";
 
 describe("anchor-feed-parser", () => {
@@ -32,6 +33,7 @@ describe("anchor-feed-parser", () => {
         },
       }
     );
+    await watchTransaction(tx);
     console.log("Read result signature", tx);
   });
 });
