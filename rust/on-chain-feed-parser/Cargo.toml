@@ -7,7 +7,7 @@ edition = "2018"
 no-entrypoint = []
 
 [dependencies]
-switchboard-aggregator = "0.1.1"
+switchboard-aggregator = { git = "https://github.com/gallynaut/switchboard-aggregator" }
 solana-program = "1.8.2"
 
 [lib]

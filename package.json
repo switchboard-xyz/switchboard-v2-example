@@ -5,19 +5,21 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "purge": "shx rm -rf {.,rust/*/*}/{node_modules,yarn.lock}",
+    "setup": "npm-run-all -c create:* airdrop:* build:* deploy:* start",
+    "create": "run-s create:*",
+    "create:authority": "solana-keygen new -s --no-bip39-passphrase --outfile keypairs/authority-keypair.json",
+    "create:onchain": "solana-keygen new -s --no-bip39-passphrase --outfile keypairs/on_chain_feed_parser-keypair.json",
+    "airdrop": "run-s airdrop:*",
+    "airdrop:authority": "solana airdrop 5 keypairs/authority-keypair.json",
+    "airdrop:onchain": "solana airdrop 5 keypairs/on_chain_feed_parser-keypair.json",
     "start": "ts-node src/main.ts",
-    "build": "tsc && node bin/main.js",
-    "lint": "eslint --ext .js,.json,.ts 'src/**' --fix",
-    "test": "run-p test:*",
+    "build:onchain": "cargo build-bpf --manifest-path=rust/on-chain-feed-parser/Cargo.toml",
+    "deploy:onchain": "solana program deploy rust/on-chain-feed-parser/target/deploy/on_chain_feed_parser.so --program-id=keypairs/on_chain_feed_parser-keypair.json",
     "test:anchor": "ts-mocha ./rust/anchor-feed-parser/tests/**/*.ts",
     "test:anchor1": "cd ./rust/anchor-feed-parser && anchor test",
-    "test:onchain": "ts-node ./rust/on-chain-feed-parser/tests/on-chain-feed-parser.ts"
-  },
-  "scriptsInprogress": {
-    "install:anchor": "cd rust/anchor-feed-parser && npm install",
-    "install:onchain": "cd rust/on-chain-feed-parser && npm install",
-    "postinstall": "run-p install:*"
+    "test:onchain": "ts-node ./rust/on-chain-feed-parser/tests/on-chain-feed-parser.ts",
+    "lint": "eslint --ext .js,.json,.ts 'src/**' --fix",
+    "purge": "shx rm -rf {.,rust/*/*}/{node_modules,yarn.lock}"
   },
   "keywords": [
     "switchboard"
