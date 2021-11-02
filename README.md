@@ -2,6 +2,16 @@
 
 Example repo for working with Switchboard V2. This script will digest **oracleQueue.definition.json** and create the neccesary on-chain accounts and output **oracleQueue.schema.json**. Subsequent runs will use the local schema file.
 
+## Dependencies
+
+You will need the following installed
+
+- [Node and NPM](https://github.com/nvm-sh/nvm#installing-and-updating)
+- [Docker Compose](https://docs.docker.com/compose/install)
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Solana](https://docs.solana.com/cli/install-solana-cli-tools)
+- [Anchor](https://project-serum.github.io/anchor/getting-started/installation.html#install-anchor)
+
 ## Install
 
 ```bash
