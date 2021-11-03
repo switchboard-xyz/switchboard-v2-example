@@ -1,9 +1,8 @@
 import { Keypair } from "@solana/web3.js";
-import findGitRoot from "find-git-root";
 import fs from "node:fs";
 import resolve from "resolve-dir";
 import Yargs from "yargs/yargs";
-import { toAccountString } from ".";
+import { findProjectRoot, toAccountString } from ".";
 import { KEYPAIR_OUTPUT } from "../types";
 
 export const loadAuthorityKeypair = (): Keypair => {
@@ -16,11 +15,7 @@ export const loadAuthorityKeypair = (): Keypair => {
       },
     })
     .parseSync();
-
-  const authorityPath: string = findGitRoot(process.cwd()).replace(
-    ".git",
-    "keypairs/authority-keypair.json"
-  );
+  const authorityPath = findProjectRoot() + "keypairs/authority-keypair.json";
 
   // read update authority from command line arguement
   if (argv.authorityKeypair) {

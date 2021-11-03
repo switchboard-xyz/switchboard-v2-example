@@ -11,11 +11,12 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import { loadSchema } from "../../../src/schema";
 import { RPC_URL } from "../../../src/types";
-import { loadAuthorityKeypair } from "../../../src/utils";
+import { findProjectRoot, loadAuthorityKeypair } from "../../../src/utils";
 dotenv.config();
 
 const loadProgramKeypair = (): string => {
   const keypairFile =
+    findProjectRoot() +
     "rust/on-chain-feed-parser/target/deploy/on_chain_feed_parser-keypair.json";
   if (!fs.existsSync(keypairFile)) throw new Error(`Could not find keypair`);
   const keypairString = fs.readFileSync(keypairFile, "utf8");
@@ -28,9 +29,7 @@ async function main() {
   const authority = loadAuthorityKeypair();
   const PROGRAM_ID = loadProgramKeypair();
   if (!PROGRAM_ID)
-    throw new Error(
-      `failed to get program ID of on-chain-feed-parser. Provide it as an argument programId="PROGRAM_ID" or set ONCHAIN_PID in an env file `
-    );
+    throw new Error(`failed to get program ID of on-chain-feed-parser`);
   console.log("On-Chain Feed Parser PID:", PROGRAM_ID);
   const schema = await loadSchema();
   const solPubkey = schema.findAggregatorByName("SOL_USD");

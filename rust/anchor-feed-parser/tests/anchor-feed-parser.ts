@@ -33,7 +33,7 @@ describe("anchor-feed-parser", () => {
         },
       }
     );
-    await watchTransaction(tx);
+    watchTransaction(tx);
     console.log("Read result signature", tx);
   });
 });

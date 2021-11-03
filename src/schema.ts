@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import { plainToClass } from "class-transformer";
 import dotenv from "dotenv";
-import findGitRoot from "find-git-root";
 import fs from "node:fs";
 import "reflect-metadata"; // need global
 import {
@@ -10,14 +9,12 @@ import {
   OracleQueueSchema,
 } from "./accounts";
 import { AnchorProgram } from "./types";
+import { findProjectRoot } from "./utils";
 dotenv.config();
 
 // load queue schema from file if exist
 const loadDefinition = (): OracleQueueDefinition | undefined => {
-  const definitionPath: string = findGitRoot(process.cwd()).replace(
-    ".git",
-    "oracleQueue.definition.json"
-  );
+  const definitionPath = findProjectRoot() + "oracleQueue.definition.json";
   if (fs.existsSync(definitionPath)) {
     const fileBuffer = fs.readFileSync(definitionPath);
     const definition: IOracleQueueDefinition = JSON.parse(
@@ -33,10 +30,7 @@ const loadDefinition = (): OracleQueueDefinition | undefined => {
 export async function loadSchema(): Promise<OracleQueueSchema> {
   // load queue schema from file if exist
   let queueSchemaClass: OracleQueueSchema | undefined;
-  const schemaPath: string = findGitRoot(process.cwd()).replace(
-    ".git",
-    "oracleQueue.schema.json"
-  );
+  const schemaPath = findProjectRoot() + "oracleQueue.schema.json";
 
   if (fs.existsSync(schemaPath)) {
     console.log(
