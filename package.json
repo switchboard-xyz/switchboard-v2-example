@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "preinstall": "npm-run-all -l -c setup:authority setup:onchain setup:anchor setup:switchboard",
+    "setup": "npm-run-all -l -c setup:authority setup:onchain setup:anchor setup:switchboard",
     "setup:authority": "run-s create:authority airdrop:authority",
     "setup:anchor": "run-s build:anchor deploy:anchor",
     "setup:onchain": "run-s build:onchain deploy:onchain",
@@ -21,6 +21,7 @@
     "deploy:anchor": "cd rust/anchor-feed-parser && ${HOME}/.cargo/bin/anchor deploy",
     "deploy:onchain": "solana program deploy rust/on-chain-feed-parser/target/deploy/on_chain_feed_parser.so -k keypairs/authority-keypair.json",
     "start": "ts-node src/main.ts",
+    "start:simple": "ts-node src/simple.ts",
     "start:oracle": "docker-compose --env-file .env.oracle up",
     "crank:turn": "ts-node src/main.ts --action=TurnCrank",
     "crank:read": "ts-node src/main.ts --action=ReadCrank",

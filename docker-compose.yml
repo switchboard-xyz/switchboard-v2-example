@@ -15,18 +15,6 @@ services:
     volumes:
       - ./configs.json:/configs.json
     env_file: oracle.env
-  crank:
-    build:
-      context: .
-      dockerfile: Crank.Dockerfile
-    restart: always
-    secrets:
-      - PAYER_SECRETS
-    environment:
-      - HEARTBEAT_INTERVAL=15 # Seconds
-      - CRANK_KEY=${CRANK_KEY}
-      # - RPC_URL=<YOUR CUSTOM SOLANA RPC ENTRYPOINT> # OPTIONAL
-    env_file: oracle.env
 secrets:
   PAYER_SECRETS:
     file: ./keypairs/authority-keypair.json
