@@ -15,7 +15,8 @@ You will need the following installed
 ## Install
 
 ```bash
-npm ci
+npm install
+npm run setup
 ```
 
 This script completes the following:

@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  switchboard:
+  oracle:
     image: "switchboardlabs/node:dev-v2"
     network_mode: host
     restart: always
@@ -14,6 +14,7 @@ services:
       # - RPC_URL=<YOUR CUSTOM SOLANA RPC ENTRYPOINT> # OPTIONAL
     volumes:
       - ./configs.json:/configs.json
+    env_file: oracle.env
 secrets:
   PAYER_SECRETS:
     file: ./keypairs/authority-keypair.json

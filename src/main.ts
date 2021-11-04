@@ -29,7 +29,6 @@ async function main(): Promise<void> {
     .parseSync();
 
   const queueSchemaClass = await loadSchema();
-
   if (argv.buildSchema) return;
   if (argv.action) {
     const maybeAction: QueueAction | undefined = QueueAction[argv.action];

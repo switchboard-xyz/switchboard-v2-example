@@ -12,21 +12,24 @@ export async function turnCrank(schema: OracleQueueSchema): Promise<void> {
   const crankAccount = await schema.crank.toAccount();
   try {
     const readyPubkeys = await crankAccount.peakNextReady(5);
-    const txn: SendTxRequest = {
-      tx: await crankAccount.popTxn({
-        payoutWallet,
-        queuePubkey: queueAccount.publicKey,
-        queueAuthority,
-        readyPubkeys,
-      }),
-      signers: [],
-    };
-
-    await program.provider.sendAll([txn]);
-    console.log(chalk.green("Crank turned"));
-    for await (const pubkey of readyPubkeys) {
-      const aggregator = schema.findAggregatorByPublicKey(pubkey);
-      if (aggregator) aggregator.print();
+    if (readyPubkeys) {
+      const txn: SendTxRequest = {
+        tx: await crankAccount.popTxn({
+          payoutWallet,
+          queuePubkey: queueAccount.publicKey,
+          queueAuthority,
+          readyPubkeys,
+        }),
+        signers: [],
+      };
+      await program.provider.sendAll([txn]);
+      console.log(chalk.green("Crank turned"));
+      for await (const pubkey of readyPubkeys) {
+        const aggregator = schema.findAggregatorByPublicKey(pubkey);
+        if (aggregator) aggregator.print();
+      }
+    } else {
+      console.log("No feeds ready");
     }
   } catch (error) {
     console.log(chalk.red("Crank turn failed"), error);
