@@ -9,9 +9,9 @@ import {
 } from "@solana/web3.js";
 import dotenv from "dotenv";
 import fs from "node:fs";
-import { loadSchema } from "../../../src/schema";
-import { RPC_URL } from "../../../src/types";
-import { findProjectRoot, loadAuthorityKeypair } from "../../../src/utils";
+import { loadSchema } from "../../../ts/cli/schema";
+import { RPC_URL } from "../../../ts/cli/types";
+import { findProjectRoot, loadAuthorityKeypair } from "../../../ts/utils";
 dotenv.config();
 
 const loadProgramId = (): string => {

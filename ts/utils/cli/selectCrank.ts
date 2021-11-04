@@ -1,5 +1,5 @@
 import prompts, { Choice } from "prompts";
-import { CrankSchema } from "../../accounts";
+import { CrankSchema } from "../../cli/accounts";
 
 export async function selectCrank(cranks: CrankSchema[]): Promise<CrankSchema> {
   const choices: Choice[] = cranks.map((c) => ({

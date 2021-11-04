@@ -1,7 +1,7 @@
 import { OracleAccount } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
+import { selectOracle, waitForever } from "../../utils";
 import { OracleQueueSchema } from "../accounts";
-import { selectOracle, waitForever } from "../utils";
 
 // TO DO: Map crank public keys to aggregator names
 export async function oracleHeartbeat(

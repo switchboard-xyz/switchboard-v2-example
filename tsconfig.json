@@ -26,13 +26,13 @@
     "resolveJsonModule": true,
     "noEmitOnError": true,
     "isolatedModules": true,
-    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "typeRoots": ["ts/cli/types", "./node_modules/@types"],
     "noImplicitAny": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": ["mocha", "chai"]
     // "rootDir": "src"
   },
-  "include": [".", "src/**/*", "rust/anchor-feed-parser/tests/*.ts"],
+  "include": [".", "ts/**/*", "rust/**/tests/*.ts"],
   "exclude": ["node_modules", "bin"]
 }

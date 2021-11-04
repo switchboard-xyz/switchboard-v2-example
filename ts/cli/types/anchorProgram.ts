@@ -2,7 +2,7 @@ import * as anchor from "@project-serum/anchor";
 import { Connection, Keypair } from "@solana/web3.js";
 import fs from "node:fs";
 import { PROGRAM_ID, RPC_URL } from ".";
-import { loadAuthorityKeypair } from "../utils";
+import { loadAuthorityKeypair } from "../../utils";
 
 /**
  * Async singleton to load anchor IDL and authority keypair

@@ -1,7 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import chalk from "chalk";
+import { waitForever } from "../../utils";
 import { OracleQueueSchema } from "../accounts";
-import { waitForever } from "../utils";
 
 export async function aggregatorWatch(
   schema: OracleQueueSchema

@@ -2,11 +2,11 @@ import dotenv from "dotenv";
 import "reflect-metadata"; // need global
 import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
+import { sleep } from "../utils";
+import { selectAction } from "../utils/cli/selectAction";
 import { deployAction } from "./actions";
 import { loadSchema } from "./schema";
 import { QueueAction } from "./types";
-import { sleep } from "./utils";
-import { selectAction } from "./utils/cli/selectAction";
 dotenv.config();
 
 async function main(): Promise<void> {

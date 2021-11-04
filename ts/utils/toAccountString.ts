@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { SwitchboardAccount } from "../types";
+import { SwitchboardAccount } from "../cli/types";
 
 export const toAccountString = (
   label: string,

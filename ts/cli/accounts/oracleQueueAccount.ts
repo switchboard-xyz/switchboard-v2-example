@@ -12,8 +12,6 @@ import {
   Type,
 } from "class-transformer";
 import fs from "node:fs";
-import { AnchorProgram } from "../types";
-import { toAccountString } from "../utils";
 import {
   AggregatorDefinition,
   AggregatorSchema,
@@ -21,7 +19,9 @@ import {
   CrankSchema,
   OracleDefiniton,
   OracleSchema,
-} from "./";
+} from ".";
+import { toAccountString } from "../../utils";
+import { AnchorProgram } from "../types";
 import { IAggregatorDefinition } from "./aggregatorAccount";
 import { ICrankDefinition } from "./crankAccount";
 import { IOracleDefinition } from "./oracleAccount";
@@ -276,7 +276,7 @@ export class OracleQueueSchema
 
   public saveOracleKey(): void {
     const oracleEnvironmentVariable = `ORACLE_KEY=${this.oracles[0].publicKey.toString()}`;
-    fs.writeFileSync(".env.oracle", oracleEnvironmentVariable);
+    fs.writeFileSync("oracle.env", oracleEnvironmentVariable);
   }
 
   public findAggregatorByName(search: string): PublicKey | undefined {

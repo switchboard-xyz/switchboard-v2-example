@@ -1,9 +1,9 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import "mocha";
-import { OracleQueueSchema } from "../../../src/accounts";
-import { loadSchema } from "../../../src/schema";
-import { watchTransaction } from "../../../src/utils";
+import { OracleQueueSchema } from "../../../ts/cli/accounts";
+import { loadSchema } from "../../../ts/cli/schema";
+import { watchTransaction } from "../../../ts/utils";
 import * as AnchorFeedParser from "../target/types/anchor_feed_parser";
 
 describe("anchor-feed-parser", () => {

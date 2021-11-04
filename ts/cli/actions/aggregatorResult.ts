@@ -1,6 +1,6 @@
 import chalk from "chalk";
+import { selectFeed } from "../../utils";
 import { OracleQueueSchema } from "../accounts";
-import { selectFeed } from "../utils";
 
 export async function aggregatorResult(
   schema: OracleQueueSchema

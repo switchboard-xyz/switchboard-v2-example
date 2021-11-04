@@ -3,13 +3,13 @@ import { plainToClass } from "class-transformer";
 import dotenv from "dotenv";
 import fs from "node:fs";
 import "reflect-metadata"; // need global
+import { findProjectRoot } from "../utils";
 import {
   IOracleQueueDefinition,
   OracleQueueDefinition,
   OracleQueueSchema,
 } from "./accounts";
 import { AnchorProgram } from "./types";
-import { findProjectRoot } from "./utils";
 dotenv.config();
 
 // load queue schema from file if exist

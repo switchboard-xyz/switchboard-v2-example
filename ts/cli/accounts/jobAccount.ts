@@ -3,8 +3,8 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import { AggregatorAccount, JobAccount } from "@switchboard-xyz/switchboard-v2";
 import { Exclude, Expose, plainToClass } from "class-transformer";
+import { unwrapSecretKey } from "../../utils";
 import { AnchorProgram } from "../types";
-import { unwrapSecretKey } from "../utils";
 import { multiplyUsdtTask } from "./task/multiplyUsdt";
 import {
   buildBinanceComTask,

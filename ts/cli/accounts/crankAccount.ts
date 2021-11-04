@@ -7,8 +7,8 @@ import {
 import chalk from "chalk";
 import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AggregatorSchema } from ".";
+import { toAccountString, unwrapSecretKey } from "../../utils";
 import { AnchorProgram } from "../types";
-import { toAccountString, unwrapSecretKey } from "../utils";
 
 export interface PqData {
   pubkey: PublicKey;

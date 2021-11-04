@@ -2,7 +2,7 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import chalk from "chalk";
 import fs from "node:fs";
 import { getFullSubdirectoryPath } from ".";
-import { KEYPAIR_OUTPUT, SwitchboardAccount } from "../types";
+import { KEYPAIR_OUTPUT, SwitchboardAccount } from "../cli/types";
 
 export const writeKeys = (
   fileName: string,

@@ -1,5 +1,5 @@
 import prompts, { Choice } from "prompts";
-import { AggregatorSchema } from "../../accounts";
+import { AggregatorSchema } from "../../cli/accounts";
 
 export async function selectFeed(
   feeds: AggregatorSchema[]

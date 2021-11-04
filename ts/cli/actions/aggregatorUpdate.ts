@@ -1,5 +1,5 @@
 import { OracleQueueSchema } from "../accounts";
-import { selectFeed, watchTransaction } from "../utils";
+import { selectFeed, watchTransaction } from "../../utils";
 
 // TO DO: Map crank public keys to aggregator names
 export async function aggregatorUpdate(

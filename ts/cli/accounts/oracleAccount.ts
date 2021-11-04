@@ -8,7 +8,7 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import { Exclude, Expose, plainToClass } from "class-transformer";
 import { AnchorProgram } from "../types";
-import { toAccountString } from "../utils";
+import { toAccountString } from "../../utils";
 
 export interface IOracleDefinition {
   name: string;

@@ -10,7 +10,7 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
-import { RPC_URL } from "../types";
+import { RPC_URL } from "../cli/types";
 import { findProjectRoot, loadAuthorityKeypair } from "../utils";
 dotenv.config();
 

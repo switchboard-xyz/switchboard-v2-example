@@ -1,6 +1,6 @@
 import { OracleAccount } from "@switchboard-xyz/switchboard-v2";
 import prompts, { Choice } from "prompts";
-import { OracleSchema } from "../../accounts";
+import { OracleSchema } from "../../cli/accounts";
 
 export async function selectOracle(
   oracles: OracleSchema[]

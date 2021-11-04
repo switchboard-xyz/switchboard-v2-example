@@ -1,5 +1,5 @@
 import prompts from "prompts";
-import { QueueAction } from "../../types";
+import { QueueAction } from "../../cli/types";
 
 export async function selectAction(): Promise<QueueAction> {
   const answer = await prompts([

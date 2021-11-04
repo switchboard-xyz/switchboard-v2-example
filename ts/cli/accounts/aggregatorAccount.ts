@@ -9,9 +9,9 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import { Exclude, Expose, plainToClass, Type } from "class-transformer";
+import { IJobDefinition, JobDefinition, JobSchema } from ".";
+import { toAccountString, unwrapSecretKey } from "../../utils";
 import { AnchorProgram } from "../types";
-import { toAccountString, unwrapSecretKey } from "../utils";
-import { IJobDefinition, JobDefinition, JobSchema } from "./";
 export interface IAggregatorDefinition {
   name: string;
   batchSize: number;

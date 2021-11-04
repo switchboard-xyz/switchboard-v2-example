@@ -14,7 +14,7 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import readlineSync from "readline-sync";
-import { loadAnchor } from "../types";
+import { loadAnchor } from "../cli/types";
 import { sleep, toAccountString } from "../utils";
 
 async function main(): Promise<void> {
