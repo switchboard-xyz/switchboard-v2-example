@@ -10,7 +10,7 @@ lerna-debug.log*
 
 Cargo.lock
 
-.env.oracle
+*.env
 
 **/.anchor
 **/target

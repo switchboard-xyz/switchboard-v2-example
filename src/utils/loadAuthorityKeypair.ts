@@ -1,12 +1,13 @@
 import { Keypair } from "@solana/web3.js";
 import fs from "node:fs";
 import resolve from "resolve-dir";
+import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
 import { findProjectRoot, toAccountString } from ".";
 import { KEYPAIR_OUTPUT } from "../types";
 
 export const loadAuthorityKeypair = (): Keypair => {
-  const argv = Yargs(process.argv.slice(2))
+  const argv = Yargs(hideBin(process.argv))
     .options({
       authorityKeypair: {
         type: "string",

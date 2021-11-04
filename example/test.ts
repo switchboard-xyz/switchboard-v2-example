@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/no-process-exit */
 import {
   Connection,
   Keypair,
@@ -9,9 +8,10 @@ import {
 } from "@solana/web3.js";
 import dotenv from "dotenv";
 import fs from "node:fs";
-import { loadSchema } from "../../../src/schema";
-import { RPC_URL } from "../../../src/types";
-import { findProjectRoot, loadAuthorityKeypair } from "../../../src/utils";
+import { hideBin } from "yargs/helpers";
+import Yargs from "yargs/yargs";
+import { RPC_URL } from "../src/types";
+import { findProjectRoot, loadAuthorityKeypair } from "../src/utils";
 dotenv.config();
 
 const loadProgramId = (): string => {
@@ -25,25 +25,18 @@ const loadProgramId = (): string => {
   return walletKeypair.publicKey.toString();
 };
 
-async function main() {
+async function testSimpleExample(dataFeedPubkey: PublicKey) {
   const authority = loadAuthorityKeypair();
   const PROGRAM_ID = loadProgramId();
   if (!PROGRAM_ID)
     throw new Error(`failed to get program ID of on-chain-feed-parser`);
   console.log("On-Chain Feed Parser PID:", PROGRAM_ID);
-  const schema = await loadSchema();
-  const solPubkey = schema.findAggregatorByName("SOL_USD");
-  if (!solPubkey)
-    throw new Error(`failed to find SOL_USD aggregator in schema`);
-
-  console.log("Data Feed:", solPubkey.toString());
 
   const connection = new Connection(RPC_URL, "confirmed");
-
   const transactionInstruction = new TransactionInstruction({
     keys: [
       {
-        pubkey: solPubkey,
+        pubkey: dataFeedPubkey,
         isSigner: false,
         isWritable: false,
       },
@@ -63,11 +56,27 @@ async function main() {
   console.log(JSON.stringify(confirmedTxn?.meta?.logMessages, undefined, 2));
 }
 
+async function main() {
+  const argv = Yargs(hideBin(process.argv))
+    .options({
+      dataFeedPubkey: {
+        type: "string",
+        describe: "Data feed public key to read on-chain",
+        demand: true,
+      },
+    })
+    .parseSync();
+  const dataFeedPubkey = new PublicKey(argv.dataFeedPubkey);
+  await testSimpleExample(dataFeedPubkey);
+}
+
 main().then(
-  () => process.exit(),
+  () => {
+    return;
+  },
   (error) => {
     console.error("Failed to complete action.");
     console.error(error);
-    process.exit(-1);
+    return;
   }
 );

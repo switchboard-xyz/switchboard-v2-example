@@ -14,8 +14,8 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import readlineSync from "readline-sync";
-import { loadAnchor } from "./types";
-import { sleep, toAccountString } from "./utils";
+import { loadAnchor } from "../src/types";
+import { sleep, toAccountString } from "../src/utils";
 
 async function main(): Promise<void> {
   const program: anchor.Program = await loadAnchor();
