@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   const program: anchor.Program = await loadAnchor();
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
-  // Program State Account and token mint for payout wallets
+  // Program State Account and token mint for payout rewards
   let programStateAccount: ProgramStateAccount;
   try {
     [programStateAccount] = ProgramStateAccount.fromSeed(program); // should already exist
@@ -29,7 +29,6 @@ async function main(): Promise<void> {
     programStateAccount = await ProgramStateAccount.create(program, {});
   }
   console.log(toAccountString("Program State", programStateAccount));
-  // Need authority wallet token account for payout rewards
   const switchTokenMint = await programStateAccount.getTokenMint();
   const tokenAccount = await switchTokenMint.createAccount(
     program.provider.wallet.publicKey
@@ -55,10 +54,10 @@ async function main(): Promise<void> {
 
   // Oracle
   const oracleAccount = await OracleAccount.create(program, {
-    name: Buffer.from("Oracle-1"),
+    name: Buffer.from("Oracle"),
     queueAccount,
   });
-  console.log(toAccountString("Oracle-1", oracleAccount));
+  console.log(toAccountString("Oracle", oracleAccount));
   const oraclePermission = await PermissionAccount.create(program, {
     authority: program.provider.wallet.publicKey,
     granter: queueAccount.publicKey,
@@ -129,23 +128,19 @@ async function main(): Promise<void> {
     data: jobData,
     keypair: jobKeypair,
   });
-
-  // Add Job to Aggregator
-  await aggregatorAccount.addJob(jobAccount);
   console.log(toAccountString(`  Job (FTX)`, jobAccount));
 
-  // Add Aggregator to Crank
-  await crankAccount.push({ aggregatorAccount });
+  await aggregatorAccount.addJob(jobAccount); // Add Job to Aggregator
+  await crankAccount.push({ aggregatorAccount }); // Add Aggregator to Crank
+
   console.log(chalk.green("\u2714 Switchboard setup complete"));
 
   // Run the oracle
   console.log(chalk.yellow("######## Start the Oracle ########"));
+  console.log(chalk.blue("Run the following command in a new shell\r\n"));
   console.log(
-    chalk.blue(
-      "Set the following env variable then run 'docker-compose up'\r\n"
-    )
+    `      ORACLE_KEY=${oracleAccount.publicKey} docker-compose up\r\n`
   );
-  console.log(`      ORACLE_KEY=${oracleAccount.publicKey}\r\n`);
   if (
     !readlineSync.keyInYN(
       `Select 'Y' when the docker container displays ${chalk.underline(

@@ -36,7 +36,7 @@ Start the oracle with
 npm run start:oracle
 ```
 
-This will start the docker container using the .env.oracle that was created with the schema
+This will start the docker container using the oracle.env that was created with the schema
 
 ## Crank
 
