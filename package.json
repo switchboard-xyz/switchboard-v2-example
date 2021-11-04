@@ -21,7 +21,7 @@
     "deploy:anchor": "cd rust/anchor-feed-parser && ${HOME}/.cargo/bin/anchor deploy",
     "deploy:onchain": "solana program deploy rust/on-chain-feed-parser/target/deploy/on_chain_feed_parser.so -k keypairs/authority-keypair.json",
     "start": "ts-node src/main.ts",
-    "start:simple": "ts-node ./example/main.ts",
+    "start:simple": "ts-node src/example/main.ts",
     "start:oracle": "docker-compose --env-file .env.oracle up",
     "crank:turn": "ts-node src/main.ts --action=TurnCrank",
     "crank:read": "ts-node src/main.ts --action=ReadCrank",

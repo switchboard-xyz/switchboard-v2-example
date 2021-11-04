@@ -10,8 +10,8 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
-import { RPC_URL } from "../src/types";
-import { findProjectRoot, loadAuthorityKeypair } from "../src/utils";
+import { RPC_URL } from "../types";
+import { findProjectRoot, loadAuthorityKeypair } from "../utils";
 dotenv.config();
 
 const loadProgramId = (): string => {
