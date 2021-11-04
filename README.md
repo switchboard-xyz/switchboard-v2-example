@@ -5,7 +5,7 @@ This repo includes the following
 - Simple example to setup a queue and add an aggregator [example.ts](ts/example/main.ts)
 - Interactive example that will build a queue and persist your changes
 - Two on-chain examples for reading an aggregator
-    - [Anchor Feed Parser](rust/anchor-feed-parser/programs/src/lib.rs)
+    - [Anchor Feed Parser](rust/anchor-feed-parser/programs/anchor-feed-parser/src/lib.rs)
     - [On-Chain Feed Parser](rust/on-chain-feed-parser/src/lib.rs)
 
 ## Dependencies
