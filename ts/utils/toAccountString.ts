@@ -1,15 +1,15 @@
+import { PublicKey } from "@solana/web3.js";
 import chalk from "chalk";
-import { SwitchboardAccount } from "../cli/types";
 
 export const toAccountString = (
   label: string,
-  account: SwitchboardAccount | string
+  publicKey: PublicKey | string | undefined
 ): string => {
-  if (typeof account === "string") {
-    return `${chalk.blue(label.padEnd(24, " "))} ${chalk.yellow(account)}`;
+  if (typeof publicKey === "string") {
+    return `${chalk.blue(label.padEnd(24, " "))} ${chalk.yellow(publicKey)}`;
   }
-  if (!account.publicKey) return "";
+  if (!publicKey) return "";
   return `${chalk.blue(label.padEnd(24, " "))} ${chalk.yellow(
-    account.publicKey
+    publicKey.toString()
   )}`;
 };

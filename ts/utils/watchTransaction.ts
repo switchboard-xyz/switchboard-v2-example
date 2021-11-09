@@ -1,5 +1,5 @@
 import { Connection, SignatureResult } from "@solana/web3.js";
-import { RPC_URL } from "../cli/types";
+import { RPC_URL } from "../config";
 
 async function signatureCallback(
   signatureResult: SignatureResult

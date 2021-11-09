@@ -14,8 +14,7 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import readlineSync from "readline-sync";
-import { loadAnchor } from "../cli/types";
-import { sleep, toAccountString } from "../utils";
+import { loadAnchor, sleep, toAccountString } from "./utils";
 
 async function main(): Promise<void> {
   const program: anchor.Program = await loadAnchor();
@@ -28,7 +27,7 @@ async function main(): Promise<void> {
   } catch {
     programStateAccount = await ProgramStateAccount.create(program, {});
   }
-  console.log(toAccountString("Program State", programStateAccount));
+  console.log(toAccountString("Program State", programStateAccount.publicKey));
   const switchTokenMint = await programStateAccount.getTokenMint();
   const tokenAccount = await switchTokenMint.createAccount(
     program.provider.wallet.publicKey
@@ -42,7 +41,7 @@ async function main(): Promise<void> {
     minStake: new anchor.BN(0),
     authority: program.provider.wallet.publicKey,
   });
-  console.log(toAccountString("Oracle Queue", queueAccount));
+  console.log(toAccountString("Oracle Queue", queueAccount.publicKey));
 
   // Crank
   const crankAccount = await CrankAccount.create(program, {
@@ -50,14 +49,14 @@ async function main(): Promise<void> {
     maxRows: 10,
     queueAccount,
   });
-  console.log(toAccountString("Crank", crankAccount));
+  console.log(toAccountString("Crank", crankAccount.publicKey));
 
   // Oracle
   const oracleAccount = await OracleAccount.create(program, {
     name: Buffer.from("Oracle"),
     queueAccount,
   });
-  console.log(toAccountString("Oracle", oracleAccount));
+  console.log(toAccountString("Oracle", oracleAccount.publicKey));
   const oraclePermission = await PermissionAccount.create(program, {
     authority: program.provider.wallet.publicKey,
     granter: queueAccount.publicKey,
@@ -68,7 +67,7 @@ async function main(): Promise<void> {
     permission: SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
     enable: true,
   });
-  console.log(toAccountString(`  Permission`, oraclePermission));
+  console.log(toAccountString(`  Permission`, oraclePermission.publicKey));
   await oracleAccount.heartbeat();
 
   // Aggregator
@@ -80,7 +79,9 @@ async function main(): Promise<void> {
     minUpdateDelaySeconds: 10,
     queueAccount,
   });
-  console.log(toAccountString(`Aggregator (SOL/USD)`, aggregatorAccount));
+  console.log(
+    toAccountString(`Aggregator (SOL/USD)`, aggregatorAccount.publicKey)
+  );
   if (!aggregatorAccount.publicKey)
     throw new Error(`failed to read Aggregator publicKey`);
   const aggregatorPermission = await PermissionAccount.create(program, {
@@ -93,7 +94,7 @@ async function main(): Promise<void> {
     permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
     enable: true,
   });
-  console.log(toAccountString(`  Permission`, aggregatorPermission));
+  console.log(toAccountString(`  Permission`, aggregatorPermission.publicKey));
 
   // Lease
   const leaseContract = await LeaseAccount.create(program, {
@@ -103,7 +104,7 @@ async function main(): Promise<void> {
     oracleQueueAccount: queueAccount,
     aggregatorAccount,
   });
-  console.log(toAccountString(`  Lease`, leaseContract));
+  console.log(toAccountString(`  Lease`, leaseContract.publicKey));
 
   // Job
   const tasks: OracleJob.Task[] = [
@@ -128,7 +129,7 @@ async function main(): Promise<void> {
     data: jobData,
     keypair: jobKeypair,
   });
-  console.log(toAccountString(`  Job (FTX)`, jobAccount));
+  console.log(toAccountString(`  Job (FTX)`, jobAccount.publicKey));
 
   await aggregatorAccount.addJob(jobAccount); // Add Job to Aggregator
   await crankAccount.push({ aggregatorAccount }); // Add Aggregator to Crank

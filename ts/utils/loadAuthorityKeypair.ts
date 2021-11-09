@@ -4,7 +4,6 @@ import resolve from "resolve-dir";
 import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
 import { findProjectRoot, toAccountString } from ".";
-import { KEYPAIR_OUTPUT } from "../cli/types";
 
 export const loadAuthorityKeypair = (): Keypair => {
   const argv = Yargs(hideBin(process.argv))
@@ -42,7 +41,7 @@ export const loadAuthorityKeypair = (): Keypair => {
     return walletKeypair;
   } catch {
     throw new Error(
-      `failed to read update authority from keypair directory or command line arguement ${KEYPAIR_OUTPUT}/${fileName}.json`
+      `failed to read update authority from keypair directory or command line arguement ./keypairs/${fileName}.json`
     );
   }
 };
