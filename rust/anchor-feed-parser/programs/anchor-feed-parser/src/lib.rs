@@ -1,7 +1,7 @@
 #[allow(unaligned_references)]
 use anchor_lang::prelude::*;
 use std::convert::TryInto;
-pub use switchboard_aggregator::{get_aggregator_result, SwitchboardDecimal};
+pub use switchboard_aggregator::aggregator::AggregatorAccountData;
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
@@ -19,10 +19,10 @@ pub mod anchor_feed_parser {
     use super::*;
 
     pub fn read_result(ctx: Context<ReadResult>, _params: ReadResultParams) -> ProgramResult {
-        let result: SwitchboardDecimal = get_aggregator_result(&ctx.accounts.aggregator)?;
-        let decimal: f64 = (&result).try_into().unwrap();
+        let aggregator = &ctx.accounts.aggregator;
+        let val: f64 = AggregatorAccountData::new(aggregator)?.get_result()?.try_into()?;
 
-        msg!("Current feed result is {}!", decimal);
+        msg!("Current feed result is {}!", val);
         Ok(())
     }
 }
