@@ -6,7 +6,7 @@ pub use solana_program::{
     msg,
 };
 use std::convert::TryInto;
-pub use switchboard_aggregator::aggregator::AggregatorAccountData;
+pub use switchboard_aggregator::AggregatorAccountData;
 
 entrypoint!(process_instruction);
 

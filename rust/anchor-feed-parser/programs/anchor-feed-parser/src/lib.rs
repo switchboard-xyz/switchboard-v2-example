@@ -1,7 +1,7 @@
 #[allow(unaligned_references)]
 use anchor_lang::prelude::*;
 use std::convert::TryInto;
-pub use switchboard_aggregator::aggregator::AggregatorAccountData;
+pub use switchboard_aggregator::AggregatorAccountData;
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
