@@ -7,7 +7,7 @@ edition = "2018"
 no-entrypoint = []
 
 [dependencies]
-switchboard-aggregator = "0.1.4"
+switchboard-aggregator = "0.1.6"
 solana-program = "1.8.2"
 anchor-lang = "0.18.0"
 

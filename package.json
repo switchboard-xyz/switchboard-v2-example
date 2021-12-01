@@ -13,7 +13,7 @@
     "create": "run-s create:*",
     "create:authority": "shx find keypairs/authority-keypair.json || solana-keygen new -s --no-bip39-passphrase --outfile keypairs/authority-keypair.json",
     "airdrop": "run-s airdrop:*",
-    "airdrop:authority": "solana airdrop 5 keypairs/authority-keypair.json",
+    "airdrop:authority": "solana airdrop 5 keypairs/authority-keypair.json || true",
     "build": "run-s build:*",
     "build:anchor": "cd rust/anchor-feed-parser && ${HOME}/.cargo/bin/anchor build",
     "build:onchain": "cargo build-bpf --manifest-path=rust/on-chain-feed-parser/Cargo.toml",
