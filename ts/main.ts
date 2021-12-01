@@ -18,6 +18,7 @@ import { loadAnchor, sleep, toAccountString } from "./utils";
 
 async function main(): Promise<void> {
   const program: anchor.Program = await loadAnchor();
+  const authority = (program.provider.wallet as anchor.Wallet).payer;
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
   // Program State Account and token mint for payout rewards
@@ -39,7 +40,7 @@ async function main(): Promise<void> {
     slashingEnabled: false,
     reward: new anchor.BN(0), // no token account needed
     minStake: new anchor.BN(0),
-    authority: program.provider.wallet.publicKey,
+    authority: authority.publicKey,
   });
   console.log(toAccountString("Oracle Queue", queueAccount.publicKey));
 
@@ -58,7 +59,7 @@ async function main(): Promise<void> {
   });
   console.log(toAccountString("Oracle", oracleAccount.publicKey));
   const oraclePermission = await PermissionAccount.create(program, {
-    authority: program.provider.wallet.publicKey,
+    authority: authority.publicKey,
     granter: queueAccount.publicKey,
     grantee: oracleAccount.publicKey,
   });
@@ -78,6 +79,7 @@ async function main(): Promise<void> {
     minRequiredJobResults: 1,
     minUpdateDelaySeconds: 10,
     queueAccount,
+    authority: authority.publicKey,
   });
   console.log(
     toAccountString(`Aggregator (SOL/USD)`, aggregatorAccount.publicKey)
@@ -85,12 +87,12 @@ async function main(): Promise<void> {
   if (!aggregatorAccount.publicKey)
     throw new Error(`failed to read Aggregator publicKey`);
   const aggregatorPermission = await PermissionAccount.create(program, {
-    authority: program.provider.wallet.publicKey,
+    authority: authority.publicKey,
     granter: queueAccount.publicKey,
     grantee: aggregatorAccount.publicKey,
   });
   await aggregatorPermission.set({
-    authority: (program.provider.wallet as any).payer,
+    authority: authority,
     permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
     enable: true,
   });
@@ -100,7 +102,7 @@ async function main(): Promise<void> {
   const leaseContract = await LeaseAccount.create(program, {
     loadAmount: new anchor.BN(0),
     funder: tokenAccount,
-    funderAuthority: (program.provider.wallet as any).payer,
+    funderAuthority: authority,
     oracleQueueAccount: queueAccount,
     aggregatorAccount,
   });
@@ -131,7 +133,7 @@ async function main(): Promise<void> {
   });
   console.log(toAccountString(`  Job (FTX)`, jobAccount.publicKey));
 
-  await aggregatorAccount.addJob(jobAccount); // Add Job to Aggregator
+  await aggregatorAccount.addJob(jobAccount, authority); // Add Job to Aggregator
   await crankAccount.push({ aggregatorAccount }); // Add Aggregator to Crank
 
   console.log(chalk.green("\u2714 Switchboard setup complete"));
