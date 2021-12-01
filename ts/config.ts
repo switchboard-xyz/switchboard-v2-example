@@ -1,9 +1,9 @@
 import * as anchor from "@project-serum/anchor";
 import { Connection, Keypair } from "@solana/web3.js";
+import { SBV2_DEVNET_PID } from "@switchboard-xyz/switchboard-v2";
 import dotenv from "dotenv";
 import fs from "node:fs";
 import { loadAuthorityKeypair } from "./utils";
-
 dotenv.config();
 
 const DEFAULT_RPC = "https://api.devnet.solana.com";
@@ -15,9 +15,7 @@ export const KEYPAIR_OUTPUT = process.env.KEYPAIR_OUTPUT
   ? `keypairs-${process.env.KEYPAIR_OUTPUT}` // use prefix for gitignore glob pattern
   : "keypairs"; // root
 
-export const PROGRAM_ID = process.env.PID
-  ? process.env.PID
-  : "5n43jDh58UzjqGE2sFuZPrkgx52BT6PWgcdL1CvBU9Ww";
+export const PROGRAM_ID = SBV2_DEVNET_PID;
 
 /**
  * Attempts to load Anchor IDL on-chain and falls back to local JSON if not found
