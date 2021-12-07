@@ -14,10 +14,14 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import readlineSync from "readline-sync";
-import { loadAnchor, sleep, toAccountString } from "../utils";
+import { loadAnchor, loadKeypair, sleep, toAccountString } from "../utils";
 
-async function main(): Promise<void> {
-  const program: anchor.Program = await loadAnchor();
+export async function fullExample(argv: any): Promise<void> {
+  const authorityKeypair = argv.authorityKeypair
+    ? loadKeypair(argv.authorityKeypair)
+    : loadKeypair("keypairs/authority-keypair.json");
+  if (!authorityKeypair) throw new Error(`failed to load authority keypair`);
+  const program: anchor.Program = await loadAnchor(authorityKeypair);
   const authority = (program.provider.wallet as anchor.Wallet).payer;
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
@@ -200,14 +204,3 @@ async function main(): Promise<void> {
     console.error(error);
   }
 }
-main().then(
-  () => {
-    return;
-  },
-  (error) => {
-    console.error(error);
-    return;
-  }
-);
-
-export {};

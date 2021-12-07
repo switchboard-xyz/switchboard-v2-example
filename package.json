@@ -62,6 +62,7 @@
     "@types/chai": "^4.2.22",
     "@types/expect": "^24.3.0",
     "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.12",
     "@types/node-fetch": "^2.0.3",
     "@types/prompts": "^2.0.14",
     "@types/readline-sync": "^1.4.4",

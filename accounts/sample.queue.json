@@ -1,0 +1,14 @@
+{
+  "name": "Queue-1",
+  "metadata": "Sample Oracle Queue",
+  "minStake": 0,
+  "minUpdateDelaySeconds": 10,
+  "oracleTimeout": 0,
+  "cranks": [
+    {
+      "name": "Crank-1",
+      "metadata": "Queue-1, Crank-1",
+      "maxRows": 100
+    }
+  ]
+}

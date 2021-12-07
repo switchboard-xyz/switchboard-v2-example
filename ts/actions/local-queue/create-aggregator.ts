@@ -17,7 +17,7 @@ import {
   parseQueueSchema,
   QueueSchema,
   saveQueueSchema,
-} from "../schema";
+} from "../../schema";
 import {
   CHECK_ICON,
   FAILED_ICON,
@@ -26,7 +26,7 @@ import {
   toAccountString,
   toPermissionString,
   toUtf8,
-} from "../utils";
+} from "../../utils";
 
 async function main(): Promise<void> {
   const queueSchema = loadQueueSchema();

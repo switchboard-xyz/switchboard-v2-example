@@ -13,14 +13,14 @@ import {
   QueueSchema,
   QUEUE_SCHEMA_PATH,
   saveQueueSchema,
-} from "../schema";
+} from "../../schema";
 import {
   CHECK_ICON,
   loadAnchor,
   toAccountString,
   toPermissionString,
   toUtf8,
-} from "../utils";
+} from "../../utils";
 
 async function main(): Promise<void> {
   const schema = loadQueueSchema();
