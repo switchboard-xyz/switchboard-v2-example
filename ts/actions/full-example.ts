@@ -17,12 +17,14 @@ import readlineSync from "readline-sync";
 import { loadAnchor, loadKeypair, sleep, toAccountString } from "../utils";
 
 export async function fullExample(argv: any): Promise<void> {
-  const authorityKeypair = argv.authorityKeypair
-    ? loadKeypair(argv.authorityKeypair)
-    : loadKeypair("keypairs/authority-keypair.json");
-  if (!authorityKeypair) throw new Error(`failed to load authority keypair`);
-  const program: anchor.Program = await loadAnchor(authorityKeypair);
-  const authority = (program.provider.wallet as anchor.Wallet).payer;
+  const { authorityKeypair } = argv;
+  const authority = loadKeypair(authorityKeypair);
+  if (!authority)
+    throw new Error(
+      `failed to load authority keypair from ${authorityKeypair}`
+    );
+  const program: anchor.Program = await loadAnchor(authority);
+
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
   // Program State Account and token mint for payout rewards

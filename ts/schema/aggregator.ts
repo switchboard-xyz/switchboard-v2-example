@@ -5,61 +5,75 @@ import {
   AggregatorAccount,
   JobAccount,
   LeaseAccount,
+  OracleQueueAccount,
   PermissionAccount,
   ProgramStateAccount,
-  SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
-import {
-  AggregatorSchema,
-  JobSchema,
-  loadQueueSchema,
-  parseQueueSchema,
-  QueueSchema,
-  saveQueueSchema,
-} from "../../schema";
-import {
-  CHECK_ICON,
-  FAILED_ICON,
-  loadAggregatorDefinition,
-  loadAnchor,
-  toAccountString,
-  toPermissionString,
-  toUtf8,
-} from "../../utils";
+import fs from "node:fs";
+import path from "node:path";
+import { AggregatorSchema, JobSchema, pubKeyConverter } from ".";
+import { toAccountString, toPermissionString, toUtf8 } from "../utils";
+import { findProjectRoot } from "../utils/findProjectRoot";
 
-async function main(): Promise<void> {
-  const queueSchema = loadQueueSchema();
-  if (!queueSchema) {
-    console.log(
-      `${FAILED_ICON} Oracle Queue Schema: has not been initialized. Run the following command to get started\r\n\t${chalk.yellow(
-        "ts-node ts/actions/queue-init"
-      )}`
-    );
-    return;
+export const AGGREGATOR_DEFINITION_PATH = path.join(
+  findProjectRoot(),
+  "accounts/sample.aggregator.json"
+);
+
+export const saveAggregatorSchema = (
+  aggregatorSchema: AggregatorSchema,
+  outFile: string
+): void => {
+  const fullPath = path.join(findProjectRoot(), outFile);
+  fs.writeFileSync(
+    fullPath,
+    JSON.stringify(aggregatorSchema, pubKeyConverter, 2)
+  );
+  console.log(`Aggregator Schema: saved to ${chalk.green(fullPath)}`);
+  return;
+};
+
+export const loadAggregatorDefinition = (
+  inputFile: string
+): AggregatorSchema | undefined => {
+  let fullInputFilePath = "";
+  fullInputFilePath = inputFile
+    ? findProjectRoot() + inputFile
+    : AGGREGATOR_DEFINITION_PATH;
+  if (!fs.existsSync(fullInputFilePath))
+    throw new Error(`input file does not exist ${fullInputFilePath}`);
+
+  try {
+    const definitionString = fs.readFileSync(fullInputFilePath, "utf8");
+    const definition: AggregatorSchema = JSON.parse(definitionString);
+    return definition;
+  } catch {
+    return undefined;
   }
+};
 
-  const program: anchor.Program = await loadAnchor();
-  const queue = parseQueueSchema(program, queueSchema);
-
-  const aggregatorDefinition = loadAggregatorDefinition();
-  if (!aggregatorDefinition)
-    throw new Error(`failed to load aggregator definition`);
-  if (aggregatorDefinition.jobs.length === 0)
-    throw new Error(`no aggregator jobs defined`);
-
-  console.log(chalk.yellow("######## Switchboard Setup ########"));
-
+export async function createAggregatorFromDefinition(
+  program: anchor.Program,
+  definition: AggregatorSchema,
+  queueAccount: OracleQueueAccount
+): Promise<AggregatorSchema> {
   // Aggregator
-  const feedName = aggregatorDefinition.name || "BTC_USD";
+  const feedName = definition.name;
+  const {
+    jobs,
+    batchSize,
+    minRequiredOracleResults,
+    minRequiredJobResults,
+    minUpdateDelaySeconds,
+  } = definition;
   const aggregatorAccount = await AggregatorAccount.create(program, {
     name: Buffer.from(feedName),
-    batchSize: aggregatorDefinition.batchSize || 1,
-    minRequiredOracleResults:
-      aggregatorDefinition.minRequiredOracleResults || 1,
-    minRequiredJobResults: aggregatorDefinition.minRequiredJobResults || 1,
-    minUpdateDelaySeconds: aggregatorDefinition.minUpdateDelaySeconds || 10,
-    queueAccount: queue.account,
+    batchSize: batchSize || 1,
+    minRequiredOracleResults: minRequiredOracleResults || 1,
+    minRequiredJobResults: minRequiredJobResults || 1,
+    minUpdateDelaySeconds: minUpdateDelaySeconds || 10,
+    queueAccount: queueAccount,
     authority: program.provider.wallet.publicKey,
   });
   console.log(
@@ -71,13 +85,8 @@ async function main(): Promise<void> {
   // Aggregator Permissions
   const aggregatorPermission = await PermissionAccount.create(program, {
     authority: program.provider.wallet.publicKey,
-    granter: new PublicKey(queue.account.publicKey),
+    granter: new PublicKey(queueAccount.publicKey),
     grantee: aggregatorAccount.publicKey,
-  });
-  await aggregatorPermission.set({
-    authority: queue.authority,
-    permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
-    enable: true,
   });
   console.log(toAccountString(`  Permission`, aggregatorPermission.publicKey));
 
@@ -91,14 +100,14 @@ async function main(): Promise<void> {
     loadAmount: new anchor.BN(0),
     funder: tokenAccount.address,
     funderAuthority: (program.provider.wallet as anchor.Wallet).payer,
-    oracleQueueAccount: queue.account,
+    oracleQueueAccount: queueAccount,
     aggregatorAccount,
   });
   console.log(toAccountString(`  Lease`, leaseContract.publicKey));
 
   // Jobs
-  const jobs: JobSchema[] = [];
-  for await (const job of aggregatorDefinition.jobs) {
+  const jobSchemas: JobSchema[] = [];
+  for await (const job of jobs) {
     const { name, tasks } = job;
     const jobData = Buffer.from(
       OracleJob.encodeDelimited(
@@ -123,17 +132,14 @@ async function main(): Promise<void> {
       secretKey: jobKeypair.secretKey,
       tasks,
     };
-    jobs.push(jobSchema);
+    jobSchemas.push(jobSchema);
   }
-
-  // Add Aggregator to Crank
-  await queue.cranks[0].push({ aggregatorAccount });
 
   const aggregatorData = await aggregatorAccount.loadData();
   const permissionData = await aggregatorPermission.loadData();
 
   const newAggregatorDefinition: AggregatorSchema = {
-    ...aggregatorDefinition,
+    ...definition,
     name: toUtf8(aggregatorData.name),
     batchSize: aggregatorData.batchSize,
     minRequiredOracleResults: aggregatorData.minRequiredOracleResults,
@@ -149,32 +155,7 @@ async function main(): Promise<void> {
     lease: {
       publicKey: leaseContract.publicKey,
     },
-    jobs,
+    jobs: jobSchemas,
   };
-
-  const cranks = queueSchema.cranks.map((c, index) => {
-    const crankSchema = c;
-    if (!index) crankSchema.aggregators.push(newAggregatorDefinition);
-    return crankSchema;
-  });
-
-  const newQueueSchema: QueueSchema = {
-    ...queueSchema,
-    cranks,
-  };
-  saveQueueSchema(newQueueSchema);
-  console.log(
-    `${CHECK_ICON} Aggregator ${feedName} created succesfully and added to crank`
-  );
+  return newAggregatorDefinition;
 }
-main().then(
-  () => {
-    return;
-  },
-  (error) => {
-    console.error(error);
-    return;
-  }
-);
-
-export {};

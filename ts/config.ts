@@ -2,7 +2,6 @@ import * as anchor from "@project-serum/anchor";
 import { Connection, Keypair } from "@solana/web3.js";
 import { SBV2_DEVNET_PID } from "@switchboard-xyz/switchboard-v2";
 import dotenv from "dotenv";
-import { loadAuthorityKeypair } from "./utils";
 dotenv.config();
 
 const DEFAULT_RPC = "https://api.devnet.solana.com";
@@ -19,15 +18,14 @@ export const PROGRAM_ID = SBV2_DEVNET_PID;
 /**
  * Attempts to load Anchor IDL on-chain and falls back to local JSON if not found
  */
-export async function loadAnchor(authority?: Keypair): Promise<anchor.Program> {
+export async function loadAnchor(authority: Keypair): Promise<anchor.Program> {
   if (!PROGRAM_ID) {
     throw new Error("failed to provide PID environment variable");
   }
-  const authorityKeypair = authority ? authority : loadAuthorityKeypair();
   const connection = new Connection(RPC_URL, { commitment: "confirmed" });
   const programId = new anchor.web3.PublicKey(PROGRAM_ID);
 
-  const wallet = new anchor.Wallet(authorityKeypair);
+  const wallet = new anchor.Wallet(authority);
 
   // get provider
   const provider = new anchor.Provider(connection, wallet, {

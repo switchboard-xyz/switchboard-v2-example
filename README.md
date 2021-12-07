@@ -23,12 +23,73 @@ You will need the following installed
 npm install
 ```
 
-The preinstall hook will create a new Solana keypair in the keypairs directory. You can use your own keypair file by appending `--authorityKeypair="keypair path"` to any command but you will need to use the same keypair throughout that you used to create any accounts.
+The preinstall hook will create a new Solana keypair in the keypairs directory. You can use your own keypair file by appending `--authorityKeypair="keypair path"` to any command but you should use the same keypair throughout.
 
-## Simple Example
+## Full Example
 
 The simple example will build an oracle queue with a crank then add an aggregator with a single job that will fetch the price of SOL/USD from FTX.com. You will then be prompted to spin up a docker container with your newly created Oracle account to fulfill the update request.
 
-```bash
-npm start
+```
+USAGE
+  $ ts-node ts/main full-example
+
+ARGUMENTS
+
+
+OPTIONS
+--authorityKeypair    filesystem path of keypair that will have authority of new accounts
+
+EXAMPLE
+  $ ts-node ts/main full-example --authorityKeypair=keypairs/authority-keypair.json
+```
+
+## Create Aggregator from JSON
+
+```
+USAGE
+  $ ts-node ts/main create-public-aggregator [CRANKKEY] [DEFINITIONFILE] [OUTFILE]
+
+ARGUMENTS
+  CRANKKEY            public key of the crank you intent to join
+  DEFINITIONFILE      filesystem path of aggeregator definition file
+  OUTFILE             filesystem path to save the new accounts
+
+OPTIONS
+--authorityKeypair    filesystem path of keypair that will have authority of new accounts
+
+EXAMPLE
+  $ ts-node ts/main create-public-aggregator HX2oLYGqThai8i6hvEm9B4y5pAkLXLyryps13195BSAz accounts/sample.aggregator.json accounts/schema.aggregator.json
+```
+
+## Create Your Own Oracle Queue
+
+```
+USAGE
+  $ ts-node ts/main create-personal-queue [QUEUEDEFINITION] [OUTFILE]
+
+ARGUMENTS
+  QUEUEDEFINITION     filesystem path of oracle queue definition file
+  OUTFILE             filesystem path to save the schema file
+
+OPTIONS
+--authorityKeypair    filesystem path of keypair that will have authority of new accounts
+
+EXAMPLE
+  $ ts-node ts/main create-personal-queue accounts/sample.queue.json accounts/schema.queue.json
+```
+
+## Add Aggregator to Personal Queue
+
+```
+USAGE
+  $ ts-node ts/main create-personal-aggregator [QUEUESCHEMAFILE]
+
+ARGUMENTS
+  QUEUESCHEMAFILE     filesystem path of oracle queue schema file to load accounts from
+
+OPTIONS
+--authorityKeypair    filesystem path of keypair that will have authority of new accounts
+
+EXAMPLE
+  $ ts-node ts/main create-personal-aggregator accounts/schema.queue.json
 ```

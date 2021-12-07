@@ -21,20 +21,22 @@ export const QUEUE_SCHEMA_PATH = path.join(
   "accounts/schema.oracle-queue.json"
 );
 
-export const saveQueueSchema = (queueSchema: QueueSchema): void => {
-  fs.writeFileSync(
-    QUEUE_SCHEMA_PATH,
-    JSON.stringify(queueSchema, pubKeyConverter, 2)
-  );
-  console.log(
-    `Oracle Queue Schema: saved to ${chalk.green(QUEUE_SCHEMA_PATH)}`
-  );
+export const saveQueueSchema = (
+  queueSchema: QueueSchema,
+  outFile: string
+): void => {
+  const fullPath = path.join(findProjectRoot(), outFile);
+  fs.writeFileSync(fullPath, JSON.stringify(queueSchema, pubKeyConverter, 2));
+  console.log(`Oracle Queue Schema: saved to ${chalk.green(fullPath)}`);
   return;
 };
 
-export const loadQueueSchema = (): QueueSchema | undefined => {
+export const loadQueueSchema = (
+  schemaPath: string
+): QueueSchema | undefined => {
+  const fullPath = path.join(findProjectRoot(), schemaPath);
   try {
-    const schemaString = fs.readFileSync(QUEUE_SCHEMA_PATH, "utf8");
+    const schemaString = fs.readFileSync(fullPath, "utf8");
     const queue: QueueSchema = JSON.parse(schemaString, pubKeyReviver);
     return queue;
   } catch {

@@ -17,13 +17,20 @@ import {
 import {
   CHECK_ICON,
   loadAnchor,
+  loadKeypair,
   toAccountString,
   toPermissionString,
   toUtf8,
 } from "../../utils";
 
-async function main(): Promise<void> {
-  const schema = loadQueueSchema();
+export async function createPersonalQueue(argv: any): Promise<void> {
+  const { authorityKeypair, outFile } = argv;
+  const authority = loadKeypair(authorityKeypair);
+  if (!authority)
+    throw new Error(
+      `failed to load authority keypair from ${authorityKeypair}`
+    );
+  const schema = loadQueueSchema(outFile);
   if (schema) {
     console.log(
       `Oracle Queue Schema: already initialized at ${chalk.green(
@@ -33,8 +40,7 @@ async function main(): Promise<void> {
 
     return;
   }
-  const program: anchor.Program = await loadAnchor();
-  const authority = (program.provider.wallet as anchor.Wallet).payer;
+  const program: anchor.Program = await loadAnchor(authority);
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
   // Program State Account and token mint for payout rewards
@@ -114,19 +120,8 @@ async function main(): Promise<void> {
       },
     ],
   };
-  saveQueueSchema(queueSchema);
+  saveQueueSchema(queueSchema, outFile);
   console.log(
     `${CHECK_ICON} Oracle succesfully initiated with a crank and oracle`
   );
 }
-main().then(
-  () => {
-    return;
-  },
-  (error) => {
-    console.error(error);
-    return;
-  }
-);
-
-export {};
