@@ -2,12 +2,11 @@ import * as anchor from "@project-serum/anchor";
 import { Connection, Keypair } from "@solana/web3.js";
 import { SBV2_DEVNET_PID } from "@switchboard-xyz/switchboard-v2";
 import dotenv from "dotenv";
-import fs from "node:fs";
 import { loadAuthorityKeypair } from "./utils";
 dotenv.config();
 
 const DEFAULT_RPC = "https://api.devnet.solana.com";
-export const RPC_URL = process.env.RPC_URL ? process.env.RPC_URL : DEFAULT_RPC;
+export const RPC_URL = process.env.RPC_URL || DEFAULT_RPC;
 if (RPC_URL === DEFAULT_RPC) console.log("Default RPC Server:", RPC_URL);
 else console.log("RPC Server:", RPC_URL);
 
@@ -37,17 +36,9 @@ export async function loadAnchor(authority?: Keypair): Promise<anchor.Program> {
   });
 
   // get idl
-  let anchorIdl = await anchor.Program.fetchIdl(programId, provider);
-  if (anchorIdl === null) {
-    const localIdlFile = "switchboard_v2.json";
-    if (!fs.existsSync(localIdlFile))
-      throw new Error(`no local anchor idl file found: ${localIdlFile}`);
-    anchorIdl = JSON.parse(
-      fs.readFileSync("switchboard_v2.json", "utf8")
-    ) as anchor.Idl;
-    if (!anchorIdl) {
-      throw new Error(`failed to read idl for ${programId}`);
-    }
+  const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
+  if (!anchorIdl) {
+    throw new Error(`failed to read idl for ${programId}`);
   }
 
   const program = new anchor.Program(anchorIdl, programId, provider);
