@@ -39,7 +39,7 @@ ARGUMENTS
 
 OPTIONS
   --authorityKeypair    filesystem path of keypair that will have authority of new accounts
-  -f, --force       overwrite any outputted files
+  -f, --force           overwrite any outputted files
 
 EXAMPLE
   $ sbv2-example full-example --authorityKeypair=secrets/authority-keypair.json
@@ -60,7 +60,7 @@ ARGUMENTS
 
 OPTIONS
   --authorityKeypair  filesystem path of keypair that will have authority of new accounts
-  -f, --force       overwrite any outputted files
+  -f, --force         overwrite any outputted files
 
 EXAMPLE
   $ sbv2-example create-aggregator B4yBQ3hYcjnrNLxUnauJqwpFJnjtm7s8gHybgkAdgXhQ sample.definition.aggregator.json secrets/newschema.aggregator.json
@@ -80,7 +80,7 @@ ARGUMENTS
 
 OPTIONS
   --authorityKeypair  filesystem path of keypair that will have authority of new accounts
-  -f, --force       overwrite any outputted files
+  -f, --force         overwrite any outputted files
 
 EXAMPLE
   $ sbv2-example create-personal-queue sample.definition.queue.json secrets/schema.queue.json
@@ -100,7 +100,7 @@ ARGUMENTS
 
 OPTIONS
   --authorityKeypair    filesystem path of keypair that will have authority of new accounts
-  -f, --force       overwrite any outputted files
+  -f, --force           overwrite any outputted files
 
 EXAMPLE
   $ sbv2-example create-personal-aggregator secrets/schema.queue.json sample.definition.aggregator.json
