@@ -11,7 +11,11 @@ This repo includes the following
 
 - [Dependencies](#Dependencies)
 - [Install](#Install)
-- [Walkthrough](#Walkthrough)
+- [Examples](#Examples)
+  - [Deploy & Run Onchain Programs](#Examples)
+  - [End-to-End Example](#Examples)
+  - [Create your own Queue](#Examples)
+  - [Create & Approve Custom Aggregator](#Examples)
 - [Commands](#Commands)
   - [End-to-End Example](#full-example)
   - [Create Aggregator from JSON](#create-aggregator-from-json)
@@ -42,13 +46,23 @@ npm link
 
 The preinstall hook will create a new Solana keypair in the keypairs directory. You can use your own keypair file by appending `--authorityKeypair="keypair path"` to any command but you should use the same keypair throughout.
 
-## Walkthrough
+## Examples
 
-- Deploy onchain programs
-- Run full example
-- Create your own queue
-- Add your own aggregator to queue
-- Read your aggregator result from onchain program
+### Deploy & Run Onchain Programs
+
+Deploy onchain programs then pass the programs an aggregator to parse
+
+### End-to-End Example
+
+Run the full example which creates a queue, crank, oracle, & aggregator, then allows you to spin up an oracle, turn the crank, and read the latest result.
+
+### Create your own Queue
+
+Create your own queue from a definition file, then add a custom aggregator and read the result.
+
+### Create & Approve Custom Aggregator
+
+Create an aggregator from a JSON file then get it approved to join an existing queue.
 
 ## Commands
 
