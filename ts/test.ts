@@ -11,7 +11,7 @@ import fs from "node:fs";
 import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
 import { RPC_URL } from "./config";
-import { findProjectRoot, loadAuthorityKeypair } from "./utils";
+import { findProjectRoot, loadKeypair } from "./utils";
 dotenv.config();
 
 const loadProgramId = (): string => {
@@ -26,7 +26,8 @@ const loadProgramId = (): string => {
 };
 
 async function testSimpleExample(dataFeedPubkey: PublicKey) {
-  const authority = loadAuthorityKeypair();
+  const authority = loadKeypair("keypairs/authority-keypair.json");
+  if (!authority) throw new Error(`failed to load authority`);
   const PROGRAM_ID = loadProgramId();
   if (!PROGRAM_ID)
     throw new Error(`failed to get program ID of on-chain-feed-parser`);

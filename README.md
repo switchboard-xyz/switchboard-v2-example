@@ -37,7 +37,7 @@ ARGUMENTS
 
 
 OPTIONS
---authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  --authorityKeypair    filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
   $ ts-node ts/main full-example --authorityKeypair=keypairs/authority-keypair.json
@@ -55,7 +55,7 @@ ARGUMENTS
   OUTFILE             filesystem path to save the new accounts
 
 OPTIONS
---authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  --authorityKeypair  filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
   $ ts-node ts/main create-aggregator HX2oLYGqThai8i6hvEm9B4y5pAkLXLyryps13195BSAz accounts/sample.definition.aggregator.json accounts/schema.aggregator.json
@@ -72,7 +72,7 @@ ARGUMENTS
   OUTFILE             filesystem path to save the schema file
 
 OPTIONS
---authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  --authorityKeypair  filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
   $ ts-node ts/main create-personal-queue accounts/sample.definition.queue.json accounts/schema.queue.json
@@ -89,7 +89,7 @@ ARGUMENTS
   AGGREGATORDEFINITION  filesystem path to json file containing the aggregator definition
 
 OPTIONS
---authorityKeypair      filesystem path of keypair that will have authority of new accounts
+  --authorityKeypair    filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
   $ ts-node ts/main create-personal-aggregator accounts/schema.queue.json accounts/sample.definition.aggregator.json
