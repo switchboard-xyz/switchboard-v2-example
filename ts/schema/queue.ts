@@ -26,6 +26,7 @@ export const saveQueueSchema = (
   if (fs.existsSync(fullPath)) {
     if (force) {
       console.log(`Oracle Queue Schema: already existed, skipping ${fullPath}`);
+      return;
     }
     console.log(fullPath);
     if (readLineSync.keyInYN("Do you want to overwrite this file?")) {

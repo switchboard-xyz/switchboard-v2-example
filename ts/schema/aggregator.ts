@@ -27,6 +27,7 @@ export const saveAggregatorSchema = (
   if (fs.existsSync(fullPath)) {
     if (force) {
       console.log(`Aggregator Schema: already existed, skipping ${fullPath}`);
+      return;
     }
     console.log(fullPath);
     if (readLineSync.keyInYN("Do you want to overwrite this file?")) {
