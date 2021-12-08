@@ -1,17 +1,9 @@
 /* eslint-disable unicorn/no-process-exit */
-import {
-  Connection,
-  Keypair,
-  PublicKey,
-  sendAndConfirmTransaction,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 import dotenv from "dotenv";
 import fs from "node:fs";
-import { loadSchema } from "../../../ts/cli/schema";
-import { RPC_URL } from "../../../ts/cli/types";
-import { findProjectRoot, loadAuthorityKeypair } from "../../../ts/utils";
+import { findProjectRoot } from "../../../ts/utils";
+
 dotenv.config();
 
 const loadProgramId = (): string => {
@@ -26,41 +18,37 @@ const loadProgramId = (): string => {
 };
 
 async function main() {
-  const authority = loadAuthorityKeypair();
-  const PROGRAM_ID = loadProgramId();
-  if (!PROGRAM_ID)
-    throw new Error(`failed to get program ID of on-chain-feed-parser`);
-  console.log("On-Chain Feed Parser PID:", PROGRAM_ID);
-  const schema = await loadSchema();
-  const solPubkey = schema.findAggregatorByName("SOL_USD");
-  if (!solPubkey)
-    throw new Error(`failed to find SOL_USD aggregator in schema`);
-
-  console.log("Data Feed:", solPubkey.toString());
-
-  const connection = new Connection(RPC_URL, "confirmed");
-
-  const transactionInstruction = new TransactionInstruction({
-    keys: [
-      {
-        pubkey: solPubkey,
-        isSigner: false,
-        isWritable: false,
-      },
-    ],
-    programId: new PublicKey(PROGRAM_ID),
-    data: Buffer.from([]),
-  });
-
-  console.log("Awaiting transaction confirmation...");
-  const signature = await sendAndConfirmTransaction(
-    connection,
-    new Transaction().add(transactionInstruction),
-    [authority]
-  );
-  console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`);
-  const confirmedTxn = await connection.getConfirmedTransaction(signature);
-  console.log(JSON.stringify(confirmedTxn?.meta?.logMessages, undefined, 2));
+  // const authority = loadKeypair("secrets/authority-keypair.json");
+  // const PROGRAM_ID = loadProgramId();
+  // if (!PROGRAM_ID)
+  //   throw new Error(`failed to get program ID of on-chain-feed-parser`);
+  // console.log("On-Chain Feed Parser PID:", PROGRAM_ID);
+  // const schema = await loadSchema();
+  // const solPubkey = schema.findAggregatorByName("SOL_USD");
+  // if (!solPubkey)
+  //   throw new Error(`failed to find SOL_USD aggregator in schema`);
+  // console.log("Data Feed:", solPubkey.toString());
+  // const connection = new Connection(RPC_URL, "confirmed");
+  // const transactionInstruction = new TransactionInstruction({
+  //   keys: [
+  //     {
+  //       pubkey: solPubkey,
+  //       isSigner: false,
+  //       isWritable: false,
+  //     },
+  //   ],
+  //   programId: new PublicKey(PROGRAM_ID),
+  //   data: Buffer.from([]),
+  // });
+  // console.log("Awaiting transaction confirmation...");
+  // const signature = await sendAndConfirmTransaction(
+  //   connection,
+  //   new Transaction().add(transactionInstruction),
+  //   [authority]
+  // );
+  // console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+  // const confirmedTxn = await connection.getConfirmedTransaction(signature);
+  // console.log(JSON.stringify(confirmedTxn?.meta?.logMessages, undefined, 2));
 }
 
 main().then(

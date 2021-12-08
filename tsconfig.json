@@ -23,16 +23,18 @@
     "sourceMap": true,
     "outDir": "bin",
     "strict": true,
-    "resolveJsonModule": true,
     "noEmitOnError": true,
     "isolatedModules": true,
     "typeRoots": ["ts/cli/types", "./node_modules/@types"],
     "noImplicitAny": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": ["mocha", "chai"]
+    "types": ["mocha", "chai"],
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
     // "rootDir": "src"
   },
   "include": [".", "ts/**/*", "rust/**/tests/*.ts"],
-  "exclude": ["node_modules", "bin"]
+  "exclude": ["node_modules/**/", "bin"]
 }

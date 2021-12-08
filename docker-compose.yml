@@ -16,4 +16,4 @@ services:
       - ./configs.json:/configs.json
 secrets:
   PAYER_SECRETS:
-    file: ./keypairs/authority-keypair.json
+    file: ./secrets/authority-keypair.json

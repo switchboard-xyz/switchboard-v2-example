@@ -26,7 +26,7 @@ const loadProgramId = (): string => {
 };
 
 async function testSimpleExample(dataFeedPubkey: PublicKey) {
-  const authority = loadKeypair("keypairs/authority-keypair.json");
+  const authority = loadKeypair("secrets/authority-keypair.json");
   if (!authority) throw new Error(`failed to load authority`);
   const PROGRAM_ID = loadProgramId();
   if (!PROGRAM_ID)

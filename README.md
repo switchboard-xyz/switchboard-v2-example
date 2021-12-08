@@ -2,7 +2,7 @@
 
 This repo includes the following
 
-- Simple example to setup a queue and add an aggregator [example.ts](ts/example/main.ts)
+- End-to-End example to setup a queue and add an aggregator
 - Two on-chain examples for reading an aggregator
   - [Anchor Feed Parser](rust/anchor-feed-parser/programs/anchor-feed-parser/src/lib.rs)
   - [On-Chain Feed Parser](rust/on-chain-feed-parser/src/lib.rs)
@@ -21,6 +21,7 @@ You will need the following installed
 
 ```bash
 npm install
+npm link
 ```
 
 The preinstall hook will create a new Solana keypair in the keypairs directory. You can use your own keypair file by appending `--authorityKeypair="keypair path"` to any command but you should use the same keypair throughout.
@@ -31,7 +32,7 @@ The simple example will build an oracle queue with a crank then add an aggregato
 
 ```
 USAGE
-  $ ts-node ts/main full-example
+  $ sbv2-example full-example
 
 ARGUMENTS
 
@@ -40,57 +41,59 @@ OPTIONS
   --authorityKeypair    filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
-  $ ts-node ts/main full-example --authorityKeypair=keypairs/authority-keypair.json
+  $ sbv2-example full-example --authorityKeypair=secrets/authority-keypair.json
 ```
 
 ## Create Aggregator from JSON
 
+Create a new aggregator account from a JSON definition file
+
 ```
 USAGE
-  $ ts-node ts/main create-aggregator [CRANKKEY] [DEFINITIONFILE] [OUTFILE]
+  $ sbv2-example create-aggregator [QUEUEKEY] [DEFINITIONFILE] [OUTFILE]
 
 ARGUMENTS
-  CRANKKEY            public key of the crank you intent to join
-  DEFINITIONFILE      filesystem path of aggeregator definition file
-  OUTFILE             filesystem path to save the new accounts
+  QUEUEKEY            public key of the oracle queue that the aggregator will belong to
+  DEFINITIONFILE      filesystem path of JSON file containing the aggregator definition
+  OUTFILE             filesystem path to store the aggregator schema to quickly load and manage an aggregator
 
 OPTIONS
   --authorityKeypair  filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
-  $ ts-node ts/main create-aggregator HX2oLYGqThai8i6hvEm9B4y5pAkLXLyryps13195BSAz accounts/sample.definition.aggregator.json accounts/schema.aggregator.json
+  $ sbv2-example create-aggregator B4yBQ3hYcjnrNLxUnauJqwpFJnjtm7s8gHybgkAdgXhQ sample.definition.aggregator.json secrets/schema.aggregator.json
 ```
 
 ## Create Your Own Oracle Queue
 
 ```
 USAGE
-  $ ts-node ts/main create-personal-queue [QUEUEDEFINITION] [OUTFILE]
+  $ sbv2-example create-personal-queue [QUEUEDEFINITION] [OUTFILE]
 
 ARGUMENTS
-  QUEUEDEFINITION     filesystem path of oracle queue definition file
-  OUTFILE             filesystem path to save the schema file
+  QUEUEDEFINITION     filesystem path of JSON file containing the oracle queue definition
+  OUTFILE             filesystem path to store the oracle queue schema to quickly load and manage a queue
 
 OPTIONS
   --authorityKeypair  filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
-  $ ts-node ts/main create-personal-queue accounts/sample.definition.queue.json accounts/schema.queue.json
+  $ sbv2-example create-personal-queue sample.definition.queue.json secrets/schema.queue.json
 ```
 
 ## Add Aggregator to Personal Queue
 
 ```
 USAGE
-  $ ts-node ts/main create-personal-aggregator [QUEUESCHEMAFILE] [AGGREGATORDEFINITION]
+  $ sbv2-example create-personal-aggregator [QUEUESCHEMAFILE] [AGGREGATORDEFINITION]
 
 ARGUMENTS
   QUEUESCHEMAFILE       filesystem path of oracle queue schema file to load accounts from
-  AGGREGATORDEFINITION  filesystem path to json file containing the aggregator definition
+  AGGREGATORDEFINITION  filesystem path of JSON file containing the aggregator definition
 
 OPTIONS
   --authorityKeypair    filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
-  $ ts-node ts/main create-personal-aggregator accounts/schema.queue.json accounts/sample.definition.aggregator.json
+  $ sbv2-example create-personal-aggregator secrets/schema.queue.json secrets/sample.definition.aggregator.json
 ```

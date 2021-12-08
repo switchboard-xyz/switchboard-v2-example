@@ -26,11 +26,8 @@ rust/**/**/*.lock
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-keypairs/**/*.json
-keypairs/**/*.txt
-accounts/**/*.json
-!accounts/**/sample.*.json
-
+secrets/**/*.json
+secrets/**/*.txt
 
 *oracleQueue.schema.json
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import dotenv from "dotenv";
 import { hideBin } from "yargs/helpers";
 import Yargs from "yargs/yargs";
@@ -10,24 +11,32 @@ dotenv.config();
 async function main(): Promise<void> {
   const argv = Yargs(hideBin(process.argv))
     .command(
-      `create-aggregator [crankKey] [definitionFile] [outFile]`,
-      "create a new aggregator account for a given crank",
+      `full-example`,
+      "spin up a new queue, oracle, crank, and aggregator",
+      (yargs) => {}
+    )
+    .command(
+      `create-aggregator [queueKey] [definitionFile] [outFile]`,
+      "create a new aggregator account for a given queue",
       (yargs) => {
-        yargs.positional("crankKey", {
+        yargs.positional("queueKey", {
           type: "string",
-          describe: "public key of the crank to add queue",
+          describe:
+            "public key of the oracle queue that the aggregator will belong to",
           demand: true,
         });
         yargs.positional("definitionFile", {
           type: "string",
-          describe: "filesystem path of aggeregator definition file",
-          default: "accounts/sample.aggregator.json",
+          describe:
+            "filesystem path of JSON file containing the aggregator definition",
+          default: "sample.aggregator.json",
           demand: true,
         });
         yargs.positional("outFile", {
           type: "string",
-          describe: "filesystem path to save the new accounts",
-          default: "accounts/schema.aggregator.json",
+          describe:
+            "filesystem path to store the aggregator schema to quickly load and manage an aggregator",
+          default: "secrets/schema.aggregator.json",
           demand: true,
         });
       }
@@ -38,14 +47,15 @@ async function main(): Promise<void> {
       (yargs) => {
         yargs.positional("queueDefinition", {
           type: "string",
-          describe: "filesystem path of oracle queue definition file",
-          default: "accounts/sample.queue.json",
+          describe:
+            "filesystem path of JSON file containing the oracle queue definition",
+          default: "sample.definition.queue.json",
           demand: true,
         });
         yargs.positional("outFile", {
           type: "string",
-          describe: "filesystem path to save the new accounts",
-          default: "accounts/schema.queue.json",
+          describe:
+            "filesystem path to store the oracle queue schema to quickly load and manage a queue",
           demand: true,
         });
       }
@@ -56,30 +66,29 @@ async function main(): Promise<void> {
       (yargs) => {
         yargs.positional("queueSchemaFile", {
           type: "string",
-          describe: "filesystem path of oracle queue schema file",
+          describe:
+            "filesystem path of oracle queue schema file to load accounts from",
           demand: true,
         });
         yargs.positional("aggregatorDefinition", {
           type: "string",
-          describe: "filesystem path of aggeregator definition file",
-          default: "accounts/sample.aggregator.json",
+          describe:
+            "filesystem path of JSON file containing the aggregator definition",
+          default: "sample.definition.aggregator.json",
           demand: true,
         });
       }
     )
-    .command(
-      `full-example`,
-      "spin up a new queue, oracle, crank, and aggregator",
-      (yargs) => {}
-    )
+
     .options({
       authorityKeypair: {
         type: "string",
         describe: "filesystem path of authority keypair",
-        default: "keypairs/authority-keypair.json",
+        default: "secrets/authority-keypair.json",
         demand: false,
       },
     })
+    .example("$0 full-example", "test")
     .parseSync();
 
   switch (argv._[0]) {

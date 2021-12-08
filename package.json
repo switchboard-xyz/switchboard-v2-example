@@ -4,6 +4,12 @@
   "description": "Sample code for Switchboard V2",
   "license": "MIT",
   "private": true,
+  "bin": {
+    "sbv2-example": "./bin/ts/main.js"
+  },
+  "engines": {
+    "node": ">=12"
+  },
   "scripts": {
     "preinstall": "run-s setup:authority",
     "setup": "npm-run-all -l -c setup:onchain setup:anchor",
@@ -11,15 +17,16 @@
     "setup:anchor": "run-s build:anchor deploy:anchor",
     "setup:onchain": "run-s build:onchain deploy:onchain",
     "create": "run-s create:*",
-    "create:authority": "shx find keypairs/authority-keypair.json || solana-keygen new -s --no-bip39-passphrase --outfile keypairs/authority-keypair.json",
+    "create:authority": "shx find secrets/authority-keypair.json || solana-keygen new -s --no-bip39-passphrase --outfile secrets/authority-keypair.json",
     "airdrop": "run-s airdrop:*",
-    "airdrop:authority": "solana airdrop 5 keypairs/authority-keypair.json || true",
+    "airdrop:authority": "solana airdrop 5 secrets/authority-keypair.json || true",
     "build": "run-s build:*",
     "build:anchor": "cd rust/anchor-feed-parser && ${HOME}/.cargo/bin/anchor build",
     "build:onchain": "cargo build-bpf --manifest-path=rust/on-chain-feed-parser/Cargo.toml",
+    "build:node": "tsc",
     "deploy": "run-s deploy:*",
     "deploy:anchor": "cd rust/anchor-feed-parser && ${HOME}/.cargo/bin/anchor deploy",
-    "deploy:onchain": "solana program deploy rust/on-chain-feed-parser/target/deploy/on_chain_feed_parser.so -k keypairs/authority-keypair.json",
+    "deploy:onchain": "solana program deploy rust/on-chain-feed-parser/target/deploy/on_chain_feed_parser.so -k secrets/authority-keypair.json",
     "start": "ts-node ts/main.ts",
     "test": "run-s test:*",
     "test:anchor": "cd rust/anchor-feed-parser && ${HOME}/.cargo/bin/anchor test",
