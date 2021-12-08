@@ -40,7 +40,7 @@ ARGUMENTS
 
 
 OPTIONS
-  --authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  --authorityKeypair    filesystem path of keypair that will have authority of new accounts and pay for onchain transactions
   -f, --force           overwrite any outputted files
 
 EXAMPLE
@@ -101,7 +101,7 @@ ARGUMENTS
   AGGREGATORDEFINITION  filesystem path of JSON file containing the aggregator definition
 
 OPTIONS
-  --authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  --authorityKeypair    filesystem path of keypair that will have authority of new accounts and pay for onchain transactions
   -f, --force           overwrite any outputted files
 
 EXAMPLE
@@ -120,9 +120,47 @@ ARGUMENTS
   AGGREGATORKEY       public key of the aggregator account to read latest result from
 
 OPTIONS
-  --authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  --authorityKeypair    filesystem path of keypair that will have authority of new accounts and pay for onchain transactions
   -f, --force           overwrite any outputted files
 
 EXAMPLE
   $ sbv2-example read-anchor 8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee
+```
+
+## Turn Crank
+
+Turn the crank.
+
+```
+USAGE
+  $ sbv2-example crank-turn [CRANKKEY]
+
+ARGUMENTS
+  CRANKKEY              public key of the crank to turn
+
+OPTIONS
+  --authorityKeypair    filesystem path of keypair that will have authority of new accounts and pay for onchain transactions
+  -f, --force           overwrite any outputted files
+
+EXAMPLE
+  $ sbv2-example crank-turn 2xTBfDywp21dtj4w4QWZTR7SyfyMz6eMz3z34C3kxwbz
+```
+
+## Request Aggregator Update
+
+Request a new update round for a given aggregator.
+
+```
+USAGE
+  $ sbv2-example update-aggregator [AGGREGATORKEY]
+
+ARGUMENTS
+  AGGREGATORKEY              public key of the aggregator account to request an update from
+
+OPTIONS
+  --authorityKeypair    filesystem path of keypair that will have authority of new accounts and pay for onchain transactions
+  -f, --force           overwrite any outputted files
+
+EXAMPLE
+  $ sbv2-example update-aggregator 8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee
 ```

@@ -3,11 +3,13 @@ import dotenv from "dotenv";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import {
+  crankTurn,
   createPersonalAggregator,
   createPersonalQueue,
   createPublicAggregator,
   fullExample,
   readAnchorResult,
+  updateAggregator,
 } from "./actions";
 
 dotenv.config();
@@ -86,6 +88,31 @@ async function main(): Promise<void> {
         });
       },
       createPersonalAggregator
+    )
+    .command(
+      `update-aggregator [aggregatorKey]`,
+      "request a new update round for a given aggregator",
+      (yarg) => {
+        yarg.positional("aggregatorKey", {
+          yarg: "string",
+          describe:
+            "public key of the aggregator account to request an update from",
+          demand: true,
+        });
+      },
+      updateAggregator
+    )
+    .command(
+      `crank-turn [crankKey]`,
+      "turn the crank",
+      (yarg) => {
+        yarg.positional("crankKey", {
+          yarg: "string",
+          describe: "public key of the crank to turn",
+          demand: true,
+        });
+      },
+      crankTurn
     )
     .command(
       `read-anchor [aggregatorKey]`,
