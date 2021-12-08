@@ -39,6 +39,7 @@ ARGUMENTS
 
 OPTIONS
   --authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  -f, --force       overwrite any outputted files
 
 EXAMPLE
   $ sbv2-example full-example --authorityKeypair=secrets/authority-keypair.json
@@ -46,7 +47,7 @@ EXAMPLE
 
 ## Create Aggregator from JSON
 
-Create a new aggregator account from a JSON definition file
+Create a new aggregator account from a JSON definition file.
 
 ```
 USAGE
@@ -59,12 +60,15 @@ ARGUMENTS
 
 OPTIONS
   --authorityKeypair  filesystem path of keypair that will have authority of new accounts
+  -f, --force       overwrite any outputted files
 
 EXAMPLE
-  $ sbv2-example create-aggregator B4yBQ3hYcjnrNLxUnauJqwpFJnjtm7s8gHybgkAdgXhQ sample.definition.aggregator.json secrets/schema.aggregator.json
+  $ sbv2-example create-aggregator B4yBQ3hYcjnrNLxUnauJqwpFJnjtm7s8gHybgkAdgXhQ sample.definition.aggregator.json secrets/newschema.aggregator.json
 ```
 
 ## Create Your Own Oracle Queue
+
+Create a new oracle queue for which you are the authority for.
 
 ```
 USAGE
@@ -76,12 +80,15 @@ ARGUMENTS
 
 OPTIONS
   --authorityKeypair  filesystem path of keypair that will have authority of new accounts
+  -f, --force       overwrite any outputted files
 
 EXAMPLE
   $ sbv2-example create-personal-queue sample.definition.queue.json secrets/schema.queue.json
 ```
 
 ## Add Aggregator to Personal Queue
+
+Add an aggregator to an oracle queue you are the authority for.
 
 ```
 USAGE
@@ -93,7 +100,8 @@ ARGUMENTS
 
 OPTIONS
   --authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  -f, --force       overwrite any outputted files
 
 EXAMPLE
-  $ sbv2-example create-personal-aggregator secrets/schema.queue.json secrets/sample.definition.aggregator.json
+  $ sbv2-example create-personal-aggregator secrets/schema.queue.json sample.definition.aggregator.json
 ```

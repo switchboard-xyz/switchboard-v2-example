@@ -1,85 +1,91 @@
 #!/usr/bin/env node
 import dotenv from "dotenv";
 import { hideBin } from "yargs/helpers";
-import Yargs from "yargs/yargs";
-import { fullExample } from "./actions/full-example";
-import { createPersonalAggregator } from "./actions/personal-queue/create-aggregator";
-import { createPersonalQueue } from "./actions/personal-queue/create-queue";
-import { createPublicAggregator } from "./actions/public-queue/create-aggregator";
+import yargs from "yargs/yargs";
+import {
+  createPersonalAggregator,
+  createPersonalQueue,
+  createPublicAggregator,
+  fullExample,
+} from "./actions";
+
 dotenv.config();
 
 async function main(): Promise<void> {
-  const argv = Yargs(hideBin(process.argv))
+  const argv = yargs(hideBin(process.argv))
     .command(
       `full-example`,
       "spin up a new queue, oracle, crank, and aggregator",
-      (yargs) => {}
+      (yarg) => {},
+      fullExample
     )
     .command(
       `create-aggregator [queueKey] [definitionFile] [outFile]`,
       "create a new aggregator account for a given queue",
-      (yargs) => {
-        yargs.positional("queueKey", {
+      (yarg) => {
+        yarg.positional("queueKey", {
           type: "string",
           describe:
             "public key of the oracle queue that the aggregator will belong to",
           demand: true,
         });
-        yargs.positional("definitionFile", {
+        yarg.positional("definitionFile", {
           type: "string",
           describe:
             "filesystem path of JSON file containing the aggregator definition",
           default: "sample.aggregator.json",
           demand: true,
         });
-        yargs.positional("outFile", {
+        yarg.positional("outFile", {
           type: "string",
           describe:
             "filesystem path to store the aggregator schema to quickly load and manage an aggregator",
           default: "secrets/schema.aggregator.json",
           demand: true,
         });
-      }
+      },
+      createPublicAggregator
     )
     .command(
       `create-personal-queue [queueDefinition] [outFile]`,
-      "create a new oracle queue",
-      (yargs) => {
-        yargs.positional("queueDefinition", {
+      "create a new oracle queue for which you are the authority for",
+      (yarg) => {
+        yarg.positional("queueDefinition", {
           type: "string",
           describe:
             "filesystem path of JSON file containing the oracle queue definition",
           default: "sample.definition.queue.json",
           demand: true,
         });
-        yargs.positional("outFile", {
+        yarg.positional("outFile", {
           type: "string",
           describe:
             "filesystem path to store the oracle queue schema to quickly load and manage a queue",
           demand: true,
         });
-      }
+      },
+      createPersonalQueue
     )
     .command(
       `create-personal-aggregator [queueSchemaFile] [aggregatorDefinition]`,
-      "create a new aggregator on your own queue",
-      (yargs) => {
-        yargs.positional("queueSchemaFile", {
-          type: "string",
+      "create a new aggregator on your personal queue",
+      (yarg) => {
+        yarg.positional("queueSchemaFile", {
+          yarg: "string",
           describe:
             "filesystem path of oracle queue schema file to load accounts from",
           demand: true,
         });
-        yargs.positional("aggregatorDefinition", {
+        yarg.positional("aggregatorDefinition", {
           type: "string",
           describe:
             "filesystem path of JSON file containing the aggregator definition",
           default: "sample.definition.aggregator.json",
           demand: true,
         });
-      }
+      },
+      createPersonalAggregator
     )
-
     .options({
       authorityKeypair: {
         type: "string",
@@ -87,26 +93,16 @@ async function main(): Promise<void> {
         default: "secrets/authority-keypair.json",
         demand: false,
       },
+      force: {
+        type: "boolean",
+        alias: "f",
+        describe: "overwrite any existing files",
+        default: false,
+        demand: false,
+      },
     })
     .example("$0 full-example", "test")
-    .parseSync();
-
-  switch (argv._[0]) {
-    case "full-example":
-      await fullExample(argv);
-      break;
-    case "create-aggregator":
-      await createPublicAggregator(argv);
-      break;
-    case "create-personal-aggregator":
-      await createPersonalAggregator(argv);
-      break;
-    case "create-personal-queue":
-      await createPersonalQueue(argv);
-      break;
-    default:
-      console.log("not implemented");
-  }
+    .parse();
 }
 main().then(
   () => {

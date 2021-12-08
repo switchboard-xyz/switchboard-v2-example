@@ -8,7 +8,7 @@ import {
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
-import { loadQueueSchema, QueueSchema, saveQueueSchema } from "../../schema";
+import { loadQueueSchema, QueueSchema, saveQueueSchema } from "../schema";
 import {
   CHECK_ICON,
   loadAnchor,
@@ -16,10 +16,10 @@ import {
   toAccountString,
   toPermissionString,
   toUtf8,
-} from "../../utils";
+} from "../utils";
 
 export async function createPersonalQueue(argv: any): Promise<void> {
-  const { authorityKeypair, outFile } = argv;
+  const { authorityKeypair, outFile, force } = argv;
   const authority = loadKeypair(authorityKeypair);
   if (!authority)
     throw new Error(
@@ -113,7 +113,7 @@ export async function createPersonalQueue(argv: any): Promise<void> {
       },
     ],
   };
-  saveQueueSchema(queueSchema, outFile);
+  saveQueueSchema(queueSchema, outFile, force);
   console.log(
     `${CHECK_ICON} Oracle succesfully initiated with a crank and oracle`
   );

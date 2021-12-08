@@ -8,6 +8,7 @@ import {
 import chalk from "chalk";
 import fs from "node:fs";
 import path from "node:path";
+import readLineSync from "readline-sync";
 import {
   ParsedQueueSchema,
   pubKeyConverter,
@@ -18,12 +19,26 @@ import { findProjectRoot } from "../utils";
 
 export const saveQueueSchema = (
   queueSchema: QueueSchema,
-  outFile: string
+  outFile: string,
+  force = false
 ): void => {
   const fullPath = path.join(findProjectRoot(), outFile);
-  fs.writeFileSync(fullPath, JSON.stringify(queueSchema, pubKeyConverter, 2));
-  console.log(`Oracle Queue Schema: saved to ${chalk.green(fullPath)}`);
-  return;
+  if (fs.existsSync(fullPath)) {
+    if (force) {
+      console.log(`Oracle Queue Schema: already existed, skipping ${fullPath}`);
+    }
+    console.log(fullPath);
+    if (readLineSync.keyInYN("Do you want to overwrite this file?")) {
+      fs.writeFileSync(
+        fullPath,
+        JSON.stringify(queueSchema, pubKeyConverter, 2)
+      );
+      console.log(`Oracle Queue Schema: saved to ${chalk.green(fullPath)}`);
+      return;
+    } else {
+      return;
+    }
+  }
 };
 
 export const loadQueueSchema = (

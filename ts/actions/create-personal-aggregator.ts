@@ -12,17 +12,18 @@ import {
   parseQueueSchema,
   QueueSchema,
   saveQueueSchema,
-} from "../../schema";
+} from "../schema";
 import {
   CHECK_ICON,
   FAILED_ICON,
   loadAnchor,
   loadKeypair,
   toPermissionString,
-} from "../../utils";
+} from "../utils";
 
 export async function createPersonalAggregator(argv: any): Promise<void> {
-  const { authorityKeypair, queueSchemaFile, aggregatorDefinition } = argv;
+  const { authorityKeypair, queueSchemaFile, aggregatorDefinition, force } =
+    argv;
   const authority = loadKeypair(authorityKeypair);
   if (!authority)
     throw new Error(
@@ -86,7 +87,7 @@ export async function createPersonalAggregator(argv: any): Promise<void> {
     ...queueSchema,
     cranks,
   };
-  saveQueueSchema(newQueueSchema, queueSchemaFile);
+  saveQueueSchema(newQueueSchema, queueSchemaFile, force);
   console.log(
     `${CHECK_ICON} Aggregator created succesfully and added to crank`
   );

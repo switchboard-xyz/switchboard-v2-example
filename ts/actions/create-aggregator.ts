@@ -6,11 +6,11 @@ import {
   createAggregatorFromDefinition,
   loadAggregatorDefinition,
   saveAggregatorSchema,
-} from "../../schema";
-import { CHECK_ICON, loadAnchor, loadKeypair } from "../../utils";
+} from "../schema";
+import { CHECK_ICON, loadAnchor, loadKeypair } from "../utils";
 
 export async function createPublicAggregator(argv: any): Promise<void> {
-  const { definitionFile, queueKey, authorityKeypair, outFile } = argv;
+  const { definitionFile, queueKey, authorityKeypair, outFile, force } = argv;
   const authority = loadKeypair(authorityKeypair);
   if (!authority)
     throw new Error(
@@ -38,5 +38,5 @@ export async function createPublicAggregator(argv: any): Promise<void> {
     queueAccount
   );
   console.log(`${CHECK_ICON} Aggregator created succesfully `);
-  saveAggregatorSchema(aggregatorSchema, outFile);
+  saveAggregatorSchema(aggregatorSchema, outFile, force);
 }
