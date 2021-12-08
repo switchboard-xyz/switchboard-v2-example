@@ -20,6 +20,8 @@ You will need the following installed
 ## Install
 
 ```bash
+git clone https://github.com/switchboard-xyz/switchboard-v2-example.git
+cd switchboard-v2-example
 npm install
 npm link
 ```
@@ -104,4 +106,23 @@ OPTIONS
 
 EXAMPLE
   $ sbv2-example create-personal-aggregator secrets/schema.queue.json sample.definition.aggregator.json
+```
+
+## Read Anchor Program
+
+Read an aggregator account result from a deployed anchor program.
+
+```
+USAGE
+  $ sbv2-example read-anchor [AGGREGATORKEY]
+
+ARGUMENTS
+  AGGREGATORKEY       public key of the aggregator account to read latest result from
+
+OPTIONS
+  --authorityKeypair    filesystem path of keypair that will have authority of new accounts
+  -f, --force           overwrite any outputted files
+
+EXAMPLE
+  $ sbv2-example read-anchor 8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee
 ```

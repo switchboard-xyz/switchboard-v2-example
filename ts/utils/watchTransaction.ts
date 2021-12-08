@@ -1,18 +1,12 @@
 import { Connection, SignatureResult } from "@solana/web3.js";
-import { RPC_URL } from "../config";
 
-async function signatureCallback(
-  signatureResult: SignatureResult
-  // _context: Context
-) {
-  console.log(JSON.stringify(signatureResult, undefined, 2));
-}
-
-export async function watchTransaction(txn: string): Promise<void> {
+export async function watchTransaction(
+  txn: string,
+  connection: Connection
+): Promise<void> {
   console.log(`https://explorer.solana.com/tx/${txn}?cluster=devnet`);
-  const connection = new Connection(RPC_URL, {
-    commitment: "confirmed",
+  connection.onSignature(txn, async (signatureResult: SignatureResult) => {
+    const response = await connection.getTransaction(txn);
+    console.log(JSON.stringify(response?.meta?.logMessages, undefined, 2));
   });
-
-  connection.onSignature(txn, signatureCallback);
 }

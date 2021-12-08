@@ -7,6 +7,7 @@ import {
   createPersonalQueue,
   createPublicAggregator,
   fullExample,
+  readAnchorResult,
 } from "./actions";
 
 dotenv.config();
@@ -85,6 +86,19 @@ async function main(): Promise<void> {
         });
       },
       createPersonalAggregator
+    )
+    .command(
+      `read-anchor [aggregatorKey]`,
+      "read the aggregator result from the deployed anchor program",
+      (yarg) => {
+        yarg.positional("aggregatorKey", {
+          yarg: "string",
+          describe:
+            "public key of the aggregator account to read latest result from",
+          demand: true,
+        });
+      },
+      readAnchorResult
     )
     .options({
       authorityKeypair: {
