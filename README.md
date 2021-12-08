@@ -1,21 +1,22 @@
 # Switchboard V2 Examples
 
-This repo includes the following
+This repo provides some examples for working with Switchboard V2, including:
 
-- End-to-End example to setup a queue and add an aggregator
-- Two on-chain examples for reading an aggregator
+- Two on-chain examples for reading an aggregator onchain
   - [Anchor Feed Parser](rust/anchor-feed-parser/programs/anchor-feed-parser/src/lib.rs)
   - [On-Chain Feed Parser](rust/on-chain-feed-parser/src/lib.rs)
+- End-to-End example detailing how to initiate a queue, add your own aggregator, and fulfill update request
+- How to create a custom aggregator
 
 ## Table of Contents
 
 - [Dependencies](#Dependencies)
 - [Install](#Install)
 - [Examples](#Examples)
-  - [Deploy & Run Onchain Programs](#Examples)
-  - [End-to-End Example](#Examples)
-  - [Create your own Queue](#Examples)
-  - [Create & Approve Custom Aggregator](#Examples)
+  - [Deploy & Run Onchain Programs](#deploy--run-onchain-programs)
+  - [End-to-End Example](#end-to-end-example)
+  - [Create your own Queue](#create-your-own-queue)
+  - [Create & Approve Custom Aggregator](#create--approve-custom-aggregator)
 - [Commands](#Commands)
   - [End-to-End Example](#full-example)
   - [Create Aggregator from JSON](#create-aggregator-from-json)
@@ -31,9 +32,11 @@ You will need the following installed
 
 - [Node and NPM](https://github.com/nvm-sh/nvm#installing-and-updating)
 - [Docker Compose](https://docs.docker.com/compose/install)
-- [Rust](https://www.rust-lang.org/tools/install)
-- [Solana](https://docs.solana.com/cli/install-solana-cli-tools)
-- [Anchor](https://project-serum.github.io/anchor/getting-started/installation.html#install-anchor)
+- [Rust](https://www.rust-lang.org/tools/install)\*
+- [Solana](https://docs.solana.com/cli/install-solana-cli-tools)\*
+- [Anchor](https://project-serum.github.io/anchor/getting-started/installation.html#install-anchor)\*
+
+\* dependency only needed if you are deploying the provided onchain program examples
 
 ## Install
 
@@ -65,6 +68,8 @@ Create your own queue from a definition file, then add a custom aggregator and r
 Create an aggregator from a JSON file then get it approved to join an existing queue.
 
 ## Commands
+
+The following contain a list of commands available in this repo. Check out Switchboardv2-cli for additional functionality.
 
 ### Full Example
 
