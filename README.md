@@ -9,18 +9,17 @@ This repo includes the following
 
 ## Table of Contents
 
-1. [Dependencies](#Dependencies)
-2. [Install](#Install)
-3. [Walkthrough](#Walkthrough)
-4. [Commands](#Commands)
-
-- [Full-Example](#full-example)
-- [Create Aggregator from JSON](#create-aggregator-from-json)
-- [Create your own Oracle Queue](#create-your-own-oracle-queue)
-- [Add Aggregator to your own Queue](#add-aggregator-to-personal-queue)
-- [Turn the Crank](#turn-crank)
-- [Request Aggregator Update](#request-aggregator-update)
-- [Read Anchor Program](#read-anchor-program)
+- [Dependencies](#Dependencies)
+- [Install](#Install)
+- [Walkthrough](#Walkthrough)
+- [Commands](#Commands)
+  - [End-to-End Example](#full-example)
+  - [Create Aggregator from JSON](#create-aggregator-from-json)
+  - [Create your own Oracle Queue](#create-your-own-oracle-queue)
+  - [Add Aggregator to your own Queue](#add-aggregator-to-personal-queue)
+  - [Turn the Crank](#turn-crank)
+  - [Request Aggregator Update](#request-aggregator-update)
+  - [Read Anchor Program](#read-anchor-program)
 
 ## Dependencies
 
