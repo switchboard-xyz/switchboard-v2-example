@@ -15,7 +15,7 @@ import {
   pubKeyReviver,
   QueueSchema,
 } from ".";
-import { findProjectRoot } from "../utils";
+import { CHECK_ICON, FAILED_ICON, findProjectRoot } from "../utils";
 
 export const saveQueueSchema = (
   queueSchema: QueueSchema,
@@ -23,23 +23,20 @@ export const saveQueueSchema = (
   force = false
 ): void => {
   const fullPath = path.join(findProjectRoot(), outFile);
-  if (fs.existsSync(fullPath)) {
-    if (force) {
-      console.log(`Oracle Queue Schema: already existed, skipping ${fullPath}`);
-      return;
-    }
+
+  if (!force && fs.existsSync(fullPath)) {
     console.log(fullPath);
-    if (readLineSync.keyInYN("Do you want to overwrite this file?")) {
-      fs.writeFileSync(
-        fullPath,
-        JSON.stringify(queueSchema, pubKeyConverter, 2)
+    if (!readLineSync.keyInYN("Do you want to overwrite this file?")) {
+      console.log(
+        `${FAILED_ICON} Oracle Queue Schema: already existed, skipping ${fullPath}`
       );
-      console.log(`Oracle Queue Schema: saved to ${chalk.green(fullPath)}`);
-      return;
-    } else {
       return;
     }
   }
+  fs.writeFileSync(fullPath, JSON.stringify(queueSchema, pubKeyConverter, 2));
+  console.log(
+    `${CHECK_ICON} Oracle Queue Schema: saved to ${chalk.green(fullPath)}`
+  );
 };
 
 export const loadQueueSchema = (

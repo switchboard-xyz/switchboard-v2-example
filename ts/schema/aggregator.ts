@@ -14,7 +14,13 @@ import fs from "node:fs";
 import path from "node:path";
 import readLineSync from "readline-sync";
 import { AggregatorSchema, JobSchema, pubKeyConverter, pubKeyReviver } from ".";
-import { toAccountString, toPermissionString, toUtf8 } from "../utils";
+import {
+  CHECK_ICON,
+  FAILED_ICON,
+  toAccountString,
+  toPermissionString,
+  toUtf8,
+} from "../utils";
 import { findProjectRoot } from "../utils/findProjectRoot";
 
 export const saveAggregatorSchema = (
@@ -24,23 +30,22 @@ export const saveAggregatorSchema = (
 ): void => {
   const fullPath = path.join(findProjectRoot(), outFile);
 
-  if (fs.existsSync(fullPath)) {
-    if (force) {
-      console.log(`Aggregator Schema: already existed, skipping ${fullPath}`);
-      return;
-    }
+  if (!force && fs.existsSync(fullPath)) {
     console.log(fullPath);
-    if (readLineSync.keyInYN("Do you want to overwrite this file?")) {
-      fs.writeFileSync(
-        fullPath,
-        JSON.stringify(aggregatorSchema, pubKeyConverter, 2)
+    if (!readLineSync.keyInYN("Do you want to overwrite this file?")) {
+      console.log(
+        `${FAILED_ICON} Aggregator Schema: already existed, skipping ${fullPath}`
       );
-      console.log(`Aggregator Schema: saved to ${chalk.green(fullPath)}`);
-      return;
-    } else {
       return;
     }
   }
+  fs.writeFileSync(
+    fullPath,
+    JSON.stringify(aggregatorSchema, pubKeyConverter, 2)
+  );
+  console.log(
+    `${CHECK_ICON} Aggregator Schema: saved to ${chalk.green(fullPath)}`
+  );
 };
 
 export const loadAggregatorDefinition = (
