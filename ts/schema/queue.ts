@@ -16,11 +16,6 @@ import {
 } from ".";
 import { findProjectRoot } from "../utils";
 
-export const QUEUE_SCHEMA_PATH = path.join(
-  findProjectRoot(),
-  "accounts/schema.oracle-queue.json"
-);
-
 export const saveQueueSchema = (
   queueSchema: QueueSchema,
   outFile: string

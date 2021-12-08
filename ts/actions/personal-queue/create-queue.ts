@@ -8,12 +8,7 @@ import {
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
-import {
-  loadQueueSchema,
-  QueueSchema,
-  QUEUE_SCHEMA_PATH,
-  saveQueueSchema,
-} from "../../schema";
+import { loadQueueSchema, QueueSchema, saveQueueSchema } from "../../schema";
 import {
   CHECK_ICON,
   loadAnchor,
@@ -33,9 +28,7 @@ export async function createPersonalQueue(argv: any): Promise<void> {
   const schema = loadQueueSchema(outFile);
   if (schema) {
     console.log(
-      `Oracle Queue Schema: already initialized at ${chalk.green(
-        QUEUE_SCHEMA_PATH
-      )}`
+      `Oracle Queue Schema: already initialized at ${chalk.green(outFile)}`
     );
 
     return;

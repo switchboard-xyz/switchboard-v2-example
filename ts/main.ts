@@ -10,7 +10,7 @@ dotenv.config();
 async function main(): Promise<void> {
   const argv = Yargs(hideBin(process.argv))
     .command(
-      `create-public-aggregator [crankKey] [definitionFile] [outFile]`,
+      `create-aggregator [crankKey] [definitionFile] [outFile]`,
       "create a new aggregator account for a given crank",
       (yargs) => {
         yargs.positional("crankKey", {
@@ -51,12 +51,18 @@ async function main(): Promise<void> {
       }
     )
     .command(
-      `create-personal-aggregator [queueSchemaFile]`,
+      `create-personal-aggregator [queueSchemaFile] [aggregatorDefinition]`,
       "create a new aggregator on your own queue",
       (yargs) => {
         yargs.positional("queueSchemaFile", {
           type: "string",
           describe: "filesystem path of oracle queue schema file",
+          demand: true,
+        });
+        yargs.positional("aggregatorDefinition", {
+          type: "string",
+          describe: "filesystem path of aggeregator definition file",
+          default: "accounts/sample.aggregator.json",
           demand: true,
         });
       }
@@ -80,7 +86,7 @@ async function main(): Promise<void> {
     case "full-example":
       await fullExample(argv);
       break;
-    case "create-public-aggregator":
+    case "create-aggregator":
       await createPublicAggregator(argv);
       break;
     case "create-personal-aggregator":

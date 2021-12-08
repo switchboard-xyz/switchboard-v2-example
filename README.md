@@ -47,7 +47,7 @@ EXAMPLE
 
 ```
 USAGE
-  $ ts-node ts/main create-public-aggregator [CRANKKEY] [DEFINITIONFILE] [OUTFILE]
+  $ ts-node ts/main create-aggregator [CRANKKEY] [DEFINITIONFILE] [OUTFILE]
 
 ARGUMENTS
   CRANKKEY            public key of the crank you intent to join
@@ -58,7 +58,7 @@ OPTIONS
 --authorityKeypair    filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
-  $ ts-node ts/main create-public-aggregator HX2oLYGqThai8i6hvEm9B4y5pAkLXLyryps13195BSAz accounts/sample.aggregator.json accounts/schema.aggregator.json
+  $ ts-node ts/main create-aggregator HX2oLYGqThai8i6hvEm9B4y5pAkLXLyryps13195BSAz accounts/sample.definition.aggregator.json accounts/schema.aggregator.json
 ```
 
 ## Create Your Own Oracle Queue
@@ -75,21 +75,22 @@ OPTIONS
 --authorityKeypair    filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
-  $ ts-node ts/main create-personal-queue accounts/sample.queue.json accounts/schema.queue.json
+  $ ts-node ts/main create-personal-queue accounts/sample.definition.queue.json accounts/schema.queue.json
 ```
 
 ## Add Aggregator to Personal Queue
 
 ```
 USAGE
-  $ ts-node ts/main create-personal-aggregator [QUEUESCHEMAFILE]
+  $ ts-node ts/main create-personal-aggregator [QUEUESCHEMAFILE] [AGGREGATORDEFINITION]
 
 ARGUMENTS
-  QUEUESCHEMAFILE     filesystem path of oracle queue schema file to load accounts from
+  QUEUESCHEMAFILE       filesystem path of oracle queue schema file to load accounts from
+  AGGREGATORDEFINITION  filesystem path to json file containing the aggregator definition
 
 OPTIONS
---authorityKeypair    filesystem path of keypair that will have authority of new accounts
+--authorityKeypair      filesystem path of keypair that will have authority of new accounts
 
 EXAMPLE
-  $ ts-node ts/main create-personal-aggregator accounts/schema.queue.json
+  $ ts-node ts/main create-personal-aggregator accounts/schema.queue.json accounts/sample.definition.aggregator.json
 ```

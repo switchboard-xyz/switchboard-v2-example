@@ -6,7 +6,6 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import {
-  AGGREGATOR_DEFINITION_PATH,
   createAggregatorFromDefinition,
   loadAggregatorDefinition,
   loadQueueSchema,
@@ -14,10 +13,16 @@ import {
   QueueSchema,
   saveQueueSchema,
 } from "../../schema";
-import { CHECK_ICON, FAILED_ICON, loadAnchor, loadKeypair } from "../../utils";
+import {
+  CHECK_ICON,
+  FAILED_ICON,
+  loadAnchor,
+  loadKeypair,
+  toPermissionString,
+} from "../../utils";
 
 export async function createPersonalAggregator(argv: any): Promise<void> {
-  const { authorityKeypair, queueSchemaFile } = argv;
+  const { authorityKeypair, queueSchemaFile, aggregatorDefinition } = argv;
   const authority = loadKeypair(authorityKeypair);
   if (!authority)
     throw new Error(
@@ -36,19 +41,16 @@ export async function createPersonalAggregator(argv: any): Promise<void> {
   const program: anchor.Program = await loadAnchor(authority);
   const queue = parseQueueSchema(program, queueSchema);
 
-  const aggregatorDefinition = loadAggregatorDefinition(
-    AGGREGATOR_DEFINITION_PATH
-  );
-  if (!aggregatorDefinition)
-    throw new Error(`failed to load aggregator definition`);
-  if (aggregatorDefinition.jobs.length === 0)
+  const definition = loadAggregatorDefinition(aggregatorDefinition);
+  if (!definition) throw new Error(`failed to load aggregator definition`);
+  if (definition.jobs.length === 0)
     throw new Error(`no aggregator jobs defined`);
 
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
   const aggregatorSchema = await createAggregatorFromDefinition(
     program,
-    aggregatorDefinition,
+    definition,
     queue.account
   );
 
@@ -66,6 +68,10 @@ export async function createPersonalAggregator(argv: any): Promise<void> {
     permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
     enable: true,
   });
+  if (aggregatorSchema.permission?.queuePermission)
+    aggregatorSchema.permission.queuePermission = toPermissionString(
+      SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE
+    );
 
   // Add Aggregator to Crank
   await queue.cranks[0].push({ aggregatorAccount });

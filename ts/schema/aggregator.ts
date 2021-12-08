@@ -12,14 +12,9 @@ import {
 import chalk from "chalk";
 import fs from "node:fs";
 import path from "node:path";
-import { AggregatorSchema, JobSchema, pubKeyConverter } from ".";
+import { AggregatorSchema, JobSchema, pubKeyConverter, pubKeyReviver } from ".";
 import { toAccountString, toPermissionString, toUtf8 } from "../utils";
 import { findProjectRoot } from "../utils/findProjectRoot";
-
-export const AGGREGATOR_DEFINITION_PATH = path.join(
-  findProjectRoot(),
-  "accounts/sample.aggregator.json"
-);
 
 export const saveAggregatorSchema = (
   aggregatorSchema: AggregatorSchema,
@@ -37,16 +32,16 @@ export const saveAggregatorSchema = (
 export const loadAggregatorDefinition = (
   inputFile: string
 ): AggregatorSchema | undefined => {
-  let fullInputFilePath = "";
-  fullInputFilePath = inputFile
-    ? findProjectRoot() + inputFile
-    : AGGREGATOR_DEFINITION_PATH;
+  const fullInputFilePath = path.join(findProjectRoot(), inputFile);
   if (!fs.existsSync(fullInputFilePath))
     throw new Error(`input file does not exist ${fullInputFilePath}`);
 
   try {
     const definitionString = fs.readFileSync(fullInputFilePath, "utf8");
-    const definition: AggregatorSchema = JSON.parse(definitionString);
+    const definition: AggregatorSchema = JSON.parse(
+      definitionString,
+      pubKeyReviver
+    );
     return definition;
   } catch {
     return undefined;
@@ -141,6 +136,7 @@ export async function createAggregatorFromDefinition(
   const newAggregatorDefinition: AggregatorSchema = {
     ...definition,
     name: toUtf8(aggregatorData.name),
+    publicKey: aggregatorAccount.publicKey,
     batchSize: aggregatorData.batchSize,
     minRequiredOracleResults: aggregatorData.minRequiredOracleResults,
     minRequiredJobResults: aggregatorData.minRequiredJobResults,
