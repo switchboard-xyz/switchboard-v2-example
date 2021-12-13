@@ -3,6 +3,7 @@ import {
   AggregatorAccount,
   PermissionAccount,
   SwitchboardPermission,
+  SwitchboardPermissionValue,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import {
@@ -71,7 +72,7 @@ export async function createPersonalAggregator(argv: any): Promise<void> {
   });
   if (aggregatorSchema.permission?.queuePermission)
     aggregatorSchema.permission.queuePermission = toPermissionString(
-      SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE
+      SwitchboardPermissionValue.PERMIT_ORACLE_QUEUE_USAGE
     );
 
   // Add Aggregator to Crank

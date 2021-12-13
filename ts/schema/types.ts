@@ -60,3 +60,21 @@ export interface ParsedQueueSchema {
   cranks: CrankAccount[];
   oracles: OracleAccount[];
 }
+
+export interface QueueDefinition {
+  name: string;
+  metadata?: string;
+  reward?: number;
+  minStake?: number;
+  minUpdateDelaySeconds?: number;
+  oracleTimeout?: number;
+  cranks?: {
+    name: string;
+    metadata?: string;
+    maxRows?: number;
+  }[];
+  oracles?: {
+    name: string;
+    metadata?: string;
+  }[];
+}

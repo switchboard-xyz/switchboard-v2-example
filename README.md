@@ -85,7 +85,21 @@ And just like that you have spun up your own oracle queue, added an oracle, cran
 
 ### Create your own Queue
 
-Create your own queue from a definition file, then add a custom aggregator and read the result.
+Edit `sample.definition.queue.json` with the name of your queue. If you edit `minStake`, you will need to fund your oracles with wrapped SOL to succesfully heartbeat onchain.
+
+Then run the following command to spin up your queue
+
+```bash
+sbv2-example create-personal-queue [QUEUEDEFINITION] [OUTFILE]
+# sbv2-example create-personal-queue sample.definition.queue.json secrets/schema.queue.json
+```
+
+Now add an aggregator to your queue
+
+```bash
+sbv2-example create-personal-aggregator [QUEUESCHEMAFILE] [AGGREGATORDEFINITION]
+# sbv2-example create-personal-aggregator secrets/schema.queue.json sample.definition.aggregator.json
+```
 
 ### Create & Approve Custom Aggregator
 

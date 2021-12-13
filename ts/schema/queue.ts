@@ -13,6 +13,7 @@ import {
   ParsedQueueSchema,
   pubKeyConverter,
   pubKeyReviver,
+  QueueDefinition,
   QueueSchema,
 } from ".";
 import { CHECK_ICON, FAILED_ICON, findProjectRoot } from "../utils";
@@ -37,6 +38,25 @@ export const saveQueueSchema = (
   console.log(
     `${CHECK_ICON} Oracle Queue Schema: saved to ${chalk.green(fullPath)}`
   );
+};
+
+export const loadQueueDefinition = (
+  inputFile: string
+): QueueDefinition | undefined => {
+  const fullInputFilePath = path.join(findProjectRoot(), inputFile);
+  if (!fs.existsSync(fullInputFilePath))
+    throw new Error(`input file does not exist ${fullInputFilePath}`);
+
+  try {
+    const definitionString = fs.readFileSync(fullInputFilePath, "utf8");
+    const definition: QueueDefinition = JSON.parse(
+      definitionString,
+      pubKeyReviver
+    );
+    return definition;
+  } catch {
+    return undefined;
+  }
 };
 
 export const loadQueueSchema = (

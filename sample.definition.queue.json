@@ -10,5 +10,10 @@
       "metadata": "Queue-1, Crank-1",
       "maxRows": 100
     }
+  ],
+  "oracles": [
+    {
+      "name": "Oracle-1"
+    }
   ]
 }
