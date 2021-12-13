@@ -62,7 +62,7 @@ npm run build
 ```
 
 ```bash
-sbv2-example read-anchor [AGGREGATORKEY]
+sbv2-example read-anchor 8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee
 ```
 
 ### End-to-End Example
@@ -81,24 +81,22 @@ ORACLE_KEY=<YOUR NEW ORACLE KEY> docker-compose up
 
 Hit 'Y' to continue. The example will turn the crank and send your new aggregator to your oracle to fulfill.
 
-And just like that you have spun up your own oracle queue, added an oracle, crank, and aggregator to it. Then you sent an update event to your oracle account and posted the result onchain.
+And just like that you have created your own switchboard network and sent an update event to your oracle account, then posted the result onchain.
 
 ### Create your own Queue
 
-Edit `sample.definition.queue.json` with the name of your queue. If you edit `minStake`, you will need to fund your oracles with wrapped SOL to succesfully heartbeat onchain.
+Edit `sample.definition.queue.json` with the name of your queue. If you edit `minStake`, you will need to fund your oracles with wrapped SOL to succesfully heartbeat onchain, recommend leaving this as 0.
 
 Then run the following command to spin up your queue
 
 ```bash
-sbv2-example create-personal-queue [QUEUEDEFINITION] [OUTFILE]
-# sbv2-example create-personal-queue sample.definition.queue.json secrets/schema.queue.json
+sbv2-example create-personal-queue sample.definition.queue.json secrets/schema.queue.json
 ```
 
 Now add an aggregator to your queue
 
 ```bash
-sbv2-example create-personal-aggregator [QUEUESCHEMAFILE] [AGGREGATORDEFINITION]
-# sbv2-example create-personal-aggregator secrets/schema.queue.json sample.definition.aggregator.json
+sbv2-example create-personal-aggregator secrets/schema.queue.json sample.definition.aggregator.json
 ```
 
 ### Create & Approve Custom Aggregator
