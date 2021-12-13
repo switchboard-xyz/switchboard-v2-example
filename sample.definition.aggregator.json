@@ -2,9 +2,82 @@
   "name": "BTC_USD",
   "metadata": "BTC_USD Sample Aggregator",
   "minRequiredOracleResults": 1,
-  "minRequiredJobResults": 1,
-  "minUpdateDelaySeconds": 10,
+  "minRequiredJobResults": 4,
+  "minUpdateDelaySeconds": 30,
   "jobs": [
+    {
+      "name": "FtxCom Btc/Usd",
+      "tasks": [
+        {
+          "websocketTask": {
+            "url": "wss://ftx.com/ws/",
+            "subscription": "{\"op\":\"subscribe\",\"channel\":\"ticker\",\"market\":\"BTC/USD\"}",
+            "maxDataAgeSeconds": 15,
+            "filter": "$[?(@.type == 'update' && @.channel == 'ticker' && @.market == 'BTC/USD')]"
+          }
+        },
+        {
+          "medianTask": {
+            "tasks": [
+              {
+                "jsonParseTask": {
+                  "path": "$.data.bid"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.data.ask"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.data.last"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Okex Btc/Usd",
+      "tasks": [
+        {
+          "websocketTask": {
+            "url": "wss://ws.okex.com:8443/ws/v5/public",
+            "subscription": "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"tickers\",\"instId\":\"BTC-USDT\"}]}",
+            "maxDataAgeSeconds": 15,
+            "filter": "$[?(@.event != 'subscribe' && @.arg.channel == 'tickers' && @.arg.instId == 'BTC-USDT' && @.data[0].instType == 'SPOT' && @.data[0].instId == 'BTC-USDT')]"
+          }
+        },
+        {
+          "medianTask": {
+            "tasks": [
+              {
+                "jsonParseTask": {
+                  "path": "$.data[0].bidPx"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.data[0].askPx"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.data[0].last"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "multiplyTask": {
+            "aggregatorPubkey": "ETAaeeuQBwsh9mC2gCov9WdhJENZuffRMXY2HgjCcSL9"
+          }
+        }
+      ]
+    },
     {
       "name": "FtxUs Btc/Usd",
       "tasks": [

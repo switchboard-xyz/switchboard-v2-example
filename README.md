@@ -55,9 +55,33 @@ The preinstall hook will create a new Solana keypair in the keypairs directory. 
 
 Deploy onchain programs then pass the programs an aggregator to parse
 
+```bash
+npm run build
+# cd rust/anchor-feed-parser && ${HOME}/.cargo/bin/anchor build
+# cargo build-bpf --manifest-path=rust/on-chain-feed-parser/Cargo.toml
+```
+
+```bash
+sbv2-example read-anchor [AGGREGATORKEY]
+```
+
 ### End-to-End Example
 
 Run the full example which creates a queue, crank, oracle, & aggregator, then allows you to spin up an oracle, turn the crank, and read the latest result.
+
+```bash
+sbv2-example full-example
+```
+
+When prompted, open another terminal and startup the docker container to process your new aggregator. The command will look something like this:
+
+```bash
+ORACLE_KEY=<YOUR NEW ORACLE KEY> docker-compose up
+```
+
+Hit 'Y' to continue. The example will turn the crank and send your new aggregator to your oracle to fulfill.
+
+And just like that you have spun up your own oracle queue, added an oracle, crank, and aggregator to it. Then you sent an update event to your oracle account and posted the result onchain.
 
 ### Create your own Queue
 
