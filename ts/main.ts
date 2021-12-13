@@ -86,6 +86,12 @@ async function main(): Promise<void> {
           default: "sample.definition.aggregator.json",
           demand: true,
         });
+        yarg.positional("crankName", {
+          type: "string",
+          describe:
+            "the name of the crank to add aggregator to. If not provided, aggregator is added to the first crank",
+          demand: false,
+        });
       },
       createPersonalAggregator
     )

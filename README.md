@@ -175,11 +175,12 @@ Add an aggregator to an oracle queue you are the authority for.
 
 ```
 USAGE
-  $ sbv2-example create-personal-aggregator [QUEUESCHEMAFILE] [AGGREGATORDEFINITION]
+  $ sbv2-example create-personal-aggregator [QUEUESCHEMAFILE] [AGGREGATORDEFINITION] CRANKNAME
 
 ARGUMENTS
   QUEUESCHEMAFILE       filesystem path of oracle queue schema file to load accounts from
   AGGREGATORDEFINITION  filesystem path of JSON file containing the aggregator definition
+  CRANKNAME             optional, name of the crank to add aggregator to. If not provided, aggregator is added to the first crank
 
 OPTIONS
   --authorityKeypair    filesystem path of keypair that will have authority of new accounts and pay for onchain transactions

@@ -1,6 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import {
   AggregatorAccount,
+  CrankAccount,
   PermissionAccount,
   SwitchboardPermission,
   SwitchboardPermissionValue,
@@ -23,8 +24,13 @@ import {
 } from "../utils";
 
 export async function createPersonalAggregator(argv: any): Promise<void> {
-  const { authorityKeypair, queueSchemaFile, aggregatorDefinition, force } =
-    argv;
+  const {
+    authorityKeypair,
+    queueSchemaFile,
+    crankName,
+    aggregatorDefinition,
+    force,
+  } = argv;
   const authority = loadKeypair(authorityKeypair);
   if (!authority)
     throw new Error(
@@ -76,12 +82,29 @@ export async function createPersonalAggregator(argv: any): Promise<void> {
     );
 
   // Add Aggregator to Crank
-  await queue.cranks[0].push({ aggregatorAccount });
+  let crankAccount: CrankAccount = queue.cranks[0];
+  if (crankName) {
+    const crank = queueSchema.cranks.find(
+      (c) => c.name?.toLowerCase() === crankName.toLowerCase()
+    );
+    if (!crank)
+      console.log(
+        "failed to find crank, adding to first crank defined in the queue"
+      );
+    else {
+      crankAccount = new CrankAccount({
+        program,
+        publicKey: crank.publicKey,
+      });
+    }
+  }
+  await crankAccount.push({ aggregatorAccount });
 
   const cranks = queueSchema.cranks.map((c, index) => {
-    const crankSchema = c;
-    if (!index) crankSchema.aggregators.push(aggregatorSchema);
-    return crankSchema;
+    if (c.publicKey === crankAccount.publicKey) {
+      c.aggregators.push(aggregatorSchema);
+    }
+    return c;
   });
 
   const newQueueSchema: QueueSchema = {
