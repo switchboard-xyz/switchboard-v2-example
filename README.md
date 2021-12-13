@@ -103,6 +103,12 @@ sbv2-example create-personal-aggregator secrets/schema.queue.json sample.definit
 
 Create an aggregator from a JSON file then get it approved to join an existing queue.
 
+```bash
+sbv2-example create-aggregator B4yBQ3hYcjnrNLxUnauJqwpFJnjtm7s8gHybgkAdgXhQ sample.definition.aggregator.json secrets/schema.aggregator.json
+```
+
+You will then need to submit your aggregator public key to the queue authority to be approved.
+
 ## Commands
 
 The following contain a list of commands available in this repo. Check out Switchboardv2-cli for additional functionality.
@@ -144,7 +150,7 @@ OPTIONS
   -f, --force         overwrite any outputted files
 
 EXAMPLE
-  $ sbv2-example create-aggregator B4yBQ3hYcjnrNLxUnauJqwpFJnjtm7s8gHybgkAdgXhQ sample.definition.aggregator.json secrets/newschema.aggregator.json
+  $ sbv2-example create-aggregator B4yBQ3hYcjnrNLxUnauJqwpFJnjtm7s8gHybgkAdgXhQ sample.definition.aggregator.json secrets/schema.aggregator.json
 ```
 
 ### Create Your Own Oracle Queue
