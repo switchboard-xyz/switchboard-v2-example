@@ -1,0 +1,15 @@
+[programs.localnet]
+anchor_feed_parser = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+# cluster = "localnet"
+# wallet = "~/.config/solana/id.json"
+cluster = "devnet"
+wallet = "../../secrets/authority-keypair.json"
+
+
+[scripts]
+test = "npx mocha --extension ts --require ts-node/register -t 1000000 tests/"

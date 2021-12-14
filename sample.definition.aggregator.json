@@ -1,0 +1,205 @@
+{
+  "name": "BTC_USD",
+  "metadata": "BTC_USD Sample Aggregator",
+  "minRequiredOracleResults": 1,
+  "minRequiredJobResults": 4,
+  "minUpdateDelaySeconds": 30,
+  "jobs": [
+    {
+      "name": "FtxCom Btc/Usd",
+      "tasks": [
+        {
+          "websocketTask": {
+            "url": "wss://ftx.com/ws/",
+            "subscription": "{\"op\":\"subscribe\",\"channel\":\"ticker\",\"market\":\"BTC/USD\"}",
+            "maxDataAgeSeconds": 15,
+            "filter": "$[?(@.type == 'update' && @.channel == 'ticker' && @.market == 'BTC/USD')]"
+          }
+        },
+        {
+          "medianTask": {
+            "tasks": [
+              {
+                "jsonParseTask": {
+                  "path": "$.data.bid"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.data.ask"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.data.last"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Okex Btc/Usd",
+      "tasks": [
+        {
+          "websocketTask": {
+            "url": "wss://ws.okex.com:8443/ws/v5/public",
+            "subscription": "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"tickers\",\"instId\":\"BTC-USDT\"}]}",
+            "maxDataAgeSeconds": 15,
+            "filter": "$[?(@.event != 'subscribe' && @.arg.channel == 'tickers' && @.arg.instId == 'BTC-USDT' && @.data[0].instType == 'SPOT' && @.data[0].instId == 'BTC-USDT')]"
+          }
+        },
+        {
+          "medianTask": {
+            "tasks": [
+              {
+                "jsonParseTask": {
+                  "path": "$.data[0].bidPx"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.data[0].askPx"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.data[0].last"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "multiplyTask": {
+            "aggregatorPubkey": "ETAaeeuQBwsh9mC2gCov9WdhJENZuffRMXY2HgjCcSL9"
+          }
+        }
+      ]
+    },
+    {
+      "name": "FtxUs Btc/Usd",
+      "tasks": [
+        {
+          "httpTask": {
+            "url": "https://ftx.us/api/markets/btc/usd"
+          }
+        },
+        {
+          "jsonParseTask": {
+            "path": "$.result.price"
+          }
+        }
+      ]
+    },
+    {
+      "name": "BinanceUs Btc/Usd",
+      "tasks": [
+        {
+          "httpTask": {
+            "url": "https://www.binance.us/api/v3/ticker/price?symbol=BTCUSD"
+          }
+        },
+        {
+          "jsonParseTask": {
+            "path": "$.price"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bitfinex Btc/Usd",
+      "tasks": [
+        {
+          "httpTask": {
+            "url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tBTCUSD"
+          }
+        },
+        {
+          "medianTask": {
+            "tasks": [
+              {
+                "jsonParseTask": {
+                  "path": "$[0][1]"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$[0][3]"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$[0][7]"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Huobi Btc/Usd",
+      "tasks": [
+        {
+          "httpTask": {
+            "url": "https://api.huobi.pro/market/detail/merged?symbol=btcusdt"
+          }
+        },
+        {
+          "medianTask": {
+            "tasks": [
+              {
+                "jsonParseTask": {
+                  "path": "$.tick.bid[0]"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.tick.ask[0]"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "multiplyTask": {
+            "aggregatorPubkey": "5mp8kbkTYwWWCsKSte8rURjTuyinsqBpJ9xAQsewPDD"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kraken Btc/Usd",
+      "tasks": [
+        {
+          "httpTask": {
+            "url": "https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD"
+          }
+        },
+        {
+          "medianTask": {
+            "tasks": [
+              {
+                "jsonParseTask": {
+                  "path": "$.result.XXBTZUSD.a[0]"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.result.XXBTZUSD.b[0]"
+                }
+              },
+              {
+                "jsonParseTask": {
+                  "path": "$.result.XXBTZUSD.c[0]"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
