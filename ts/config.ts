@@ -2,7 +2,6 @@ import * as anchor from "@project-serum/anchor";
 import { Connection, Keypair } from "@solana/web3.js";
 import { SBV2_DEVNET_PID } from "@switchboard-xyz/switchboard-v2";
 import dotenv from "dotenv";
-import fs from "node:fs";
 dotenv.config();
 
 const DEFAULT_RPC = "https://api.devnet.solana.com";
@@ -39,11 +38,6 @@ export async function loadAnchor(authority: Keypair): Promise<anchor.Program> {
   if (!anchorIdl) {
     throw new Error(`failed to read idl for ${programId}`);
   }
-  fs.writeFileSync(
-    `switchboardv2_idl.json`,
-    JSON.stringify(anchorIdl, undefined, 2)
-  );
-
   const program = new anchor.Program(anchorIdl, programId, provider);
 
   return program;
