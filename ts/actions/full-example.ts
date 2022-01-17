@@ -162,12 +162,18 @@ export async function fullExample(argv: any): Promise<void> {
     try {
       const readyPubkeys = await crankAccount.peakNextReady(5);
       if (readyPubkeys) {
+        const crank = await crankAccount.loadData();
+        const queue = await queueAccount.loadData();
         const txn: SendTxRequest = {
           tx: await crankAccount.popTxn({
             payoutWallet: tokenAccount,
             queuePubkey: queueAccount.publicKey,
-            queueAuthority: program.provider.wallet.publicKey,
+            queueAuthority: queue.authority,
             readyPubkeys,
+            nonce: 0,
+            crank,
+            queue,
+            tokenMint: switchTokenMint.publicKey,
           }),
           signers: [],
         };

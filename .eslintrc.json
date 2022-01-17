@@ -22,6 +22,8 @@
     "prettier/prettier": "error",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-use-before-define": "off",
-    "unicorn/filename-case": "off"
+    "unicorn/filename-case": "off",
+    "no-process-exit": "off",
+    "unicorn/no-await-expression-member": "off"
   }
 }

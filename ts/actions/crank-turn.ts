@@ -31,17 +31,21 @@ export async function crankTurn(argv: any): Promise<void> {
     publicKey: new PublicKey(crankKey),
   });
 
-  const { queuePubkey } = await crankAccount.loadData();
+  const crank = await crankAccount.loadData();
   const queueAccount = new OracleQueueAccount({
     program,
-    publicKey: queuePubkey,
+    publicKey: crank.queuePubkey,
   });
-  const { authority } = await queueAccount.loadData();
+  const queue = await queueAccount.loadData();
 
   const tx = await crankAccount.pop({
-    queuePubkey: queueAccount.publicKey,
     payoutWallet: tokenAccount,
-    queueAuthority: authority,
+    queuePubkey: queueAccount.publicKey,
+    queueAuthority: queue.authority,
+    nonce: 0,
+    crank,
+    queue,
+    tokenMint: switchTokenMint.publicKey,
   });
   console.log(`${CHECK_ICON} ${chalk.green("crank turned succesfully")}`);
   watchTransaction(tx, program.provider.connection);
