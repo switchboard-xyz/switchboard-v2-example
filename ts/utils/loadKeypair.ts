@@ -1,5 +1,5 @@
 import { Keypair } from "@solana/web3.js";
-import fs from "node:fs";
+import fs from "fs";
 
 export const loadKeypair = (path: string): Keypair | undefined => {
   if (!fs.existsSync(path)) return undefined;

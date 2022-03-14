@@ -6,8 +6,8 @@ import {
   OracleQueueAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 import readLineSync from "readline-sync";
 import {
   ParsedQueueSchema,

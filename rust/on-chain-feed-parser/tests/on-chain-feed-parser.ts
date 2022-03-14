@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/no-process-exit */
 import { Keypair } from "@solana/web3.js";
 import dotenv from "dotenv";
-import fs from "node:fs";
+import fs from "fs";
 import { findProjectRoot } from "../../../ts/utils";
 
 dotenv.config();

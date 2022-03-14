@@ -11,7 +11,7 @@
     "node": ">=12"
   },
   "scripts": {
-    "preinstall": "run-s setup:authority",
+    "postinstall": "run-s setup:authority",
     "setup": "npm-run-all -l -c setup:onchain setup:anchor",
     "setup:authority": "run-s create:authority airdrop:authority",
     "setup:anchor": "run-s build:anchor deploy:anchor",

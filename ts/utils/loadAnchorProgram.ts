@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Connection, Keypair } from "@solana/web3.js";
-import fs from "node:fs";
+import fs from "fs";
 import { findProjectRoot, RPC_URL } from ".";
 
 export const loadAnchorProgram = (authority: Keypair): anchor.Program => {
