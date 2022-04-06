@@ -1,6 +1,9 @@
 import * as anchor from "@project-serum/anchor";
+import { Connection } from "@solana/web3.js";
 import {
   CrankAccount,
+  getPayer,
+  loadSwitchboardProgram,
   OracleAccount,
   OracleQueueAccount,
   PermissionAccount,
@@ -8,6 +11,7 @@ import {
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
+import { RPC_URL } from "../config";
 import {
   loadQueueDefinition,
   loadQueueSchema,
@@ -16,8 +20,7 @@ import {
 } from "../schema";
 import {
   CHECK_ICON,
-  loadAnchor,
-  loadKeypair,
+  getKeypair,
   sleep,
   toAccountString,
   toPermissionString,
@@ -26,24 +29,30 @@ import {
 
 export async function createPersonalQueue(argv: any): Promise<void> {
   const { queueDefinition, authorityKeypair, outFile, force } = argv;
-  const authority = loadKeypair(authorityKeypair);
-  if (!authority)
-    throw new Error(
-      `failed to load authority keypair from ${authorityKeypair}`
-    );
+
+  const program = await loadSwitchboardProgram(
+    "devnet",
+    new Connection(RPC_URL),
+    getKeypair(authorityKeypair),
+    {
+      commitment: "finalized",
+    }
+  );
+  const authority = getPayer(program);
+
   const schema = loadQueueSchema(outFile);
   if (schema && !force) {
     console.log(
       `Oracle Queue Schema: already initialized at ${chalk.green(outFile)}`
     );
-
     return;
   }
 
   const definition = loadQueueDefinition(queueDefinition);
-  if (!definition) throw new Error(`failed to load queue definition`);
+  if (!definition) {
+    throw new Error(`failed to load queue definition`);
+  }
 
-  const program: anchor.Program = await loadAnchor(authority);
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
   // Program State Account and token mint for payout rewards

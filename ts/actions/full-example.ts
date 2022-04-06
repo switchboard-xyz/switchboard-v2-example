@@ -1,11 +1,14 @@
 import * as anchor from "@project-serum/anchor";
 import { SendTxRequest } from "@project-serum/anchor/dist/cjs/provider";
+import { Connection } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import {
   AggregatorAccount,
   CrankAccount,
+  getPayer,
   JobAccount,
   LeaseAccount,
+  loadSwitchboardProgram,
   OracleAccount,
   OracleQueueAccount,
   PermissionAccount,
@@ -14,16 +17,21 @@ import {
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import readlineSync from "readline-sync";
-import { loadAnchor, loadKeypair, sleep, toAccountString } from "../utils";
+import { RPC_URL } from "../config";
+import { getKeypair, sleep, toAccountString } from "../utils";
 
 export async function fullExample(argv: any): Promise<void> {
   const { authorityKeypair } = argv;
-  const authority = loadKeypair(authorityKeypair);
-  if (!authority)
-    throw new Error(
-      `failed to load authority keypair from ${authorityKeypair}`
-    );
-  const program: anchor.Program = await loadAnchor(authority);
+
+  const program = await loadSwitchboardProgram(
+    "devnet",
+    new Connection(RPC_URL),
+    getKeypair(authorityKeypair),
+    {
+      commitment: "finalized",
+    }
+  );
+  const authority = getPayer(program);
 
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
@@ -59,13 +67,15 @@ export async function fullExample(argv: any): Promise<void> {
     queueAccount,
   });
   console.log(toAccountString("Oracle", oracleAccount.publicKey));
+
+  // Oracle permissions
   const oraclePermission = await PermissionAccount.create(program, {
     authority: authority.publicKey,
     granter: queueAccount.publicKey,
     grantee: oracleAccount.publicKey,
   });
   await oraclePermission.set({
-    authority: (program.provider.wallet as any).payer,
+    authority,
     permission: SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
     enable: true,
   });
@@ -85,15 +95,18 @@ export async function fullExample(argv: any): Promise<void> {
   console.log(
     toAccountString(`Aggregator (SOL/USD)`, aggregatorAccount.publicKey)
   );
-  if (!aggregatorAccount.publicKey)
+  if (!aggregatorAccount.publicKey) {
     throw new Error(`failed to read Aggregator publicKey`);
+  }
+
+  // Aggregator permissions
   const aggregatorPermission = await PermissionAccount.create(program, {
     authority: authority.publicKey,
     granter: queueAccount.publicKey,
     grantee: aggregatorAccount.publicKey,
   });
   await aggregatorPermission.set({
-    authority: authority,
+    authority,
     permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
     enable: true,
   });
@@ -143,7 +156,7 @@ export async function fullExample(argv: any): Promise<void> {
   console.log(chalk.yellow("######## Start the Oracle ########"));
   console.log(chalk.blue("Run the following command in a new shell\r\n"));
   console.log(
-    `      ORACLE_KEY=${oracleAccount.publicKey} docker-compose up\r\n`
+    `      ORACLE_KEY=${oracleAccount.publicKey} PAYER_KEYPAIR=${authorityKeypair} RPC_URL=${RPC_URL} docker-compose up\r\n`
   );
   if (
     !readlineSync.keyInYN(

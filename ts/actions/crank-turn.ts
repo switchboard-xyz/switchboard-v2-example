@@ -1,24 +1,25 @@
-import * as anchor from "@project-serum/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import {
   CrankAccount,
+  loadSwitchboardProgram,
   OracleQueueAccount,
   ProgramStateAccount,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
-import {
-  CHECK_ICON,
-  loadAnchor,
-  loadKeypair,
-  watchTransaction,
-} from "../utils";
+import { RPC_URL } from "../config";
+import { CHECK_ICON, getKeypair, watchTransaction } from "../utils";
 
 export async function crankTurn(argv: any): Promise<void> {
   const { authorityKeypair, crankKey } = argv;
-  const authorityWallet = loadKeypair(authorityKeypair);
-  if (!authorityWallet)
-    throw new Error(`failed to load authority keypair to pay for transaction`);
-  const program: anchor.Program = await loadAnchor(authorityWallet);
+
+  const program = await loadSwitchboardProgram(
+    "devnet",
+    new Connection(RPC_URL),
+    getKeypair(authorityKeypair),
+    {
+      commitment: "finalized",
+    }
+  );
 
   const [programStateAccount] = ProgramStateAccount.fromSeed(program);
   const switchTokenMint = await programStateAccount.getTokenMint();

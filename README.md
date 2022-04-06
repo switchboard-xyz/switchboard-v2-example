@@ -45,6 +45,7 @@ git clone https://github.com/switchboard-xyz/switchboard-v2-example.git
 cd switchboard-v2-example
 npm install
 npm link
+npm run setup:authority
 ```
 
 The preinstall hook will create a new Solana keypair in the keypairs directory. You can use your own keypair file by appending `--authorityKeypair="keypair path"` to any command but you should use the same keypair throughout.

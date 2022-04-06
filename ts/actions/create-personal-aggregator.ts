@@ -1,12 +1,14 @@
-import * as anchor from "@project-serum/anchor";
+import { Connection } from "@solana/web3.js";
 import {
   AggregatorAccount,
   CrankAccount,
+  loadSwitchboardProgram,
   PermissionAccount,
   SwitchboardPermission,
   SwitchboardPermissionValue,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
+import { RPC_URL } from "../config";
 import {
   createAggregatorFromDefinition,
   loadAggregatorDefinition,
@@ -18,8 +20,7 @@ import {
 import {
   CHECK_ICON,
   FAILED_ICON,
-  loadAnchor,
-  loadKeypair,
+  getKeypair,
   toPermissionString,
 } from "../utils";
 
@@ -31,11 +32,18 @@ export async function createPersonalAggregator(argv: any): Promise<void> {
     aggregatorDefinition,
     force,
   } = argv;
-  const authority = loadKeypair(authorityKeypair);
-  if (!authority)
-    throw new Error(
-      `failed to load authority keypair from ${authorityKeypair}`
-    );
+
+  // load switchboard program
+  const program = await loadSwitchboardProgram(
+    "devnet",
+    new Connection(RPC_URL),
+    getKeypair(authorityKeypair),
+    {
+      commitment: "finalized",
+    }
+  );
+
+  // load oracle queue from json file
   const queueSchema = loadQueueSchema(queueSchemaFile);
   if (!queueSchema) {
     console.log(
@@ -45,14 +53,15 @@ export async function createPersonalAggregator(argv: any): Promise<void> {
     );
     return;
   }
-
-  const program: anchor.Program = await loadAnchor(authority);
   const queue = parseQueueSchema(program, queueSchema);
 
   const definition = loadAggregatorDefinition(aggregatorDefinition);
-  if (!definition) throw new Error(`failed to load aggregator definition`);
-  if (definition.jobs.length === 0)
+  if (!definition) {
+    throw new Error(`failed to load aggregator definition`);
+  }
+  if (definition.jobs.length === 0) {
     throw new Error(`no aggregator jobs defined`);
+  }
 
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
@@ -76,10 +85,11 @@ export async function createPersonalAggregator(argv: any): Promise<void> {
     permission: SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
     enable: true,
   });
-  if (aggregatorSchema.permission?.queuePermission)
+  if (aggregatorSchema.permission?.queuePermission) {
     aggregatorSchema.permission.queuePermission = toPermissionString(
       SwitchboardPermissionValue.PERMIT_ORACLE_QUEUE_USAGE
     );
+  }
 
   // Add Aggregator to Crank
   let crankAccount: CrankAccount = queue.cranks[0];
