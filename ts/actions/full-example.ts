@@ -1,11 +1,10 @@
 import * as anchor from "@project-serum/anchor";
-import { SendTxRequest } from "@project-serum/anchor/dist/cjs/provider";
+import * as spl from "@solana/spl-token";
 import { Connection } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import {
   AggregatorAccount,
   CrankAccount,
-  getPayer,
   JobAccount,
   LeaseAccount,
   loadSwitchboardProgram,
@@ -13,6 +12,7 @@ import {
   OracleQueueAccount,
   PermissionAccount,
   ProgramStateAccount,
+  programWallet,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
@@ -31,7 +31,7 @@ export async function fullExample(argv: any): Promise<void> {
       commitment: "finalized",
     }
   );
-  const authority = getPayer(program);
+  const authority = programWallet(program);
 
   console.log(chalk.yellow("######## Switchboard Setup ########"));
 
@@ -40,7 +40,7 @@ export async function fullExample(argv: any): Promise<void> {
   console.log(toAccountString("Program State", programStateAccount.publicKey));
   const switchTokenMint = await programStateAccount.getTokenMint();
   const tokenAccount = await switchTokenMint.createAccount(
-    program.provider.wallet.publicKey
+    programWallet(program).publicKey
   );
 
   // Oracle Queue
@@ -50,6 +50,7 @@ export async function fullExample(argv: any): Promise<void> {
     reward: new anchor.BN(0), // no token account needed
     minStake: new anchor.BN(0),
     authority: authority.publicKey,
+    mint: spl.NATIVE_MINT,
   });
   console.log(toAccountString("Oracle Queue", queueAccount.publicKey));
 
@@ -80,7 +81,7 @@ export async function fullExample(argv: any): Promise<void> {
     enable: true,
   });
   console.log(toAccountString(`  Permission`, oraclePermission.publicKey));
-  await oracleAccount.heartbeat();
+  await oracleAccount.heartbeat(programWallet(program));
 
   // Aggregator
   const aggregatorAccount = await AggregatorAccount.create(program, {
@@ -144,6 +145,7 @@ export async function fullExample(argv: any): Promise<void> {
   const jobAccount = await JobAccount.create(program, {
     data: jobData,
     keypair: jobKeypair,
+    authority: programWallet(program).publicKey,
   });
   console.log(toAccountString(`  Job (FTX)`, jobAccount.publicKey));
 
@@ -177,7 +179,7 @@ export async function fullExample(argv: any): Promise<void> {
       if (readyPubkeys) {
         const crank = await crankAccount.loadData();
         const queue = await queueAccount.loadData();
-        const txn: SendTxRequest = {
+        const txn = {
           tx: await crankAccount.popTxn({
             payoutWallet: tokenAccount,
             queuePubkey: queueAccount.publicKey,
@@ -190,7 +192,7 @@ export async function fullExample(argv: any): Promise<void> {
           }),
           signers: [],
         };
-        await program.provider.sendAll([txn]);
+        await (program.provider as anchor.AnchorProvider).sendAll([txn!]);
         console.log(chalk.green("\u2714 Crank turned"));
         return 0;
       } else {

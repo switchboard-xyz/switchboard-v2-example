@@ -1,4 +1,5 @@
 import { Connection, PublicKey } from "@solana/web3.js";
+import * as sbv2 from "@switchboard-xyz/switchboard-v2";
 import {
   CrankAccount,
   loadSwitchboardProgram,
@@ -24,7 +25,7 @@ export async function crankTurn(argv: any): Promise<void> {
   const [programStateAccount] = ProgramStateAccount.fromSeed(program);
   const switchTokenMint = await programStateAccount.getTokenMint();
   const tokenAccount = await switchTokenMint.createAccount(
-    program.provider.wallet.publicKey
+    sbv2.programWallet(program).publicKey
   );
 
   const crankAccount = new CrankAccount({

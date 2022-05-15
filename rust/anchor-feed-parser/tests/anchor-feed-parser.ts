@@ -5,7 +5,7 @@ import * as AnchorFeedParser from "../target/types/anchor_feed_parser";
 
 describe("anchor-feed-parser", () => {
   // Configure the client to use the local cluster.
-  anchor.setProvider(anchor.Provider.env());
+  anchor.setProvider(anchor.AnchorProvider.env());
 
   const program = anchor.workspace
     .AnchorFeedParser as Program<AnchorFeedParser.AnchorFeedParser>;

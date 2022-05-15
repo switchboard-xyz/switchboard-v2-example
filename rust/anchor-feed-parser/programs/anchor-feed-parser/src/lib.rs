@@ -8,6 +8,7 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[derive(Accounts)]
 #[instruction(params: ReadResultParams)]
 pub struct ReadResult<'info> {
+    /// CHECK: TODO
     pub aggregator: AccountInfo<'info>,
 }
 

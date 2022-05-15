@@ -8,6 +8,7 @@ import {
   OracleQueueAccount,
   PermissionAccount,
   ProgramStateAccount,
+  programWallet,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import fs from "fs";
@@ -88,7 +89,7 @@ export async function createAggregatorFromDefinition(
     minRequiredJobResults: minRequiredJobResults || 1,
     minUpdateDelaySeconds: minUpdateDelaySeconds || 10,
     queueAccount: queueAccount,
-    authority: program.provider.wallet.publicKey,
+    authority: programWallet(program).publicKey,
   });
   console.log(
     toAccountString(`Aggregator (${feedName})`, aggregatorAccount.publicKey)
@@ -98,7 +99,7 @@ export async function createAggregatorFromDefinition(
 
   // Aggregator Permissions
   const aggregatorPermission = await PermissionAccount.create(program, {
-    authority: program.provider.wallet.publicKey,
+    authority: programWallet(program).publicKey,
     granter: new PublicKey(queueAccount.publicKey),
     grantee: aggregatorAccount.publicKey,
   });
@@ -108,12 +109,12 @@ export async function createAggregatorFromDefinition(
   const [programStateAccount] = ProgramStateAccount.fromSeed(program);
   const switchTokenMint = await programStateAccount.getTokenMint();
   const tokenAccount = await switchTokenMint.getOrCreateAssociatedAccountInfo(
-    program.provider.wallet.publicKey
+    programWallet(program).publicKey
   );
   const leaseContract = await LeaseAccount.create(program, {
     loadAmount: new anchor.BN(0),
     funder: tokenAccount.address,
-    funderAuthority: (program.provider.wallet as anchor.Wallet).payer,
+    funderAuthority: programWallet(program),
     oracleQueueAccount: queueAccount,
     aggregatorAccount,
   });
@@ -134,12 +135,10 @@ export async function createAggregatorFromDefinition(
     const jobAccount = await JobAccount.create(program, {
       data: jobData,
       keypair: jobKeypair,
+      authority: programWallet(program).publicKey,
     });
     console.log(toAccountString(`  Job (${name})`, jobAccount.publicKey));
-    await aggregatorAccount.addJob(
-      jobAccount,
-      (program.provider.wallet as anchor.Wallet).payer
-    ); // Add Job to Aggregator
+    await aggregatorAccount.addJob(jobAccount, programWallet(program)); // Add Job to Aggregator
     const jobSchema: JobSchema = {
       name,
       publicKey: jobAccount.publicKey,

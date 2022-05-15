@@ -4,6 +4,7 @@ import {
   loadSwitchboardProgram,
   OracleQueueAccount,
   ProgramStateAccount,
+  programWallet,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import { RPC_URL } from "../config";
@@ -24,7 +25,7 @@ export async function updateAggregator(argv: any): Promise<void> {
   const [programStateAccount] = ProgramStateAccount.fromSeed(program);
   const switchTokenMint = await programStateAccount.getTokenMint();
   const tokenAccount = await switchTokenMint.createAccount(
-    program.provider.wallet.publicKey
+    programWallet(program).publicKey
   );
 
   const aggregatorAccount = new AggregatorAccount({

@@ -1,13 +1,14 @@
 import * as anchor from "@project-serum/anchor";
+import * as spl from "@solana/spl-token";
 import { Connection } from "@solana/web3.js";
 import {
   CrankAccount,
-  getPayer,
   loadSwitchboardProgram,
   OracleAccount,
   OracleQueueAccount,
   PermissionAccount,
   ProgramStateAccount,
+  programWallet,
   SwitchboardPermission,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
@@ -38,7 +39,7 @@ export async function createPersonalQueue(argv: any): Promise<void> {
       commitment: "finalized",
     }
   );
-  const authority = getPayer(program);
+  const authority = programWallet(program);
 
   const schema = loadQueueSchema(outFile);
   if (schema && !force) {
@@ -71,6 +72,7 @@ export async function createPersonalQueue(argv: any): Promise<void> {
       ? new anchor.BN(definition.minStake)
       : new anchor.BN(0),
     authority: authority.publicKey,
+    mint: spl.NATIVE_MINT,
   });
   console.log(toAccountString(qName, queueAccount.publicKey));
 
@@ -134,12 +136,12 @@ export async function createPersonalQueue(argv: any): Promise<void> {
       grantee: oracleAccount.publicKey,
     });
     await oraclePermission.set({
-      authority: (program.provider.wallet as any).payer,
+      authority: programWallet(program),
       permission: SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
       enable: true,
     });
     console.log(toAccountString(`  Permission`, oraclePermission.publicKey));
-    await oracleAccount.heartbeat();
+    await oracleAccount.heartbeat(programWallet(program));
 
     // add to schema
     const oracleData = await oracleAccount.loadData();

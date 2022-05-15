@@ -16,7 +16,7 @@ export const loadAnchorProgram = (authority: Keypair): anchor.Program => {
   const connection = new Connection(RPC_URL, { commitment: "confirmed" });
   const programId = new anchor.web3.PublicKey(walletKeypair.publicKey);
   const wallet = new anchor.Wallet(authority);
-  const provider = new anchor.Provider(connection, wallet, {
+  const provider = new anchor.AnchorProvider(connection, wallet, {
     commitment: "processed",
     preflightCommitment: "processed",
   });

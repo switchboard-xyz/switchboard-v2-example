@@ -1,8 +1,8 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import {
   AggregatorAccount,
-  getPayer,
   loadSwitchboardProgram,
+  programWallet,
 } from "@switchboard-xyz/switchboard-v2";
 import chalk from "chalk";
 import { RPC_URL } from "../config";
@@ -20,7 +20,7 @@ export async function readAnchorResult(argv: any): Promise<void> {
       commitment: "finalized",
     }
   );
-  const authority = getPayer(program);
+  const authority = programWallet(program);
 
   const aggregatorAccount = new AggregatorAccount({
     program,
