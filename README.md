@@ -1,3 +1,7 @@
+:bangbang: | This repo is no longer being maintained. Check out the Switchboard V2 monorepo for examples on how to interact with Switchboard V2. [https://github.com/switchboard-xyz/switchboard-v2](https://github.com/switchboard-xyz/switchboard-v2)
+:---: | :---
+
+
 # Switchboard V2 Examples
 
 This repo provides some examples for working with Switchboard V2, including:
